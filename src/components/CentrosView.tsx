@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { HealthCenter } from "../types";
 import { HEALTH_CENTERS } from "../data/medicalData";
+import { AlertTriangle, Phone } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface CentrosViewProps {
@@ -11,6 +12,7 @@ interface CentrosViewProps {
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(HEALTH_CENTERS[0]);
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
+  const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
 
   const filteredCenters = HEALTH_CENTERS.filter((center) => {
     if (activeFilter === "hospital") return center.type.toLowerCase().includes("hospital");
@@ -48,7 +50,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         {/* Emergency button */}
         <motion.button
           whileTap={{ scale: 0.92 }}
+<<<<<<< HEAD
           onClick={onTriggerEmergency}
+=======
+          onClick={() => setIsEmergencyModalOpen(true)}
+>>>>>>> a9f15842beb3b9e1722972d28cdcd44c5b81f20c
           className="relative flex flex-col items-center justify-center w-[50px] h-[50px] rounded-full overflow-hidden"
           style={{
             background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
@@ -310,7 +316,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           {/* Emergency call button */}
           <motion.button
             whileTap={{ scale: 0.95 }}
+<<<<<<< HEAD
             onClick={onTriggerEmergency}
+=======
+            onClick={() => setIsEmergencyModalOpen(true)}
+>>>>>>> a9f15842beb3b9e1722972d28cdcd44c5b81f20c
             className="flex items-center gap-2.5 bg-white rounded-full px-4 py-3 border border-[#fecaca] shadow-[0_2px_8px_rgba(239,68,68,0.06)]"
           >
             <div className="w-8 h-8 rounded-full bg-[#fee2e2] flex items-center justify-center shrink-0">
@@ -355,6 +365,65 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         </div>
       </div>
 
+      {/* ═══════════════ EMERGENCY CONFIRMATION MODAL ═══════════════ */}
+      <AnimatePresence>
+        {isEmergencyModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-[32px] w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100 font-sans"
+            >
+              <div className="p-7 text-center">
+                <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-5 border-2 border-red-100 shadow-inner">
+                  <AlertTriangle className="w-8 h-8" />
+                </div>
+                
+                <h3 className="text-xl font-bold text-slate-900 leading-tight">¿Es una emergencia?</h3>
+                <p className="text-sm text-slate-500 mt-3 leading-relaxed">
+                  Llama de inmediato al 128 si presentas:
+                </p>
+
+                <ul className="mt-4 space-y-2.5 text-left bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                  {[
+                    "Dolor o presión en el pecho",
+                    "Dificultad severa para respirar",
+                    "Confusión o pérdida del conocimiento",
+                    "Convulsiones o parálisis súbita"
+                  ].map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2.5 text-xs font-semibold text-slate-700">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="grid grid-cols-2 gap-3 mt-7">
+                  <button
+                    onClick={() => setIsEmergencyModalOpen(false)}
+                    className="py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs transition-colors active:scale-95"
+                  >
+                    Cancelar
+                  </button>
+                  <a
+                    href="tel:128"
+                    className="py-3.5 px-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-200 transition-all active:scale-95"
+                  >
+                    <Phone className="w-4 h-4 fill-current" />
+                    Llamar al 128
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
