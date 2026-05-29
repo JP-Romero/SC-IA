@@ -6,9 +6,10 @@ import { motion, AnimatePresence } from "motion/react";
 
 interface CentrosViewProps {
   onNavigate?: (tab: "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
+  onTriggerEmergency?: () => void;
 }
 
-export default function CentrosView({ onNavigate }: CentrosViewProps) {
+export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(HEALTH_CENTERS[0]);
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
@@ -49,7 +50,11 @@ export default function CentrosView({ onNavigate }: CentrosViewProps) {
         {/* Emergency button */}
         <motion.button
           whileTap={{ scale: 0.92 }}
+<<<<<<< HEAD
+          onClick={onTriggerEmergency}
+=======
           onClick={() => setIsEmergencyModalOpen(true)}
+>>>>>>> a9f15842beb3b9e1722972d28cdcd44c5b81f20c
           className="relative flex flex-col items-center justify-center w-[50px] h-[50px] rounded-full overflow-hidden"
           style={{
             background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
@@ -311,7 +316,11 @@ export default function CentrosView({ onNavigate }: CentrosViewProps) {
           {/* Emergency call button */}
           <motion.button
             whileTap={{ scale: 0.95 }}
+<<<<<<< HEAD
+            onClick={onTriggerEmergency}
+=======
             onClick={() => setIsEmergencyModalOpen(true)}
+>>>>>>> a9f15842beb3b9e1722972d28cdcd44c5b81f20c
             className="flex items-center gap-2.5 bg-white rounded-full px-4 py-3 border border-[#fecaca] shadow-[0_2px_8px_rgba(239,68,68,0.06)]"
           >
             <div className="w-8 h-8 rounded-full bg-[#fee2e2] flex items-center justify-center shrink-0">
