@@ -21,18 +21,30 @@ export default function App() {
 
   // Global dark mode state
   const [darkMode, setDarkMode] = useState<boolean>(() => {
-    return localStorage.getItem("theme") === "dark" || 
-      (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    try {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) {
+        return savedTheme === "dark";
+      }
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    } catch (e) {
+      console.warn("localStorage is blocked or window.matchMedia is unavailable:", e);
+      return false;
+    }
   });
 
   // Synchronize dark mode class on document element
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+    try {
+      if (darkMode) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+      }
+    } catch (e) {
+      console.warn("Failed to set theme in localStorage:", e);
     }
   }, [darkMode]);
 
