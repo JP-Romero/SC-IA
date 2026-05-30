@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { UserProfile } from "../types";
+import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
 
 interface ConsultaViewProps {
@@ -113,6 +114,7 @@ const SYMPTOM_CHIPS = [
 ];
 
 export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: ConsultaViewProps) {
+  const { t } = useLanguage();
   const [activeChip, setActiveChip] = useState("fiebre");
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -325,7 +327,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             fontFamily: "'Inter', sans-serif",
           }}
         >
-          Hola {firstName}.
+          {t('hello')} {firstName}.
         </h1>
 
         {/* Secondary heading */}
@@ -338,8 +340,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             fontFamily: "'Inter', sans-serif",
           }}
         >
-          Soy tu asistente de salud<br />
-          en <span className="text-blue-600 dark:text-blue-400 font-medium">Granada.</span>
+          {t('assistant')}<br />
+          {t('in')} <span className="text-blue-600 dark:text-blue-400 font-medium">Granada.</span>
         </h2>
 
         {/* Divider line */}
@@ -367,7 +369,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               letterSpacing: "0.01em",
             }}
           >
-            Contame cómo te sentís hoy.
+            {t('howFeel')}
           </p>
           <p
             className="text-slate-400 dark:text-slate-500"
@@ -378,7 +380,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               letterSpacing: "0.01em",
             }}
           >
-            Estoy aquí para ayudarte.
+            {t('hereToHelp')}
           </p>
         </div>
       </motion.main>
@@ -641,7 +643,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             letterSpacing: "-0.01em",
           }}
         >
-          Cumplimos con normativas<br />de salud internacionales.
+          {t('internationalNorms')}<br />{t('internationalNorms2')}
         </p>
       </motion.div>
     </div>

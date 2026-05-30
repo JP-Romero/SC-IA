@@ -3,6 +3,7 @@ import QRCode from "react-qr-code";
 import { ArrowLeft, Bell, Settings, User, Shield, AlertTriangle, Key, BellRing, Heart, ChevronRight, BadgeCheck, Check, Clipboard, CheckCircle, LogOut } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface PerfilViewProps {
   user: UserProfile;
@@ -13,6 +14,7 @@ interface PerfilViewProps {
 }
 
 export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, onLogout }: PerfilViewProps) {
+  const { t } = useLanguage();
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
 
   // Forms state for updates
@@ -59,10 +61,10 @@ Emergency Contact: Cruz Roja Granada - 128`;
           </button>
 
           <h2 className="font-display font-bold text-lg text-slate-800 dark:text-white flex items-center">
-            Mi perfil
+            {t('perfil')}
             <span className="ml-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-700 dark:text-blue-400 text-[10px] uppercase font-bold flex items-center space-x-0.5">
               <BadgeCheck className="w-3 h-3 text-blue-600 inline shrink-0" />
-              <span>Verificado</span>
+              <span>{t('verified')}</span>
             </span>
           </h2>
 
@@ -70,7 +72,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
           <button
             id="btn-profile-bell"
             onClick={() => {
-              alert("No tienes alertas críticas pendientes. Su historial clínico de triaje virtual se encuentra en perfecto orden.");
+              alert(t('noAlerts'));
               setShowNotificationBadge(false);
             }}
             className="p-2 -mr-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 relative active:scale-95"
@@ -115,7 +117,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
 
             {isPremium && (
               <span className="inline-block bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-250/30 text-yellow-600/90 font-mono text-[9px] font-bold uppercase tracking-wider py-1 px-2.5 rounded-full mt-2">
-                🏆 Miembro Premium Activo
+                {t('premiumMember')}
               </span>
             )}
           </div>
@@ -128,18 +130,17 @@ Emergency Contact: Cruz Roja Granada - 128`;
             <div className="flex-1 text-center sm:text-left space-y-2">
               <span className="text-[10px] uppercase tracking-wider font-bold text-blue-500 flex items-center justify-center sm:justify-start gap-1">
                 <Shield className="w-3.5 h-3.5" />
-                <span>Tarjeta de Emergencia GPS</span>
+                <span>{t('emergencyCard')}</span>
               </span>
-              <h4 className="font-display font-bold text-slate-900 dark:text-white text-base">Comparte tu perfil médico</h4>
+              <h4 className="font-display font-bold text-slate-900 dark:text-white text-base">{t('shareProfile')}</h4>
               <p className="text-slate-400 dark:text-slate-500 text-xs leading-relaxed max-w-sm">
-                Escanea este código en caso de emergencia para acceder a mi información de salud de vital importancia.
-                Se puede utilizar para primeros auxilios avanzados de Cruz Roja.
+                {t('emergencyDesc')}
               </p>
 
               <div className="pt-2 flex justify-center sm:justify-start">
                 <span className="inline-flex items-center space-x-1 bg-blue-50 text-blue-700 text-[10px] px-3 py-1.5 rounded-full font-bold border border-blue-100">
                   <span className="text-sm">🔒</span>
-                  <span>Sólo personal autorizado</span>
+                  <span>{t('authorizedOnly')}</span>
                 </span>
               </div>
             </div>
@@ -161,42 +162,42 @@ Emergency Contact: Cruz Roja Granada - 128`;
           </div>
 
           <div className="text-center sm:text-left text-[10px] text-slate-400 dark:text-slate-500 border-t border-slate-50 dark:border-slate-800 pt-2.5">
-            ⌛ El código se actualiza dinámicamente cada 24 horas para garantizar la protección de su identidad.
+            {t('qrDisclaimer')}
           </div>
         </div>
 
         {/* ACCOUNT MANAGE LIST SEGMENT */}
         <div className="space-y-3">
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Gestión de cuenta</h4>
+          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('accountManagement')}</h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Menu Option items collapsible blocks */}
             {[
               {
                 id: "personal",
-                title: "Información personal",
-                subtitle: "Nombre, correo y teléfono",
+                title: t('personalInfo'),
+                subtitle: t('personalSubtitle'),
                 icon: User,
                 color: "text-blue-600 bg-blue-50 border border-blue-100",
               },
               {
                 id: "seguridad",
-                title: "Seguridad y privacidad",
-                subtitle: "Contraseña, verificación y datos",
+                title: t('securityPrivacy'),
+                subtitle: t('securitySubtitle'),
                 icon: Key,
                 color: "text-emerald-600 bg-emerald-50 border border-emerald-100",
               },
               {
                 id: "notificaciones",
-                title: "Notificaciones",
-                subtitle: "Preferencias de alertas",
+                title: t('notifications'),
+                subtitle: t('notificationsSubtitle'),
                 icon: BellRing,
                 color: "text-purple-600 bg-purple-50 border border-purple-100",
               },
               {
                 id: "preferencias",
-                title: "Preferencias de salud",
-                subtitle: "Temas y condiciones de interés",
+                title: t('healthPrefs'),
+                subtitle: t('healthSubtitle'),
                 icon: Heart,
                 color: "text-rose-600 bg-rose-50 border border-rose-100",
               },
@@ -239,7 +240,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
                             <form onSubmit={handleUpdateProfile} className="space-y-3.5 text-left">
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400">Nombre paciente</label>
+                                  <label className="text-[10px] uppercase font-bold text-slate-400">{t('patientName')}</label>
                                   <input
                                     id="input-edit-username"
                                     type="text"
@@ -250,7 +251,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Correo seguro</label>
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">{t('secureEmail')}</label>
                                   <input
                                     id="input-edit-useremail"
                                     type="email"
@@ -261,7 +262,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Municipio de Residencia</label>
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">{t('residence')}</label>
                                   <input
                                     id="input-edit-usercity"
                                     type="text"
@@ -272,7 +273,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">Celular de Emergencia</label>
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">{t('emergencyPhone')}</label>
                                   <input
                                     type="text"
                                     defaultValue="+505 8888-9999"
@@ -287,7 +288,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
                                 type="submit"
                                 className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold py-2 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide"
                               >
-                                Guardar cambios del perfil
+                                {t('saveChanges')}
                               </button>
                             </form>
                           )}
@@ -296,16 +297,15 @@ Emergency Contact: Cruz Roja Granada - 128`;
                           {item.id === "seguridad" && (
                             <div className="space-y-3.5 text-left">
                               <p className="text-slate-500 dark:text-slate-400 leading-normal">
-                                Su cuenta tecnológica utiliza encriptación de extremo a extremo para las consultas médicas de triaje.
-                                También puede habilitar el desbloqueo mediante Biometría Facial (FaceID) o PIN del celular.
+                                {t('securityDesc')}
                               </p>
                               <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">Autenticación biométrica móvil</span>
-                                <span className="text-[10px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full font-bold">Inactivo (Por defecto)</span>
+                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('biometricAuth')}</span>
+                                <span className="text-[10px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full font-bold">{t('inactive')}</span>
                               </div>
                               <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">Encriptación de Triage Clínico</span>
-                                <span className="text-[10px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2.5 py-1 rounded-full font-bold">Activo (AES-256)</span>
+                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('encryptionTitle')}</span>
+                                <span className="text-[10px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2.5 py-1 rounded-full font-bold">{t('activeAES')}</span>
                               </div>
                             </div>
                           )}
@@ -315,15 +315,15 @@ Emergency Contact: Cruz Roja Granada - 128`;
                             <div className="space-y-3 text-left">
                               <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
                                 <input type="checkbox" defaultChecked className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">Alertas de vacunas estacionales en Granada</span>
+                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('alertVaccines')}</span>
                               </label>
                               <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
                                 <input type="checkbox" defaultChecked className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">Recordatorios de citas agendadas por SMS</span>
+                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('alertAppointments')}</span>
                               </label>
                               <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
                                 <input type="checkbox" className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">Emails informativos sobre bienestar público</span>
+                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('alertEmails')}</span>
                               </label>
                             </div>
                           )}
@@ -332,7 +332,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
                           {item.id === "preferencias" && (
                             <div className="space-y-4 text-left">
                               <div>
-                                <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">Condiciones críticas registradas</span>
+                                <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">{t('recordedConditions')}</span>
                                 <div className="flex flex-wrap gap-2 mt-2">
                                   {user.healthConditions.map((cond, i) => (
                                     <span key={i} className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full font-bold text-[10px] border border-blue-100 dark:border-blue-900/50 flex items-center space-x-1">
@@ -345,10 +345,10 @@ Emergency Contact: Cruz Roja Granada - 128`;
 
                               <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-center justify-between">
                                 <div>
-                                  <span className="font-bold text-slate-800 dark:text-white">Tipo de sangre</span>
-                                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Necesario para emergencias de primeros auxilios</p>
+                                  <span className="font-bold text-slate-800 dark:text-white">{t('bloodType')}</span>
+                                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{t('bloodDesc')}</p>
                                 </div>
-                                <span className="text-sm font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-full font-mono border border-rose-100 dark:border-rose-900/50">O positivo (O+)</span>
+                                <span className="text-sm font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-full font-mono border border-rose-100 dark:border-rose-900/50">{t('bloodOPos')}</span>
                               </div>
                             </div>
                           )}
@@ -373,7 +373,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
               className="bg-emerald-50 border border-emerald-250/20 text-emerald-800 p-4 rounded-2xl text-xs font-bold flex items-center space-x-2 shadow-sm"
             >
               <CheckCircle className="w-4 h-4 text-emerald-600 focus:outline-none shrink-0" />
-              <span>¡La información de Kenneth se guardó con éxito en el perfil local!</span>
+              <span>{t('saveSuccess')}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -385,10 +385,10 @@ Emergency Contact: Cruz Roja Granada - 128`;
           </div>
           <div className="text-left">
             <h4 className="text-xs font-semibold text-slate-800 dark:text-white">
-              Tu información está protegida.
+              {t('infoProtected')}
             </h4>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-normal">
-              Cumplimos con los más altos estándares de privacidad y seguridad médica de acuerdo con las normativas GDPR y HIPAA.
+              {t('standardsDesc')}
             </p>
           </div>
         </div>
@@ -398,14 +398,14 @@ Emergency Contact: Cruz Roja Granada - 128`;
           <button
             id="btn-profile-logout"
             onClick={() => {
-              if (window.confirm("¿Estás seguro de que deseas cerrar la sesión?")) {
+              if (window.confirm(t('logoutConfirm'))) {
                 onLogout();
               }
             }}
             className="w-full mt-5 bg-red-50 dark:bg-red-900/10 hover:bg-red-100/80 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200/85 dark:border-red-900/30 rounded-2xl py-3.5 px-5 font-bold text-xs flex items-center justify-center space-x-2 transition-all active:scale-[0.98] cursor-pointer"
           >
             <LogOut className="w-4.5 h-4.5 text-red-500 shrink-0" />
-            <span>Cerrar sesión</span>
+            <span>{t('logout')}</span>
           </button>
         )}
 

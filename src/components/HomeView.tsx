@@ -1,5 +1,6 @@
 import React from "react";
 import { UserProfile } from "../types";
+import { useLanguage } from "../contexts/LanguageContext";
 import { motion } from "motion/react";
 import { Settings } from "lucide-react";
 
@@ -10,6 +11,7 @@ interface HomeViewProps {
 }
 
 export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewProps) {
+  const { t } = useLanguage();
   const firstName = user.name.split(" ")[0];
 
   return (
@@ -58,6 +60,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
         </div>
 
         <button
+          id="btn-settings"
           onClick={onOpenSettings}
           className="w-11 h-11 flex items-center justify-center text-[#556982] dark:text-slate-400 hover:text-[#0f172a] dark:hover:text-white transition-all rounded-full active:scale-90 bg-white/40 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 shadow-sm"
         >
@@ -74,14 +77,14 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
           <div className="hidden md:block absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/4 group-hover:bg-blue-500/10 transition-colors duration-700"></div>
 
           <div className="flex-1 pr-4 relative z-10">
-            <span className="text-slate-500 dark:text-slate-400 text-[17px] md:text-lg font-medium leading-[1.3] block">Bienvenido,</span>
+            <span className="text-slate-500 dark:text-slate-400 text-[17px] md:text-lg font-medium leading-[1.3] block">{t('welcome')},</span>
             <h2 className="text-blue-600 dark:text-blue-400 text-[40px] md:text-[48px] font-bold tracking-[-0.03em] leading-[1.1] mt-1 md:mt-2">
               {firstName}.
             </h2>
             <p className="text-slate-500 dark:text-slate-400 text-[14px] md:text-[15.5px] font-normal leading-relaxed mt-4 max-w-[240px] md:max-w-sm">
-              Tu salud, conectada.<br className="md:hidden" />
-              <span className="hidden md:inline"> </span>Respuestas claras,<br className="md:hidden" />
-              <span className="hidden md:inline"> </span>decisiones seguras.
+              {t('healthConnected')}<br className="md:hidden" />
+              <span className="hidden md:inline"> </span>{t('clearAnswers')}<br className="md:hidden" />
+              <span className="hidden md:inline"> </span>{t('safeDecisions')}
             </p>
           </div>
 
@@ -102,7 +105,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
               onClick={() => onNavigate("perfil")}
               className="mt-3.5 px-5 py-2.5 bg-[#0272b7] text-white font-semibold text-[13px] tracking-wide rounded-[100px] shadow-[0_4px_12px_rgba(2,114,183,0.25)] hover:bg-[#02629d] transition-all"
             >
-              Ver perfil
+              {t('viewProfile')}
             </motion.button>
           </div>
         </div>
@@ -127,8 +130,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
                 </svg>
               </div>
               <div className="flex-1 lg:w-full">
-                <h3 className="font-bold text-slate-900 dark:text-white text-[15.5px] lg:text-[17px] tracking-tight">Consulta con IA</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">Cuéntanos cómo te sientes</p>
+                <h3 className="font-bold text-slate-900 dark:text-white text-[15.5px] lg:text-[17px] tracking-tight">{t('aiConsultation')}</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">{t('howYouFeel')}</p>
               </div>
             </div>
             {/* Arrow key box */}
@@ -156,8 +159,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
                 </svg>
               </div>
               <div className="flex-1 lg:w-full">
-                <h3 className="font-bold text-slate-900 dark:text-white text-[15.5px] lg:text-[17px] tracking-tight">Salud pública</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">Información y servicios oficiales</p>
+                <h3 className="font-bold text-slate-900 dark:text-white text-[15.5px] lg:text-[17px] tracking-tight">{t('publicHealth')}</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">{t('officialServices')}</p>
               </div>
             </div>
             {/* Arrow key box */}
@@ -186,8 +189,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
                 </svg>
               </div>
               <div className="flex-1 lg:w-full">
-                <h3 className="font-bold text-slate-900 dark:text-white text-[15.5px] lg:text-[17px] tracking-tight">Mis citas</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">Gestiona tus próximas citas</p>
+                <h3 className="font-bold text-slate-900 dark:text-white text-[15.5px] lg:text-[17px] tracking-tight">{t('myAppointments')}</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">{t('manageAppointments')}</p>
               </div>
             </div>
             {/* Arrow key box */}
@@ -209,8 +212,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
                 </svg>
               </div>
               <div className="flex-1 lg:w-full">
-                <h4 className="font-bold text-slate-900 dark:text-white text-[13.5px] lg:text-[16px] leading-tight">Tu información está protegida.</h4>
-                <p className="text-slate-500 dark:text-slate-400 text-[12px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">Privacidad y seguridad primero.</p>
+                <h4 className="font-bold text-slate-900 dark:text-white text-[13.5px] lg:text-[16px] leading-tight">{t('infoProtected')}</h4>
+                <p className="text-slate-500 dark:text-slate-400 text-[12px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">{t('privacyFirst')}</p>
               </div>
             </div>
             {/* Blue padlock lock circle indicator */}
