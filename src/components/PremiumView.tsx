@@ -3,13 +3,16 @@ import { Star, Building, Check, ShieldCheck, Ticket, Sparkles, X, Gift, Heart, S
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
 
+import { UserProfile } from "../types";
+
 interface PremiumViewProps {
+  user: UserProfile;
   onUnlockPremium: () => void;
   isPremium: boolean;
   onNavigate?: (tab: "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
 }
 
-export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: PremiumViewProps) {
+export default function PremiumView({ user, onUnlockPremium, isPremium, onNavigate }: PremiumViewProps) {
   const { t } = useLanguage();
   const [promoCode, setPromoCode] = useState("");
   const [promoMessage, setPromoMessage] = useState<{ text: string; error: boolean } | null>(null);
@@ -84,7 +87,7 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
           <div className="mt-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900/30 p-4 rounded-2xl text-xs text-emerald-800 dark:text-emerald-400 font-bold flex items-center space-x-3">
             <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm">🏆</div>
             <div>
-              <span>{t('premiumActiveMsg').replace('{name}', 'Kenneth')}</span>
+              <span>{t('premiumActiveMsg').replace('{name}', (user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name.split(" ")[0])}</span>
               <p className="text-[10px] text-emerald-500 font-normal mt-0.5">{t('premiumActiveSub')}</p>
             </div>
           </div>

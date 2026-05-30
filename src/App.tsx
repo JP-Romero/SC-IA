@@ -131,8 +131,15 @@ export default function App() {
   }, []);
 
   // ─── Handlers ──────────────────────────────────────────────
-  const handleLoginSuccess = (name: string) => {
-    // Profile sync happens via useEffect above
+  const handleLoginSuccess = (idOrName: string) => {
+    if (idOrName === "guest") {
+      setLocalUser({
+        ...DEFAULT_USER,
+        id: "guest",
+        name: "Invitado",
+        email: "invitado@salud-conecta.ia",
+      });
+    }
     setCurrentView("home");
   };
 
@@ -253,7 +260,9 @@ export default function App() {
             <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" : "hover:bg-slate-50 dark:hover:bg-slate-800 border-transparent"} text-left`}>
               <img src={localUser.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{localUser.name}</p>
+                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                  {(localUser.id === "guest" || localUser.name === "Invitado") ? t('guest') : localUser.name}
+                </p>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate font-mono">{localUser.email}</p>
               </div>
             </button>
@@ -373,6 +382,7 @@ export default function App() {
               className="flex-1"
             >
               <PremiumView
+                user={localUser}
                 isPremium={isPremium}
                 onUnlockPremium={handleUnlockPremium}
                 onNavigate={(tab) => setCurrentView(tab)}
@@ -663,8 +673,8 @@ export default function App() {
                       exit={{ opacity: 0, x: -10 }}
                       className="space-y-4 text-xs leading-relaxed text-slate-600 dark:text-slate-400"
                     >
-                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">Términos de Servicio</h4>
-                      <p>Bienvenido a Salud-Conecta IA. Al utilizar nuestra aplicación, usted acepta los siguientes términos:</p>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">{t('termsTitle')}</h4>
+                      <p>{t('welcome')} a Salud-Conecta IA. {t('agreeToTerms')}:</p>
                       <ul className="list-disc pl-4 space-y-2">
                         <li>La IA proporciona orientación informativa, no un diagnóstico médico profesional.</li>
                         <li>En caso de emergencia real, siempre debe contactar con los servicios de emergencia (128).</li>
@@ -683,12 +693,12 @@ export default function App() {
                       exit={{ opacity: 0, x: -10 }}
                       className="space-y-4 text-xs leading-relaxed text-slate-600 dark:text-slate-400"
                     >
-                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">Política de Privacidad</h4>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">{t('privacyTitle')}</h4>
                       <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-100 dark:border-emerald-500/20 flex gap-3">
                         <Shield className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                        <p className="text-emerald-800 dark:text-emerald-400 font-medium">Tus datos están protegidos con encriptación AES-256 de grado médico.</p>
+                        <p className="text-emerald-800 dark:text-emerald-400 font-medium">{t('infoProtected')}</p>
                       </div>
-                      <p>Respetamos su privacidad:</p>
+                      <p>{t('privacyFirst')}:</p>
                       <ul className="list-disc pl-4 space-y-2">
                         <li>No vendemos sus datos personales a terceros.</li>
                         <li>Sus consultas con la IA son privadas y se utilizan únicamente para mejorar su experiencia.</li>
@@ -706,13 +716,13 @@ export default function App() {
                       exit={{ opacity: 0, x: -10 }}
                       className="space-y-4"
                     >
-                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">¿Cómo usar Salud-Conecta IA?</h4>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">{t('guideTitle')}</h4>
                       <div className="space-y-3">
                         {[
-                          { step: "1", title: "Consulta IA", desc: "Describe tus síntomas detalladamente para recibir una orientación inicial." },
-                          { step: "2", title: "Centros Médicos", desc: "Encuentra el hospital o clínica más cercana a tu ubicación." },
-                          { step: "3", title: "Mis Citas", desc: "Gestiona y programa tus visitas al médico de forma organizada." },
-                          { step: "4", title: "Perfil de Emergencia", desc: "Mantén actualizado tu QR para casos de necesidad crítica." },
+                          { step: "1", title: t('aiConsultation'), desc: t('howYouFeel') },
+                          { step: "2", title: t('centros'), desc: t('findCenters') },
+                          { step: "3", title: t('myAppointments'), desc: t('manageAppointments') },
+                          { step: "4", title: t('emergencyCard'), desc: t('qrDisclaimer') },
                         ].map((item) => (
                           <div key={item.step} className="flex gap-3">
                             <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-[10px] font-bold shrink-0">

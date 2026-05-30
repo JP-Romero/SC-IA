@@ -32,6 +32,7 @@ export const translations = {
 
     // Misc
     welcome: "Bienvenido",
+    guest: "Invitado",
     hello: "Hola",
     back: "Volver",
     save: "Guardar",
@@ -258,6 +259,7 @@ export const translations = {
 
     // Misc
     welcome: "Welcome",
+    guest: "Guest",
     hello: "Hello",
     back: "Back",
     save: "Save",
