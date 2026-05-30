@@ -53,7 +53,7 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
     <div className="flex flex-col min-h-screen pb-24 bg-gradient-to-b from-[#f5f8ff] to-[#f8fafc]">
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50">
-        <div className="flex justify-between items-center w-full max-w-3xl mx-auto">
+        <div className="flex justify-between items-center w-full max-w-5xl mx-auto">
           <div
             onClick={() => onNavigate && onNavigate("home")}
             className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
@@ -70,7 +70,7 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
       </header>
 
       {/* Hero Header */}
-      <div className="px-6 pt-5 pb-3 max-w-3xl mx-auto w-full">
+      <div className="px-6 pt-5 pb-3 max-w-5xl mx-auto w-full">
         <h2 className="font-display font-bold text-3.5xl text-slate-900 tracking-tight leading-tight">
           Premium
         </h2>
@@ -94,7 +94,7 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
       </div>
 
       {/* Main content grids */}
-      <main className="px-6 flex-1 space-y-6 max-w-3xl mx-auto w-full">
+      <main className="px-6 flex-1 space-y-6 max-w-5xl mx-auto w-full">
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* PREMIUM BÁSICO CARD */}

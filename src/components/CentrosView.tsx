@@ -29,7 +29,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     <div className="flex flex-col min-h-screen pb-24 relative overflow-x-hidden" style={{ background: "linear-gradient(180deg, #f8faff 0%, #ffffff 30%, #ffffff 100%)" }}>
 
       {/* ═══════════════ HEADER ═══════════════ */}
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-6xl mx-auto">
         <header className="flex justify-between items-center px-6 z-30 relative bg-transparent" style={{ paddingTop: "max(env(safe-area-inset-top, 16px), 36px)", paddingBottom: "12px" }}>
           <div
             onClick={() => onNavigate && onNavigate("home")}
@@ -72,7 +72,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </div>
 
       {/* ═══════════════ TITLE & LOCATION SELECTOR ═══════════════ */}
-      <div className="px-6 pt-2 pb-3 z-10 relative w-full max-w-4xl mx-auto">
+      <div className="px-6 pt-2 pb-3 z-10 relative w-full max-w-6xl mx-auto">
         <h1 className="text-[28px] font-bold text-[#0f172a] tracking-[-0.03em] leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
           Centros de salud
         </h1>
@@ -93,7 +93,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row md:gap-8 max-w-4xl mx-auto w-full px-0 md:px-6 relative z-10 mt-2">
+      <div className="flex flex-col md:flex-row md:gap-8 max-w-6xl mx-auto w-full px-0 md:px-6 relative z-10 mt-2">
         {/* ═══════════════ MAP AREA ═══════════════ */}
         <div className="w-full md:w-1/2">
           <div
@@ -311,7 +311,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </div>
 
       {/* ═══════════════ BOTTOM ACTION BAR ═══════════════ */}
-      <div className="px-5 py-4 mt-4 z-10 relative w-full max-w-4xl mx-auto">
+      <div className="px-5 py-4 mt-4 z-10 relative w-full max-w-6xl mx-auto">
         <div className="flex items-center justify-between gap-3">
           {/* Emergency call button */}
           <motion.button

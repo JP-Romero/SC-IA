@@ -41,7 +41,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
       />
 
       {/* ═══════════════ HEADER ═══════════════ */}
-      <header className="flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-4 z-30 relative bg-transparent w-full max-w-3xl mx-auto">
+      <header className="flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-4 z-30 relative bg-transparent w-full max-w-6xl mx-auto">
         <div className="flex items-center gap-2.5">
           <div className="w-[34px] h-[34px] relative shrink-0">
             <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
@@ -67,7 +67,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
       </header>
 
       {/* ═══════════════ MAIN HERO CONTAINER ═══════════════ */}
-      <main className="flex-1 px-6 pt-5 max-w-3xl mx-auto w-full z-10 relative">
+      <main className="flex-1 px-6 pt-5 max-w-6xl mx-auto w-full z-10 relative">
 
         {/* Welcome Section / Profile Header Area */}
         <div className="flex justify-between items-start mb-9">
@@ -106,7 +106,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
         </div>
 
         {/* ═══════════════ MAIN LIST MENU ITEMS ═══════════════ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-4">
 
           {/* Card 1: Consulta con IA */}
           <motion.button

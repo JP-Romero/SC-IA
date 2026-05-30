@@ -75,7 +75,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
     <div className="flex flex-col min-h-screen pb-24 bg-gradient-to-b from-blue-50/10 to-slate-50">
       {/* Header */}
       <header className="flex flex-col px-6 py-4 bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50">
-        <div className="flex justify-between items-center w-full max-w-3xl mx-auto">
+        <div className="flex justify-between items-center w-full max-w-6xl mx-auto">
           <div
             onClick={() => onNavigate && onNavigate("home")}
             className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
@@ -114,7 +114,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 px-6 pt-5 max-w-3xl mx-auto w-full">
+      <main className="flex-1 px-6 pt-5 max-w-6xl mx-auto w-full">
         {/* DOCTORS SCREEN VIEW */}
         <AnimatePresence mode="wait">
           {activeTab === "medicos" && (
@@ -205,7 +205,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   <span className="text-[11px] font-bold text-blue-600 tracking-tight cursor-pointer hover:underline">Ver todos</span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
                   {filteredDoctors.length > 0 ? (
                     filteredDoctors.map((doc) => (
                       <div
@@ -348,7 +348,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               </div>
 
               {/* Pharmacies List */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
                 {filteredPharmacies.length > 0 ? (
                   filteredPharmacies.map((pharm) => (
                     <div

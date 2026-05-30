@@ -49,7 +49,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
     <div className="flex flex-col min-h-screen pb-24 bg-gradient-to-b from-[#f5f8ff] to-[#f8fafc]">
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50">
-        <div className="flex justify-between items-center w-full max-w-3xl mx-auto">
+        <div className="flex justify-between items-center w-full max-w-5xl mx-auto">
           <button
             id="btn-profile-go-back"
             onClick={onGoBack}
@@ -84,7 +84,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
       </header>
 
       {/* Main Container */}
-      <main className="px-6 pt-6 flex-1 space-y-6 max-w-3xl mx-auto w-full">
+      <main className="px-6 pt-6 flex-1 space-y-6 max-w-5xl mx-auto w-full">
 
         {/* Profile Card Header segment */}
         <div className="bg-white rounded-3xl p-6 border border-slate-100/90 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 relative overflow-hidden">
