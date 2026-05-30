@@ -9,6 +9,7 @@ import LoginView from "./components/LoginView";
 import RegisterView from "./components/RegisterView";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
+import { useLanguage } from "./contexts/LanguageContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
 import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft } from "lucide-react";
@@ -16,6 +17,7 @@ import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
   const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
 
   const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil">("login");
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
@@ -32,15 +34,6 @@ export default function App() {
       return (localStorage.getItem("fontSize") as "sm" | "base" | "lg") || "base";
     } catch (e) {
       return "base";
-    }
-  });
-
-  // Language state
-  const [language, setLanguage] = useState<"es" | "en">(() => {
-    try {
-      return (localStorage.getItem("language") as "es" | "en") || "es";
-    } catch (e) {
-      return "es";
     }
   });
 
@@ -77,22 +70,19 @@ export default function App() {
   useEffect(() => {
     try {
       const root = document.documentElement;
-      root.classList.remove("text-sm", "text-base", "text-lg");
-      root.classList.add(`text-${fontSize}`);
+      if (fontSize === "sm") {
+        root.style.fontSize = "14px";
+      } else if (fontSize === "lg") {
+        root.style.fontSize = "18px";
+      } else {
+        root.style.fontSize = "16px";
+      }
       localStorage.setItem("fontSize", fontSize);
     } catch (e) {
       console.warn("Failed to set font size:", e);
     }
   }, [fontSize]);
 
-  // Synchronize language
-  useEffect(() => {
-    try {
-      localStorage.setItem("language", language);
-    } catch (e) {
-      console.warn("Failed to set language:", e);
-    }
-  }, [language]);
 
   // Auto scroll to top on page switches to mimic page routing
   useEffect(() => {
@@ -210,7 +200,7 @@ export default function App() {
             </defs>
           </svg>
           <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-          <p className="text-sm text-slate-500 font-semibold">Verificando sesión...</p>
+          <p className="text-sm text-slate-500 font-semibold">{t('verifyingSession')}</p>
         </motion.div>
       </div>
     );
@@ -235,14 +225,14 @@ export default function App() {
           </div>
 
           <div className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto mt-2">
-            <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 pl-3">Menú Principal</div>
+            <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 pl-3">{t('mainMenu')}</div>
 
             {[
-              { id: "home", label: "Inicio", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
-              { id: "consulta", label: "Consulta IA", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg> },
-              { id: "centros", label: "Centros Médicos", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg> },
-              { id: "buscar", label: "Buscador / Citas", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> },
-              { id: "premium", label: "Premium", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 12l10 10 10-10z" /></svg> },
+              { id: "home", label: t('home'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
+              { id: "consulta", label: t('consulta'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg> },
+              { id: "centros", label: t('centros'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg> },
+              { id: "buscar", label: t('buscar'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> },
+              { id: "premium", label: t('premium'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 12l10 10 10-10z" /></svg> },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -428,7 +418,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Consulta
+                  {t('consulta')}
                 </span>
                 {/* Active indicator dot/lines */}
                 {currentView === "consulta" && (
@@ -450,7 +440,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "centros" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Centros
+                  {t('centros')}
                 </span>
                 {currentView === "centros" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -471,7 +461,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Buscar
+                  {t('buscar')}
                 </span>
                 {currentView === "buscar" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -491,7 +481,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Premium
+                  {t('premium')}
                 </span>
                 {currentView === "premium" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -531,10 +521,10 @@ export default function App() {
                   <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     <Settings className={`w-5 h-5 text-blue-600 ${settingsView === "menu" ? "animate-spin-slow" : ""}`} />
                     <span>
-                      {settingsView === "menu" && "Configuración"}
-                      {settingsView === "terms" && "Términos"}
-                      {settingsView === "privacy" && "Privacidad"}
-                      {settingsView === "guide" && "Guía de Uso"}
+                      {settingsView === "menu" && t('settings')}
+                      {settingsView === "terms" && t('terms')}
+                      {settingsView === "privacy" && t('privacy')}
+                      {settingsView === "guide" && t('guide')}
                     </span>
                   </h3>
                 </div>
@@ -562,7 +552,7 @@ export default function App() {
                     >
                       {/* Appearance Section */}
                       <div className="space-y-3">
-                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Apariencia</h4>
+                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{t('appearance')}</h4>
 
                         {/* Dark Mode Toggle */}
                         <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
@@ -570,7 +560,7 @@ export default function App() {
                             <div className={`p-2 rounded-xl ${darkMode ? "bg-indigo-500/10 text-indigo-400" : "bg-amber-500/10 text-amber-500"}`}>
                               {darkMode ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5" />}
                             </div>
-                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Modo oscuro</span>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('darkMode')}</span>
                           </div>
                           <button
                             onClick={() => setDarkMode(!darkMode)}
@@ -589,7 +579,7 @@ export default function App() {
                             <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
                               <Type className="w-4.5 h-4.5" />
                             </div>
-                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Tamaño de fuente</span>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('fontSize')}</span>
                           </div>
                           <div className="flex bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-100 dark:border-slate-800">
                             {(["sm", "base", "lg"] as const).map((size) => (
@@ -598,9 +588,9 @@ export default function App() {
                                 onClick={() => setFontSize(size)}
                                 className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${fontSize === size ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
                               >
-                                {size === "sm" && "Pequeño"}
-                                {size === "base" && "Normal"}
-                                {size === "lg" && "Grande"}
+                                {size === "sm" && t('small')}
+                                {size === "base" && t('normal')}
+                                {size === "lg" && t('large')}
                               </button>
                             ))}
                           </div>
@@ -609,13 +599,13 @@ export default function App() {
 
                       {/* Region Section */}
                       <div className="space-y-3">
-                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Regional</h4>
+                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{t('regional')}</h4>
                         <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                           <div className="flex items-center gap-3">
                             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
                               <Languages className="w-4.5 h-4.5" />
                             </div>
-                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Idioma</span>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('language')}</span>
                           </div>
                           <select
                             value={language}
@@ -630,12 +620,12 @@ export default function App() {
 
                       {/* Information Section */}
                       <div className="space-y-3">
-                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Legal e Información</h4>
+                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{t('legalInfo')}</h4>
                         <div className="space-y-2">
                           {[
-                            { id: "terms", label: "Términos y condiciones", icon: FileText, color: "text-slate-500" },
-                            { id: "privacy", label: "Privacidad", icon: Shield, color: "text-slate-500" },
-                            { id: "guide", label: "Guía de uso", icon: BookOpen, color: "text-slate-500" },
+                            { id: "terms", label: t('terms'), icon: FileText, color: "text-slate-500" },
+                            { id: "privacy", label: t('privacy'), icon: Shield, color: "text-slate-500" },
+                            { id: "guide", label: t('guide'), icon: BookOpen, color: "text-slate-500" },
                           ].map((item) => (
                             <button
                               key={item.id}
@@ -659,7 +649,7 @@ export default function App() {
                           className="w-full bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-white py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow-sm"
                         >
                           <RefreshCw className="w-4 h-4" />
-                          <span>Reiniciar base de datos local</span>
+                          <span>{t('resetApp')}</span>
                         </button>
                       </div>
                     </motion.div>
@@ -742,7 +732,7 @@ export default function App() {
 
               {/* Modal Footer */}
               <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 dark:text-slate-500 text-center">
-                Salud-Conecta IA • v1.2.0 • 2026
+                Salud-Conecta IA • {t('version')}
               </div>
             </motion.div>
           </motion.div>

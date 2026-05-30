@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { HealthCenter } from "../types";
 import { HEALTH_CENTERS } from "../data/medicalData";
+import { useLanguage } from "../contexts/LanguageContext";
 import { AlertTriangle, Phone } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -10,6 +11,7 @@ interface CentrosViewProps {
 }
 
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
+  const { t } = useLanguage();
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(HEALTH_CENTERS[0]);
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
@@ -74,10 +76,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       {/* ═══════════════ TITLE & LOCATION SELECTOR ═══════════════ */}
       <div className="px-6 pt-2 pb-3 z-10 relative w-full max-w-6xl mx-auto">
         <h1 className="text-[28px] font-bold text-slate-900 dark:text-white tracking-[-0.03em] leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
-          Centros de salud
+          {t('centros')}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-[13px] mt-1.5 leading-relaxed max-w-[280px]">
-          Encuentra hospitales y centros<br />cercanos a ti.
+          {t('findCenters')}<br />{t('nearYou')}.
         </p>
 
         {/* Location dropdown pill */}
@@ -237,8 +239,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         <div className="w-full md:w-1/2 px-6 md:px-0 pt-6 md:pt-0 z-10 relative flex-1 flex flex-col">
           {/* Section header */}
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>Cercanos a ti</h3>
-            <button className="text-[13px] font-semibold text-blue-600 dark:text-blue-400">Ver todos</button>
+            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>{t('nearYou')}</h3>
+            <button className="text-[13px] font-semibold text-blue-600 dark:text-blue-400">{t('all')}</button>
           </div>
 
           {/* Center list */}
@@ -325,8 +327,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               </svg>
             </div>
             <div className="text-left">
-              <span className="text-[12px] font-bold text-red-500 block leading-tight">Emergencias 24/7</span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Llama al 128</span>
+              <span className="text-[12px] font-bold text-red-500 block leading-tight">{t('emergencies247')}</span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">{t('call128')}</span>
             </div>
           </motion.button>
 
@@ -340,7 +342,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 }`}
             >
               <span className={`text-[10px] font-bold ${activeFilter === "hospital" ? "text-white" : "text-blue-600"}`}>H</span>
-              Hospitales
+              {t('hospitals')}
             </button>
             <button
               onClick={() => setActiveFilter(activeFilter === "centro" ? "todos" : "centro")}
@@ -353,7 +355,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              Centros
+              {t('centers')}
             </button>
           </div>
         </div>

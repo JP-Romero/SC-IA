@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, UserPlus, Moon, Sun, Loader2 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { createToast, type ToastData } from "./Toast";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface LoginViewProps {
   onLogin: (name: string) => void;
@@ -18,6 +19,7 @@ export default function LoginView({
   onToggleDarkMode,
   onToast
 }: LoginViewProps) {
+  const { t } = useLanguage();
   const { login, loginWithGoogle, loading } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -41,20 +43,20 @@ export default function LoginView({
     let hasError = false;
 
     if (!email.trim()) {
-      setEmailError("Ingresa tu correo electrónico.");
+      setEmailError(t('emailRequired'));
       hasError = true;
     } else if (!validateEmail(email.trim())) {
-      setEmailError("Ingresa un correo electrónico válido.");
+      setEmailError(t('emailInvalid'));
       hasError = true;
     } else {
       setEmailError("");
     }
 
     if (!password) {
-      setPasswordError("Ingresa tu contraseña.");
+      setPasswordError(t('passRequired'));
       hasError = true;
     } else if (password.length < 6) {
-      setPasswordError("La contraseña debe tener al menos 6 caracteres.");
+      setPasswordError(t('passMin'));
       hasError = true;
     } else {
       setPasswordError("");
@@ -66,13 +68,13 @@ export default function LoginView({
     try {
       const result = await login(email.trim(), password);
       if (result.success) {
-        onToast?.(createToast("¡Bienvenido de vuelta!", "success"));
+        onToast?.(createToast(t('welcomeBack'), "success"));
         onLogin(email.trim());
       } else {
-        onToast?.(createToast(result.error || "Error al iniciar sesión.", "error"));
+        onToast?.(createToast(result.error || t('loginError'), "error"));
       }
     } catch {
-      onToast?.(createToast("Error de conexión. Intenta de nuevo.", "error"));
+      onToast?.(createToast(t('connError'), "error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -84,11 +86,11 @@ export default function LoginView({
     try {
       const result = await loginWithGoogle();
       if (!result.success) {
-        onToast?.(createToast(result.error || "Error al iniciar con Google.", "error"));
+        onToast?.(createToast(result.error || t('googleError'), "error"));
       }
       // If success, the page will redirect to Google OAuth
     } catch {
-      onToast?.(createToast("No se pudo conectar con Google.", "error"));
+      onToast?.(createToast(t('googleConnError'), "error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -172,10 +174,10 @@ export default function LoginView({
         {/* Title Group */}
         <div className="mb-7 text-left">
           <h2 className="text-[38px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-            Bienvenido<span className="text-blue-600 dark:text-blue-500">.</span>
+            {t('loginTitle')}<span className="text-blue-600 dark:text-blue-500">.</span>
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1.5 font-medium">
-            Tu salud, <span className="text-blue-600 dark:text-blue-400 font-semibold">conectada</span> e inteligente.
+            {t('loginSubtitle')}
           </p>
         </div>
 
@@ -184,7 +186,7 @@ export default function LoginView({
           {/* Email Input */}
           <div className="space-y-1.5">
             <label className="text-[11.5px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
-              Correo electrónico
+              {t('emailLabel')}
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
@@ -215,7 +217,7 @@ export default function LoginView({
           {/* Contraseña Input */}
           <div className="space-y-1.5">
             <label className="text-[11.5px] uppercase font-bold text-slate-455 dark:text-slate-500 tracking-wider">
-              Contraseña
+              {t('passwordLabel')}
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
@@ -261,11 +263,11 @@ export default function LoginView({
             {isLoading ? (
               <>
                 <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                <span>Iniciando sesión...</span>
+                <span>{t('loggingIn')}</span>
               </>
             ) : (
               <>
-                <span>Iniciar sesión</span>
+                <span>{t('loginButton')}</span>
                 <ArrowRight className="w-4.5 h-4.5" />
               </>
             )}
@@ -279,7 +281,7 @@ export default function LoginView({
           </div>
           <div className="relative flex justify-center text-xs font-semibold uppercase tracking-wider">
             <span className="bg-[#f8fafc] dark:bg-[#0b0f19] px-4 text-slate-400 dark:text-slate-500 transition-colors duration-300">
-              o continúa con
+              {t('orContinueWith')}
             </span>
           </div>
         </div>
@@ -304,7 +306,7 @@ export default function LoginView({
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
               </svg>
             )}
-            <span>Continuar con Google</span>
+            <span>{t('continueWithGoogle')}</span>
           </button>
 
           {/* Continue without account */}
@@ -316,7 +318,7 @@ export default function LoginView({
             className="w-full bg-transparent hover:bg-blue-50/20 text-blue-600 dark:text-blue-400 py-3.5 px-5 rounded-[20px] border border-blue-600/35 dark:border-blue-400/30 font-bold text-[13.5px] flex items-center justify-center space-x-2 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <UserPlus className="w-5 h-5 text-blue-650 dark:text-blue-450 shrink-0" />
-            <span>Continuar sin cuenta</span>
+            <span>{t('continueAsGuest')}</span>
           </button>
         </div>
 
@@ -325,13 +327,13 @@ export default function LoginView({
       {/* Footer & Bottom Decorative Wave */}
       <footer className="w-full pb-8 pt-4 flex flex-col items-center justify-center z-10 relative">
         <p className="text-xs text-slate-500 dark:text-slate-450 font-medium">
-          ¿No tienes cuenta?{" "}
+          {t('noAccount')}{" "}
           <button
             id="btn-link-to-register"
             onClick={onNavigateToRegister}
             className="text-blue-600 dark:text-blue-455 font-bold hover:underline cursor-pointer ml-1 focus:outline-none"
           >
-            Regístrate
+            {t('registerLink')}
           </button>
         </p>
 

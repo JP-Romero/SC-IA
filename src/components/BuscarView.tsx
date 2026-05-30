@@ -3,6 +3,7 @@ import { Search, Pill, Stethoscope, Star, Calendar, Clock, MapPin, ChevronRight,
 import { Doctor, Pharmacy, Appointment } from "../types";
 import { DOCTORS, PHARMACIES, INITIAL_APPOINTMENTS } from "../data/medicalData";
 import { motion, AnimatePresence } from "motion/react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface BuscarViewProps {
   onAddAppointment: (appointment: Appointment) => void;
@@ -11,6 +12,7 @@ interface BuscarViewProps {
 }
 
 export default function BuscarView({ onAddAppointment, appointments, onNavigate }: BuscarViewProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"farmacias" | "medicos">("medicos");
 
   // Search state for Doctors
@@ -87,7 +89,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               Salud-Conecta <span className="text-blue-600 dark:text-blue-400">IA</span>
             </span>
           </div>
-          <span className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold px-3 py-1 rounded-full border border-blue-100 dark:border-blue-900/50">Buscador</span>
+          <span className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold px-3 py-1 rounded-full border border-blue-100 dark:border-blue-900/50">{t('searchTitle')}</span>
         </div>
 
         {/* Dynamic Dual Tab PWA switch */}
@@ -99,7 +101,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               }`}
           >
             <Pill className="w-4 h-4 shrink-0" />
-            <span>Farmacias</span>
+            <span>{t('pharmacies')}</span>
           </button>
           <button
             id="tab-search-doctors"
@@ -108,7 +110,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               }`}
           >
             <Stethoscope className="w-4 h-4 shrink-0" />
-            <span>Médicos</span>
+            <span>{t('doctors')}</span>
           </button>
         </div>
       </header>
@@ -127,16 +129,16 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
             >
               {/* Card Finder Form */}
               <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
-                <h3 className="font-display font-semibold text-slate-800 dark:text-slate-200 text-sm">Buscar médicos</h3>
+                <h3 className="font-display font-semibold text-slate-800 dark:text-slate-200 text-sm">{t('searchDoctors')}</h3>
 
                 {/* Specialties picker input field */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Especialidad</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('specialty')}</label>
                   <div className="relative">
                     <input
                       id="input-doctor-search-specialty"
                       type="text"
-                      placeholder="Ej. Cardiología, Dermatología..."
+                      placeholder={t('specialtyPlaceholder')}
                       value={specQuery}
                       onChange={(e) => setSpecQuery(e.target.value)}
                       className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 text-xs"
@@ -147,12 +149,12 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
 
                 {/* Locality Input */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Ciudad / Localidad</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('location')}</label>
                   <div className="relative">
                     <input
                       id="input-doctor-search-locality"
                       type="text"
-                      placeholder="Ej. Granada"
+                      placeholder={t('locationPlaceholder')}
                       value={docCityQuery}
                       onChange={(e) => setDocCityQuery(e.target.value)}
                       className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 text-xs"
@@ -167,13 +169,13 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 py-3.5 px-4 rounded-2xl text-white font-bold text-xs tracking-wide shadow-md shadow-blue-500/10 flex items-center justify-center space-x-2 transition-all mt-2"
                 >
                   <Search className="w-4 h-4" />
-                  <span>Buscar médicos</span>
+                  <span>{t('searchDoctors')}</span>
                 </button>
               </div>
 
               {/* Horizontal sliding popular categories */}
               <div>
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Especialidades populares</h4>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('popularSpecialties')}</h4>
                 <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 no-scrollbar">
                   {POPULAR_SPECIALTIES.map((spec) => {
                     const isSelected = selectedSpecialty === spec.id && !specQuery;
@@ -201,8 +203,8 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               {/* Doctors listing */}
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Médicos destacados</h4>
-                  <span className="text-[11px] font-bold text-blue-600 tracking-tight cursor-pointer hover:underline">Ver todos</span>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('featuredDoctors')}</h4>
+                  <span className="text-[11px] font-bold text-blue-600 tracking-tight cursor-pointer hover:underline">{t('viewAll')}</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
@@ -231,7 +233,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                                 <span>{doc.rating}</span>
                               </span>
                               <span>•</span>
-                              <span>{doc.experience} años exp.</span>
+                              <span>{doc.experience} {t('expYears')}</span>
                             </div>
                           </div>
                         </div>
@@ -248,21 +250,24 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                             onClick={() => setBookingDoctor(doc)}
                             className="mt-2 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-850 flex items-center space-x-0.5 group hover:underline"
                           >
-                            <span>Apartar cita</span>
+                            <span>{t('bookAppointment')}</span>
                             <ChevronRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
                           </button>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="bg-white py-10 text-center rounded-3xl border border-dashed border-slate-300/80 p-6 text-slate-400">
-                      <BadgeAlert className="w-10 h-10 mx-auto text-slate-300 animate-pulse mb-3" />
-                      <p className="text-sm font-medium">No se encontraron doctores de la especialidad "{docCityQuery}" en Granada.</p>
+                    <div className="bg-white dark:bg-slate-900 py-10 text-center rounded-3xl border border-dashed border-slate-300/80 dark:border-slate-700 p-6 text-slate-400">
+                      <BadgeAlert className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-700 animate-pulse mb-3" />
+                      <p className="text-sm font-medium">{t('noDoctorsFound').replace('{spec}', specQuery || selectedSpecialty).replace('{city}', docCityQuery)}</p>
                       <button
-                        onClick={() => setSelectedSpecialty("Cardiología")}
+                        onClick={() => {
+                          setSpecQuery("");
+                          setSelectedSpecialty("Cardiología");
+                        }}
                         className="mt-2 text-xs text-blue-600 font-bold hover:underline"
                       >
-                        Restablecer filtros
+                        {t('resetFilters')}
                       </button>
                     </div>
                   )}
@@ -271,7 +276,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
 
               {/* Informative disclaimer footer */}
               <div className="text-center font-mono text-[10px] text-slate-400/80 py-4 border-t border-slate-100">
-                ℹ️ La disponibilidad de los médicos se actualiza en tiempo real.
+                {t('doctorsDisclaimer')}
               </div>
             </motion.div>
           )}
@@ -287,16 +292,16 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
             >
               {/* Card Finder Form */}
               <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
-                <h3 className="font-display font-semibold text-slate-800 dark:text-slate-200 text-sm">Buscar en farmacias</h3>
+                <h3 className="font-display font-semibold text-slate-800 dark:text-slate-200 text-sm">{t('searchPharmacies')}</h3>
 
                 {/* Drugs Query */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Medicamento</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('medicine')}</label>
                   <div className="relative">
                     <input
                       id="input-pharmacy-search-drug"
                       type="text"
-                      placeholder="Ej. Paracetamol 500 mg, Ibuprofeno..."
+                      placeholder={t('medicinePlaceholder')}
                       value={drugQuery}
                       onChange={(e) => setDrugQuery(e.target.value)}
                       className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 text-xs"
@@ -307,12 +312,12 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
 
                 {/* Local select Granada dropdown */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Ciudad / Localidad</label>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('location')}</label>
                   <div className="relative">
                     <input
                       id="input-pharmacy-search-locality"
                       type="text"
-                      placeholder="Ej. Granada"
+                      placeholder={t('locationPlaceholder')}
                       value={pharmCityQuery}
                       onChange={(e) => setPharmCityQuery(e.target.value)}
                       className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 text-xs"
@@ -327,15 +332,15 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 py-3.5 px-4 rounded-2xl text-white font-bold text-xs tracking-wide shadow-md shadow-blue-500/10 flex items-center justify-center space-x-2 transition-all mt-2"
                 >
                   <Search className="w-4 h-4" />
-                  <span>Buscar</span>
+                  <span>{t('searchTitle')}</span>
                 </button>
               </div>
 
               {/* Head line with filter */}
               <div className="flex justify-between items-center mb-1">
                 <div>
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Farmacias cercanas</h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Se encontraron {filteredPharmacies.length} farmacias con este medicamento.</p>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('nearbyPharmacies')}</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5">{t('pharmaciesFound').replace('{count}', filteredPharmacies.length.toString())}</p>
                 </div>
                 <button
                   id="btn-pharmacies-filter-tool"
@@ -343,7 +348,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-400 active:scale-95 flex items-center space-x-1 transition-all shadow-sm"
                 >
                   <Filter className="w-3.5 h-3.5 select-none" />
-                  <span>Filtros</span>
+                  <span>{t('filters')}</span>
                 </button>
               </div>
 
@@ -352,6 +357,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                 {filteredPharmacies.length > 0 ? (
                   filteredPharmacies.map((pharm) => (
                     <div
+                      key={pharm.id}
                       id={`row-pharmacy-profile-${pharm.id}`}
                       key={pharm.id}
                       className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between hover:border-blue-100 dark:hover:border-blue-900/50 transition-all group"
@@ -370,7 +376,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                             <span className="text-slate-500 dark:text-slate-400 font-mono">📍 {pharm.distance}</span>
                             <span>•</span>
                             <span className={pharm.openNow ? "text-emerald-600 dark:text-emerald-400" : "text-amber-500 dark:text-amber-400"}>
-                              {pharm.openNow ? "Abierta ahora" : pharm.closingTime}
+                              {pharm.openNow ? t('openNow') : pharm.closingTime}
                             </span>
                           </div>
                         </div>
@@ -384,7 +390,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                             ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
                             : "bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400"
                           }`}>
-                          ✓ {pharm.status}
+                          ✓ {pharm.status === "Disponible" ? t('available') : pharm.status === "Poco stock" ? t('lowStock') : pharm.status}
                         </span>
 
                         <button
@@ -393,20 +399,20 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                           className="mt-4 px-3.5 py-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-full text-blue-600 dark:text-blue-400 font-bold text-[10px] flex items-center space-x-1 transition-all active:scale-95 shadow-sm border border-blue-100 dark:border-blue-900/50"
                         >
                           <Navigation className="w-3 h-3" />
-                          <span>Ver ruta</span>
+                          <span>{t('viewRoute')}</span>
                         </button>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="bg-white py-10 text-center rounded-3xl border border-dashed border-slate-300/80 p-6 text-slate-400">
-                    <BadgeAlert className="w-10 h-10 mx-auto text-slate-300 animate-pulse mb-3" />
-                    <p className="text-sm font-medium">No se encontró el medicamento "{drugQuery}" en Granada.</p>
+                  <div className="bg-white dark:bg-slate-900 py-10 text-center rounded-3xl border border-dashed border-slate-300/80 dark:border-slate-700 p-6 text-slate-400">
+                    <BadgeAlert className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-700 animate-pulse mb-3" />
+                      <p className="text-sm font-medium">{t('noMedicineFound').replace('{drug}', drugQuery).replace('{city}', pharmCityQuery)}</p>
                     <button
                       onClick={() => setDrugQuery("Paracetamol 500 mg")}
                       className="mt-2 text-xs text-blue-600 font-bold hover:underline"
                     >
-                      Restablecer buscador
+                        {t('resetSearch')}
                     </button>
                   </div>
                 )}
@@ -414,7 +420,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
 
               {/* Informative disclaimer footer */}
               <div className="text-center font-mono text-[10px] text-slate-400/80 py-4 border-t border-slate-100">
-                ℹ️ Las disponibilidades de farmacias se actualizan en tiempo real.
+                {t('pharmaciesDisclaimer')}
               </div>
             </motion.div>
           )}
@@ -444,18 +450,18 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   <div className="w-14 h-14 bg-emerald-100 text-emerald-650 rounded-full flex items-center justify-center mx-auto mb-3 border-4 border-emerald-50">
                     <CheckCircle className="w-8 h-8 text-emerald-600 animate-bounce" />
                   </div>
-                  <h3 className="font-display font-medium text-2xl text-slate-950">¡Cita Agendada!</h3>
+                  <h3 className="font-display font-medium text-2xl text-slate-950">{t('bookingSuccessTitle')}</h3>
                   <p className="text-xs text-slate-500 max-w-[260px] mx-auto leading-relaxed">
-                    Tu cita con **{bookingDoctor.name}** ha quedado confirmada de forma segura bajo el número de registro **APP-{Math.floor(Math.random() * 89999 + 10000)}**.
+                    {t('bookingSuccessDesc').replace('{name}', bookingDoctor.name).replace('{id}', Math.floor(Math.random() * 89999 + 10000).toString())}
                   </p>
-                  <p className="text-[10px] text-slate-400 font-mono">Un recordatorio SMS ha sido enviado.</p>
+                  <p className="text-[10px] text-slate-400 font-mono">{t('smsReminder')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-display font-bold text-lg text-slate-900">Apartar cita médica</h3>
-                      <p className="text-xs text-slate-400 mt-0.5">Elige el horario conveniente para ti.</p>
+                      <h3 className="font-display font-bold text-lg text-slate-900">{t('bookTitle')}</h3>
+                      <p className="text-xs text-slate-400 mt-0.5">{t('bookSubtitle')}</p>
                     </div>
                     <button
                       onClick={() => setBookingDoctor(null)}
@@ -475,13 +481,13 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     />
                     <div>
                       <h4 className="text-xs font-bold text-slate-950 dark:text-white">{bookingDoctor.name}</h4>
-                      <p className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">{bookingDoctor.specialty} • A {bookingDoctor.distance}</p>
+                      <p className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">{bookingDoctor.specialty} • {t('distanceAway').replace('{distance}', bookingDoctor.distance)}</p>
                     </div>
                   </div>
 
                   {/* Date Picker select option */}
                   <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Elegir Fecha de Cita</label>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('chooseDate')}</label>
                     <div className="relative">
                       <input
                         id="select-booking-date"
@@ -495,7 +501,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
 
                   {/* Time Selector */}
                   <div className="space-y-1.5 text-left">
-                    <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Elegir Horario</label>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('chooseTime')}</label>
                     <select
                       id="select-booking-schedule"
                       value={bookingTime}
@@ -516,7 +522,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     onClick={handleBookAppointment}
                     className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 py-3.5 rounded-2xl text-white font-bold text-xs tracking-wider shadow-md shadow-blue-500/10 mt-3 transition-all"
                   >
-                    Confirmar agendamiento seguro
+                    {t('confirmBooking')}
                   </button>
                 </div>
               )}
