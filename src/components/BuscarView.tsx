@@ -12,7 +12,7 @@ interface BuscarViewProps {
 
 export default function BuscarView({ onAddAppointment, appointments, onNavigate }: BuscarViewProps) {
   const [activeTab, setActiveTab] = useState<"farmacias" | "medicos">("medicos");
-  
+
   // Search state for Doctors
   const [specQuery, setSpecQuery] = useState("");
   const [docCityQuery, setDocCityQuery] = useState("Granada");
@@ -75,8 +75,8 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
     <div className="flex flex-col min-h-screen pb-24 bg-gradient-to-b from-blue-50/10 to-slate-50">
       {/* Header */}
       <header className="flex flex-col px-6 py-4 bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50">
-        <div className="flex justify-between items-center w-full">
-          <div 
+        <div className="flex justify-between items-center w-full max-w-4xl mx-auto">
+          <div
             onClick={() => onNavigate && onNavigate("home")}
             className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
           >
@@ -95,9 +95,8 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
           <button
             id="tab-search-pharmacies"
             onClick={() => setActiveTab("farmacias")}
-            className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 active:scale-95 z-10 select-none ${
-              activeTab === "farmacias" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
-            }`}
+            className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 active:scale-95 z-10 select-none ${activeTab === "farmacias" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
+              }`}
           >
             <Pill className="w-4 h-4 shrink-0" />
             <span>Farmacias</span>
@@ -105,9 +104,8 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
           <button
             id="tab-search-doctors"
             onClick={() => setActiveTab("medicos")}
-            className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 active:scale-95 z-10 select-none ${
-              activeTab === "medicos" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
-            }`}
+            className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 active:scale-95 z-10 select-none ${activeTab === "medicos" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-900"
+              }`}
           >
             <Stethoscope className="w-4 h-4 shrink-0" />
             <span>Médicos</span>
@@ -176,7 +174,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               {/* Horizontal sliding popular categories */}
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Especialidades populares</h4>
-                <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-6 px-6 no-scrollbar">
+                <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 no-scrollbar">
                   {POPULAR_SPECIALTIES.map((spec) => {
                     const isSelected = selectedSpecialty === spec.id && !specQuery;
                     return (
@@ -187,11 +185,10 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                           setSpecQuery("");
                           setSelectedSpecialty(spec.id);
                         }}
-                        className={`px-4.5 py-3 rounded-2xl text-xs font-bold whitespace-nowrap active:scale-95 transition-all text-center flex flex-col items-center justify-center border shrink-0 ${
-                          isSelected
+                        className={`px-4.5 py-3 rounded-2xl text-xs font-bold whitespace-nowrap active:scale-95 transition-all text-center flex flex-col items-center justify-center border shrink-0 ${isSelected
                             ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/15"
                             : "bg-white border-slate-100 text-slate-600 hover:border-slate-300"
-                        }`}
+                          }`}
                       >
                         <span className="text-lg mb-1">{spec.icon}</span>
                         <span>{spec.label}</span>
@@ -202,72 +199,74 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               </div>
 
               {/* Doctors listing */}
-              <div className="space-y-3.5">
+              <div>
                 <div className="flex justify-between items-center mb-1">
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Médicos destacados</h4>
                   <span className="text-[11px] font-bold text-blue-600 tracking-tight cursor-pointer hover:underline">Ver todos</span>
                 </div>
 
-                {filteredDoctors.length > 0 ? (
-                  filteredDoctors.map((doc) => (
-                    <div
-                      id={`row-doctor-profile-${doc.id}`}
-                      key={doc.id}
-                      className="bg-white rounded-3xl p-4 border border-slate-100 shadow-sm flex items-center justify-between hover:border-blue-100 transition-all"
-                    >
-                      <div className="flex items-center space-x-3.5">
-                        <img
-                          src={doc.photoUrl}
-                          alt={doc.name}
-                          className="w-16 h-16 rounded-2xl object-cover border border-slate-100 shrink-0"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div>
-                          <h5 className="text-sm font-bold text-slate-800">{doc.name}</h5>
-                          <p className="text-xs text-slate-400 mt-0.5">{doc.specialty}</p>
-                          
-                          {/* rating and years exp */}
-                          <div className="flex items-center space-x-2 mt-1.5 text-[11px] text-slate-500">
-                            <span className="flex items-center space-x-0.5 text-yellow-500 font-bold">
-                              <Star className="w-3 h-3 fill-yellow-500 shrink-0" />
-                              <span>{doc.rating}</span>
-                            </span>
-                            <span>•</span>
-                            <span>{doc.experience} años exp.</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  {filteredDoctors.length > 0 ? (
+                    filteredDoctors.map((doc) => (
+                      <div
+                        id={`row-doctor-profile-${doc.id}`}
+                        key={doc.id}
+                        className="bg-white rounded-3xl p-4 border border-slate-100 shadow-sm flex items-center justify-between hover:border-blue-100 transition-all"
+                      >
+                        <div className="flex items-center space-x-3.5">
+                          <img
+                            src={doc.photoUrl}
+                            alt={doc.name}
+                            className="w-16 h-16 rounded-2xl object-cover border border-slate-100 shrink-0"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div>
+                            <h5 className="text-sm font-bold text-slate-800">{doc.name}</h5>
+                            <p className="text-xs text-slate-400 mt-0.5">{doc.specialty}</p>
+
+                            {/* rating and years exp */}
+                            <div className="flex items-center space-x-2 mt-1.5 text-[11px] text-slate-500">
+                              <span className="flex items-center space-x-0.5 text-yellow-500 font-bold">
+                                <Star className="w-3 h-3 fill-yellow-500 shrink-0" />
+                                <span>{doc.rating}</span>
+                              </span>
+                              <span>•</span>
+                              <span>{doc.experience} años exp.</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* availability status badge and action button for schedule */}
-                      <div className="text-right flex flex-col items-end gap-1 shrink-0 ml-4">
-                        <span className="bg-emerald-50 text-emerald-700 text-[10px] px-2.5 py-1 rounded-full font-bold">
-                          {doc.status}
-                        </span>
-                        <span className="text-[10px] font-medium text-slate-400 block font-mono mt-0.5">{doc.distance}</span>
-                        
-                        <button
-                          id={`btn-book-appointment-for-${doc.id}`}
-                          onClick={() => setBookingDoctor(doc)}
-                          className="mt-2 text-xs font-bold text-blue-600 hover:text-blue-850 flex items-center space-x-0.5 group hover:underline"
-                        >
-                          <span>Apartar cita</span>
-                          <ChevronRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
-                        </button>
+                        {/* availability status badge and action button for schedule */}
+                        <div className="text-right flex flex-col items-end gap-1 shrink-0 ml-4">
+                          <span className="bg-emerald-50 text-emerald-700 text-[10px] px-2.5 py-1 rounded-full font-bold">
+                            {doc.status}
+                          </span>
+                          <span className="text-[10px] font-medium text-slate-400 block font-mono mt-0.5">{doc.distance}</span>
+
+                          <button
+                            id={`btn-book-appointment-for-${doc.id}`}
+                            onClick={() => setBookingDoctor(doc)}
+                            className="mt-2 text-xs font-bold text-blue-600 hover:text-blue-850 flex items-center space-x-0.5 group hover:underline"
+                          >
+                            <span>Apartar cita</span>
+                            <ChevronRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
+                          </button>
+                        </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="bg-white py-10 text-center rounded-3xl border border-dashed border-slate-300/80 p-6 text-slate-400">
+                      <BadgeAlert className="w-10 h-10 mx-auto text-slate-300 animate-pulse mb-3" />
+                      <p className="text-sm font-medium">No se encontraron doctores de la especialidad "{docCityQuery}" en Granada.</p>
+                      <button
+                        onClick={() => setSelectedSpecialty("Cardiología")}
+                        className="mt-2 text-xs text-blue-600 font-bold hover:underline"
+                      >
+                        Restablecer filtros
+                      </button>
                     </div>
-                  ))
-                ) : (
-                  <div className="bg-white py-10 text-center rounded-3xl border border-dashed border-slate-300/80 p-6 text-slate-400">
-                    <BadgeAlert className="w-10 h-10 mx-auto text-slate-300 animate-pulse mb-3" />
-                    <p className="text-sm font-medium">No se encontraron doctores de la especialidad "{docCityQuery}" en Granada.</p>
-                    <button 
-                      onClick={() => setSelectedSpecialty("Cardiología")}
-                      className="mt-2 text-xs text-blue-600 font-bold hover:underline"
-                    >
-                      Restablecer filtros
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
               {/* Informative disclaimer footer */}
@@ -338,7 +337,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Farmacias cercanas</h4>
                   <p className="text-[10px] text-slate-400 mt-0.5">Se encontraron {filteredPharmacies.length} farmacias con este medicamento.</p>
                 </div>
-                <button 
+                <button
                   id="btn-pharmacies-filter-tool"
                   onClick={() => alert("Mostrando opciones de filtros para farmacias: Cobertura de seguros, Horario extendido de 24h, Envío a domicilio.")}
                   className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-600 active:scale-95 flex items-center space-x-1 transition-all shadow-sm"
@@ -349,7 +348,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               </div>
 
               {/* Pharmacies List */}
-              <div className="space-y-3.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                 {filteredPharmacies.length > 0 ? (
                   filteredPharmacies.map((pharm) => (
                     <div
@@ -379,13 +378,12 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
 
                       {/* availability and GPS Navigation button */}
                       <div className="text-right flex flex-col items-end gap-1 shrink-0 ml-4">
-                        <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${
-                          pharm.status === "Disponible" 
-                            ? "bg-emerald-50 text-emerald-700" 
+                        <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${pharm.status === "Disponible"
+                            ? "bg-emerald-50 text-emerald-700"
                             : pharm.status === "Poco stock"
                               ? "bg-amber-50 text-amber-700"
                               : "bg-rose-50 text-rose-700"
-                        }`}>
+                          }`}>
                           ✓ {pharm.status}
                         </span>
 
@@ -404,7 +402,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   <div className="bg-white py-10 text-center rounded-3xl border border-dashed border-slate-300/80 p-6 text-slate-400">
                     <BadgeAlert className="w-10 h-10 mx-auto text-slate-300 animate-pulse mb-3" />
                     <p className="text-sm font-medium">No se encontró el medicamento "{drugQuery}" en Granada.</p>
-                    <button 
+                    <button
                       onClick={() => setDrugQuery("Paracetamol 500 mg")}
                       className="mt-2 text-xs text-blue-600 font-bold hover:underline"
                     >
@@ -459,7 +457,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       <h3 className="font-display font-bold text-lg text-slate-900">Apartar cita médica</h3>
                       <p className="text-xs text-slate-400 mt-0.5">Elige el horario conveniente para ti.</p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => setBookingDoctor(null)}
                       className="p-1.5 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-colors"
                     >

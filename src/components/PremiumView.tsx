@@ -94,100 +94,102 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
       {/* Main content grids */}
       <main className="px-6 flex-1 space-y-6 max-w-4xl mx-auto w-full">
 
-        {/* PREMIUM BÁSICO CARD */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-100/90 shadow-sm relative overflow-hidden flex flex-col md:flex-row gap-6 justify-between transform hover:scale-[1.01] transition-transform duration-200">
-          <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* PREMIUM BÁSICO CARD */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-100/90 shadow-sm relative overflow-hidden flex flex-col gap-6 justify-between transform hover:scale-[1.01] transition-transform duration-200">
+            <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/5 rounded-full blur-2xl pointer-events-none"></div>
 
-          <div className="flex-1 text-left">
-            <div className="flex items-center space-x-2.5 mb-2.5">
-              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                <Star className="w-5 h-5 fill-blue-500 stroke-blue-700" />
+            <div className="flex-1 text-left">
+              <div className="flex items-center space-x-2.5 mb-2.5">
+                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                  <Star className="w-5 h-5 fill-blue-500 stroke-blue-700" />
+                </div>
+                <h4 className="font-display font-bold text-xl text-slate-900">Premium básico</h4>
               </div>
-              <h4 className="font-display font-bold text-xl text-slate-900">Premium básico</h4>
+
+              <p className="text-slate-400 text-xs leading-relaxed max-w-sm mb-4">
+                Accede a herramientas avanzadas para cuidar tu salud cada día.
+              </p>
+
+              <span className="inline-block bg-blue-50 text-blue-700 text-[10px] px-3.5 py-1.5 rounded-full font-bold border border-blue-100 mb-4 font-mono">
+                ✓ Ideal para ti
+              </span>
+
+              <button
+                id="btn-choose-plan-basic"
+                onClick={() => setCheckoutPlan({ name: "Premium básico", price: "$4.99/mes" })}
+                className="block w-full sm:max-w-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-2xl text-xs tracking-wider transition-all active:scale-95 text-center shadow-md shadow-blue-500/10 mb-4"
+              >
+                Elegir plan
+              </button>
             </div>
 
-            <p className="text-slate-400 text-xs leading-relaxed max-w-sm mb-4">
-              Accede a herramientas avanzadas para cuidar tu salud cada día.
-            </p>
-
-            <span className="inline-block bg-blue-50 text-blue-700 text-[10px] px-3.5 py-1.5 rounded-full font-bold border border-blue-100 mb-4 font-mono">
-              ✓ Ideal para ti
-            </span>
-
-            <button
-              id="btn-choose-plan-basic"
-              onClick={() => setCheckoutPlan({ name: "Premium básico", price: "$4.99/mes" })}
-              className="block w-full sm:max-w-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-2xl text-xs tracking-wider transition-all active:scale-95 text-center shadow-md shadow-blue-500/10 mb-4"
-            >
-              Elegir plan
-            </button>
+            {/* Checklist list */}
+            <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-100 shrink-0 select-none md:w-64">
+              <ul className="space-y-3">
+                {[
+                  "Consultas con IA ilimitadas",
+                  "Análisis personalizados",
+                  "Recordatorios inteligentes",
+                  "Historial de consultas",
+                  "Soporte prioritario"
+                ].map((benefit, i) => (
+                  <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700">
+                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
-          {/* Checklist list */}
-          <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-100 shrink-0 select-none md:w-64">
-            <ul className="space-y-3">
-              {[
-                "Consultas con IA ilimitadas",
-                "Análisis personalizados",
-                "Recordatorios inteligentes",
-                "Historial de consultas",
-                "Soporte prioritario"
-              ].map((benefit, i) => (
-                <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700">
-                  <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>{benefit}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+          {/* PREMIUM INSTITUCIÓN CARD */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-100/90 shadow-sm relative overflow-hidden flex flex-col gap-6 justify-between transform hover:scale-[1.01] transition-transform duration-200">
+            <div className="absolute top-0 right-0 w-28 h-28 bg-purple-500/5 rounded-full blur-2xl pointer-events-none"></div>
 
-        {/* PREMIUM INSTITUCIÓN CARD */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-100/90 shadow-sm relative overflow-hidden flex flex-col md:flex-row gap-6 justify-between transform hover:scale-[1.01] transition-transform duration-200">
-          <div className="absolute top-0 right-0 w-28 h-28 bg-purple-500/5 rounded-full blur-2xl pointer-events-none"></div>
-
-          <div className="flex-1 text-left">
-            <div className="flex items-center space-x-2.5 mb-2.5">
-              <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">
-                <Building className="w-5 h-5 text-purple-600" />
+            <div className="flex-1 text-left">
+              <div className="flex items-center space-x-2.5 mb-2.5">
+                <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">
+                  <Building className="w-5 h-5 text-purple-600" />
+                </div>
+                <h4 className="font-display font-bold text-xl text-slate-900">Premium institución</h4>
               </div>
-              <h4 className="font-display font-bold text-xl text-slate-900">Premium institución</h4>
+
+              <p className="text-slate-400 text-xs leading-relaxed max-w-sm mb-4">
+                Solución integral para organizaciones que priorizan tu bienestar.
+              </p>
+
+              <span className="inline-block bg-purple-50 text-purple-700 text-[10px] px-3.5 py-1.5 rounded-full font-bold border border-purple-100 mb-4 font-mono">
+                ✓ Para equipos y empresas
+              </span>
+
+              <button
+                id="btn-choose-plan-institution"
+                onClick={() => setCheckoutPlan({ name: "Premium institución", price: "$49.99/mes" })}
+                className="block w-full sm:max-w-xs bg-purple-650 hover:bg-purple-700 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-2xl text-xs tracking-wider transition-all active:scale-95 text-center shadow-md shadow-indigo-500/10 mb-4"
+              >
+                Elegir plan
+              </button>
             </div>
 
-            <p className="text-slate-400 text-xs leading-relaxed max-w-sm mb-4">
-              Solución integral para organizaciones que priorizan tu bienestar.
-            </p>
-
-            <span className="inline-block bg-purple-50 text-purple-700 text-[10px] px-3.5 py-1.5 rounded-full font-bold border border-purple-100 mb-4 font-mono">
-              ✓ Para equipos y empresas
-            </span>
-
-            <button
-              id="btn-choose-plan-institution"
-              onClick={() => setCheckoutPlan({ name: "Premium institución", price: "$49.99/mes" })}
-              className="block w-full sm:max-w-xs bg-purple-650 hover:bg-purple-700 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-2xl text-xs tracking-wider transition-all active:scale-95 text-center shadow-md shadow-indigo-500/10 mb-4"
-            >
-              Elegir plan
-            </button>
-          </div>
-
-          {/* Checklist list */}
-          <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-100 shrink-0 select-none md:w-64">
-            <ul className="space-y-3">
-              {[
-                "Todo lo de Premium básico",
-                "Panel administrativo",
-                "Reportes de bienestar",
-                "Gestión de usuarios",
-                "Integraciones y API",
-                "Soporte dedicado"
-              ].map((benefit, i) => (
-                <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700">
-                  <Check className="w-4 h-4 text-indigo-600 shrink-0" />
-                  <span>{benefit}</span>
-                </li>
-              ))}
-            </ul>
+            {/* Checklist list */}
+            <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-100 shrink-0 select-none md:w-64">
+              <ul className="space-y-3">
+                {[
+                  "Todo lo de Premium básico",
+                  "Panel administrativo",
+                  "Reportes de bienestar",
+                  "Gestión de usuarios",
+                  "Integraciones y API",
+                  "Soporte dedicado"
+                ].map((benefit, i) => (
+                  <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700">
+                    <Check className="w-4 h-4 text-indigo-600 shrink-0" />
+                    <span>{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 

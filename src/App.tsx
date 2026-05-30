@@ -149,7 +149,7 @@ export default function App() {
   if (!initialized) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] flex items-center justify-center">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center gap-4"
@@ -177,13 +177,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans select-none overflow-x-hidden antialiased">
-      
+
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* Dynamic Content Views based on Router State */}
-      <div className="flex-1 w-full max-w-lg mx-auto bg-white min-h-screen shadow-2xl shadow-blue-500/5 flex flex-col relative pb-20">
-        
+      <div className="flex-1 w-full md:max-w-4xl lg:max-w-5xl mx-auto bg-white min-h-screen shadow-2xl shadow-blue-500/5 flex flex-col relative pb-20 md:border-x border-slate-100">
+
         <AnimatePresence mode="wait">
           {currentView === "login" && (
             <motion.div
@@ -322,16 +322,15 @@ export default function App() {
 
         {/* PERSISTENT 4-TAB NAVIGATION BAR IN PAGE FOOTERS */}
         {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && (
-          <nav className="fixed bottom-0 inset-x-0 bg-white z-40 max-w-lg mx-auto w-full border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom">
-            <div className="grid grid-cols-4 p-2.5 pt-3 pb-5 relative font-sans">
-              
+          <nav className="fixed bottom-0 inset-x-0 bg-white z-40 md:max-w-4xl lg:max-w-5xl mx-auto w-full border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:border-x border-slate-100">
+            <div className="grid grid-cols-4 md:flex md:justify-around md:px-10 p-2.5 pt-3 pb-5 md:pb-3 relative font-sans">
+
               {/* Tab 1: Consulta */}
               <button
                 id="btn-nav-consulta"
                 onClick={() => setCurrentView("consulta")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${
-                  currentView === "consulta" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
-                }`}
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "consulta" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
+                  }`}
               >
                 <div className="p-1 mb-0.5">
                   <svg className={`w-[25px] h-[25px] ${currentView === "consulta" ? "fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "consulta" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -351,9 +350,8 @@ export default function App() {
               <button
                 id="btn-nav-centros"
                 onClick={() => setCurrentView("centros")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${
-                  currentView === "centros" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
-                }`}
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "centros" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
+                  }`}
               >
                 <div className="p-1 mb-0.5">
                   <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -373,9 +371,8 @@ export default function App() {
               <button
                 id="btn-nav-buscar"
                 onClick={() => setCurrentView("buscar")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${
-                  currentView === "buscar" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
-                }`}
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
+                  }`}
               >
                 <div className="p-1 mb-0.5">
                   <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -395,9 +392,8 @@ export default function App() {
               <button
                 id="btn-nav-premium"
                 onClick={() => setCurrentView("premium")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${
-                  currentView === "premium" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
-                }`}
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "premium" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
+                  }`}
               >
                 <div className="p-1 mb-0.5">
                   <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -520,13 +516,13 @@ export default function App() {
             >
               {/* Subtle top decoration */}
               <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-red-500 via-rose-500 to-red-600" />
-              
+
               {/* Pulse alert icon container */}
               <div className="flex flex-col items-center text-center mt-3 mb-5">
                 <div className="w-[74px] h-[74px] rounded-full bg-red-50 flex items-center justify-center relative mb-4">
                   {/* Ping effect */}
                   <span className="absolute inline-flex h-full w-full rounded-full bg-red-100 animate-ping opacity-75" />
-                  
+
                   {/* Inner dark red icon container */}
                   <div className="w-[56px] h-[56px] rounded-full bg-gradient-to-tr from-red-500 to-rose-600 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(239,68,68,0.3)] relative z-10">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[28px] h-[28px] animate-pulse">
@@ -538,7 +534,7 @@ export default function App() {
                     </svg>
                   </div>
                 </div>
-                
+
                 <h3 className="text-xl font-bold text-slate-900 tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
                   Llamada de Emergencia
                 </h3>
@@ -549,7 +545,7 @@ export default function App() {
 
               {/* Informative Guidance Content */}
               <div className="space-y-4 mb-6" style={{ fontFamily: "'Inter', sans-serif" }}>
-                
+
                 {/* When to call */}
                 <div className="bg-emerald-50/60 rounded-[20px] p-3.5 border border-emerald-100/50">
                   <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
@@ -615,7 +611,7 @@ export default function App() {
                   </svg>
                   <span>Llamar al 128 ahora</span>
                 </motion.button>
-                
+
                 <button
                   onClick={() => setIsEmergencyModalOpen(false)}
                   className="w-full py-3 text-slate-500 hover:text-slate-800 font-bold text-[13px] tracking-wide transition-colors active:scale-95"

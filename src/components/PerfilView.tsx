@@ -14,7 +14,7 @@ interface PerfilViewProps {
 
 export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, onLogout }: PerfilViewProps) {
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
-  
+
   // Forms state for updates
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
@@ -83,7 +83,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
 
       {/* Main Container */}
       <main className="px-6 pt-6 flex-1 space-y-6 max-w-4xl mx-auto w-full">
-        
+
         {/* Profile Card Header segment */}
         <div className="bg-white rounded-3xl p-6 border border-slate-100/90 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl pointer-events-none"></div>
@@ -91,9 +91,9 @@ Emergency Contact: Cruz Roja Granada - 128`;
           {/* Avatar Picture with verified ring */}
           <div className="relative group shrink-0">
             <div className="w-24 h-24 rounded-full p-1.5 bg-gradient-to-tr from-blue-500 to-cyan-400 shadow-md">
-              <img 
-                src={user.avatarUrl} 
-                alt={user.name} 
+              <img
+                src={user.avatarUrl}
+                alt={user.name}
                 className="w-full h-full rounded-full object-cover border-4 border-white"
                 referrerPolicy="no-referrer"
               />
@@ -122,7 +122,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
         {/* QR Code section segment card */}
         <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row items-center gap-5 justify-between">
-            
+
             <div className="flex-1 text-center sm:text-left space-y-2">
               <span className="text-[10px] uppercase tracking-wider font-bold text-blue-500 flex items-center justify-center sm:justify-start gap-1">
                 <Shield className="w-3.5 h-3.5" />
@@ -143,7 +143,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
             </div>
 
             {/* Visual Real Active QR Generator Container */}
-            <div 
+            <div
               onClick={() => alert(`Contenido del código de seguridad médica:\n\n${qrTelemetryText}`)}
               className="w-36 h-36 border border-slate-200/80 p-3.5 bg-slate-50 rounded-2xl flex items-center justify-center cursor-pointer shadow-inner animate-pulse duration-300 hover:scale-105 transition-transform"
               title="Presiona para ampliar detalles clínicos del QR"
@@ -165,197 +165,199 @@ Emergency Contact: Cruz Roja Granada - 128`;
         {/* ACCOUNT MANAGE LIST SEGMENT */}
         <div className="space-y-3">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Gestión de cuenta</h4>
-          
-          {/* Menu Option items collapsible blocks */}
-          {[
-            {
-              id: "personal",
-              title: "Información personal",
-              subtitle: "Nombre, correo y teléfono",
-              icon: User,
-              color: "text-blue-600 bg-blue-50 border border-blue-100",
-            },
-            {
-              id: "seguridad",
-              title: "Seguridad y privacidad",
-              subtitle: "Contraseña, verificación y datos",
-              icon: Key,
-              color: "text-emerald-600 bg-emerald-50 border border-emerald-100",
-            },
-            {
-              id: "notificaciones",
-              title: "Notificaciones",
-              subtitle: "Preferencias de alertas",
-              icon: BellRing,
-              color: "text-purple-600 bg-purple-50 border border-purple-100",
-            },
-            {
-              id: "preferencias",
-              title: "Preferencias de salud",
-              subtitle: "Temas y condiciones de interés",
-              icon: Heart,
-              color: "text-rose-600 bg-rose-50 border border-rose-100",
-            },
-          ].map((item) => {
-            const Icon = item.icon;
-            const isOpen = activeMenuSection === item.id;
-            
-            return (
-              <div key={item.id} className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
-                <button
-                  id={`btn-profile-menu-${item.id}`}
-                  onClick={() => setActiveMenuSection(isOpen ? null : item.id)}
-                  className="w-full p-4.5 text-left flex items-center justify-between hover:bg-slate-50/50 transition-colors outline-none"
-                >
-                  <div className="flex items-center space-x-3.5">
-                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${item.color}`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h5 className="text-sm font-bold text-slate-800">{item.title}</h5>
-                      <p className="text-[11px] text-slate-400 mt-0.5">{item.subtitle}</p>
-                    </div>
-                  </div>
-                  <ChevronRight className={`w-5 h-5 text-slate-400 transform transition-transform ${isOpen ? "rotate-90 text-blue-600" : ""}`} />
-                </button>
 
-                {/* Collapsed Nested Details Screen panel */}
-                <AnimatePresence>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: "auto" }}
-                      exit={{ height: 0 }}
-                      className="border-t border-slate-50 bg-slate-50/40"
-                    >
-                      <div className="p-5 text-xs text-slate-600 space-y-4">
-                        
-                        {/* Nested Personal info update Form */}
-                        {item.id === "personal" && (
-                          <form onSubmit={handleUpdateProfile} className="space-y-3.5 text-left">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <div className="space-y-1">
-                                <label className="text-[10px] uppercase font-bold text-slate-400">Nombre paciente</label>
-                                <input
-                                  id="input-edit-username"
-                                  type="text"
-                                  value={editName}
-                                  onChange={(e) => setEditName(e.target.value)}
-                                  className="w-full text-slate-800 bg-white py-2 px-3.5 rounded-xl border border-slate-200 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
-                                  required
-                                />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[10px] uppercase font-bold text-slate-400">Correo seguro</label>
-                                <input
-                                  id="input-edit-useremail"
-                                  type="email"
-                                  value={editEmail}
-                                  onChange={(e) => setEditEmail(e.target.value)}
-                                  className="w-full text-slate-800 bg-white py-2 px-3.5 rounded-xl border border-slate-200 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-mono font-semibold"
-                                  required
-                                />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[10px] uppercase font-bold text-slate-400">Municipio de Residencia</label>
-                                <input
-                                  id="input-edit-usercity"
-                                  type="text"
-                                  value={editCity}
-                                  onChange={(e) => setEditCity(e.target.value)}
-                                  className="w-full text-slate-800 bg-white py-2 px-3.5 rounded-xl border border-slate-200 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
-                                  required
-                                />
-                              </div>
-                              <div className="space-y-1">
-                                <label className="text-[10px] uppercase font-bold text-slate-400">Celular de Emergencia</label>
-                                <input
-                                  type="text"
-                                  defaultValue="+505 8888-9999"
-                                  className="w-full text-slate-800 bg-white py-2 px-3.5 rounded-xl border border-slate-200 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
-                                  disabled
-                                />
-                              </div>
-                            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Menu Option items collapsible blocks */}
+            {[
+              {
+                id: "personal",
+                title: "Información personal",
+                subtitle: "Nombre, correo y teléfono",
+                icon: User,
+                color: "text-blue-600 bg-blue-50 border border-blue-100",
+              },
+              {
+                id: "seguridad",
+                title: "Seguridad y privacidad",
+                subtitle: "Contraseña, verificación y datos",
+                icon: Key,
+                color: "text-emerald-600 bg-emerald-50 border border-emerald-100",
+              },
+              {
+                id: "notificaciones",
+                title: "Notificaciones",
+                subtitle: "Preferencias de alertas",
+                icon: BellRing,
+                color: "text-purple-600 bg-purple-50 border border-purple-100",
+              },
+              {
+                id: "preferencias",
+                title: "Preferencias de salud",
+                subtitle: "Temas y condiciones de interés",
+                icon: Heart,
+                color: "text-rose-600 bg-rose-50 border border-rose-100",
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+              const isOpen = activeMenuSection === item.id;
 
-                            <button
-                              id="btn-save-personal-info"
-                              type="submit"
-                              className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold py-2 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide"
-                            >
-                              Guardar cambios del perfil
-                            </button>
-                          </form>
-                        )}
-
-                        {/* Nested secure privacy content panel */}
-                        {item.id === "seguridad" && (
-                          <div className="space-y-3.5 text-left">
-                            <p className="text-slate-500 leading-normal">
-                              Su cuenta tecnológica utiliza encriptación de extremo a extremo para las consultas médicas de triaje.
-                              También puede habilitar el desbloqueo mediante Biometría Facial (FaceID) o PIN del celular.
-                            </p>
-                            <div className="flex items-center justify-between p-3 bg-white rounded-2xl border border-slate-100">
-                              <span className="font-semibold text-slate-700">Autenticación biométrica móvil</span>
-                              <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-bold">Inactivo (Por defecto)</span>
-                            </div>
-                            <div className="flex items-center justify-between p-3 bg-white rounded-2xl border border-slate-100">
-                              <span className="font-semibold text-slate-700">Encriptación de Triage Clínico</span>
-                              <span className="text-[10px] bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-bold">Activo (AES-256)</span>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Nested alert notifications checker options */}
-                        {item.id === "notificaciones" && (
-                          <div className="space-y-3 text-left">
-                            <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white rounded-xl border border-slate-100">
-                              <input type="checkbox" defaultChecked className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                              <span className="font-semibold text-slate-700">Alertas de vacunas estacionales en Granada</span>
-                            </label>
-                            <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white rounded-xl border border-slate-100">
-                              <input type="checkbox" defaultChecked className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                              <span className="font-semibold text-slate-700">Recordatorios de citas agendadas por SMS</span>
-                            </label>
-                            <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white rounded-xl border border-slate-100">
-                              <input type="checkbox" className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                              <span className="font-semibold text-slate-700">Emails informativos sobre bienestar público</span>
-                            </label>
-                          </div>
-                        )}
-
-                        {/* Nested Allergologies condition list */}
-                        {item.id === "preferencias" && (
-                          <div className="space-y-4 text-left">
-                            <div>
-                              <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">Condiciones críticas registradas</span>
-                              <div className="flex flex-wrap gap-2 mt-2">
-                                {user.healthConditions.map((cond, i) => (
-                                  <span key={i} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-[10px] border border-blue-100 flex items-center space-x-1">
-                                    <span>⚕️</span>
-                                    <span>{cond}</span>
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="p-3 bg-white rounded-2xl border border-slate-100 flex items-center justify-between">
-                              <div>
-                                <span className="font-bold text-slate-800">Tipo de sangre</span>
-                                <p className="text-[10px] text-slate-400 mt-0.5">Necesario para emergencias de primeros auxilios</p>
-                              </div>
-                              <span className="text-sm font-bold bg-rose-50 text-rose-600 px-3 py-1.5 rounded-full font-mono border border-rose-100">O positivo (O+)</span>
-                            </div>
-                          </div>
-                        )}
-
+              return (
+                <div key={item.id} className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
+                  <button
+                    id={`btn-profile-menu-${item.id}`}
+                    onClick={() => setActiveMenuSection(isOpen ? null : item.id)}
+                    className="w-full p-4.5 text-left flex items-center justify-between hover:bg-slate-50/50 transition-colors outline-none"
+                  >
+                    <div className="flex items-center space-x-3.5">
+                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${item.color}`}>
+                        <Icon className="w-5 h-5" />
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
+                      <div>
+                        <h5 className="text-sm font-bold text-slate-800">{item.title}</h5>
+                        <p className="text-[11px] text-slate-400 mt-0.5">{item.subtitle}</p>
+                      </div>
+                    </div>
+                    <ChevronRight className={`w-5 h-5 text-slate-400 transform transition-transform ${isOpen ? "rotate-90 text-blue-600" : ""}`} />
+                  </button>
+
+                  {/* Collapsed Nested Details Screen panel */}
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: "auto" }}
+                        exit={{ height: 0 }}
+                        className="border-t border-slate-50 bg-slate-50/40"
+                      >
+                        <div className="p-5 text-xs text-slate-600 space-y-4">
+
+                          {/* Nested Personal info update Form */}
+                          {item.id === "personal" && (
+                            <form onSubmit={handleUpdateProfile} className="space-y-3.5 text-left">
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400">Nombre paciente</label>
+                                  <input
+                                    id="input-edit-username"
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    className="w-full text-slate-800 bg-white py-2 px-3.5 rounded-xl border border-slate-200 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
+                                    required
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400">Correo seguro</label>
+                                  <input
+                                    id="input-edit-useremail"
+                                    type="email"
+                                    value={editEmail}
+                                    onChange={(e) => setEditEmail(e.target.value)}
+                                    className="w-full text-slate-800 bg-white py-2 px-3.5 rounded-xl border border-slate-200 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-mono font-semibold"
+                                    required
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400">Municipio de Residencia</label>
+                                  <input
+                                    id="input-edit-usercity"
+                                    type="text"
+                                    value={editCity}
+                                    onChange={(e) => setEditCity(e.target.value)}
+                                    className="w-full text-slate-800 bg-white py-2 px-3.5 rounded-xl border border-slate-200 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
+                                    required
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400">Celular de Emergencia</label>
+                                  <input
+                                    type="text"
+                                    defaultValue="+505 8888-9999"
+                                    className="w-full text-slate-800 bg-white py-2 px-3.5 rounded-xl border border-slate-200 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
+                                    disabled
+                                  />
+                                </div>
+                              </div>
+
+                              <button
+                                id="btn-save-personal-info"
+                                type="submit"
+                                className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold py-2 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide"
+                              >
+                                Guardar cambios del perfil
+                              </button>
+                            </form>
+                          )}
+
+                          {/* Nested secure privacy content panel */}
+                          {item.id === "seguridad" && (
+                            <div className="space-y-3.5 text-left">
+                              <p className="text-slate-500 leading-normal">
+                                Su cuenta tecnológica utiliza encriptación de extremo a extremo para las consultas médicas de triaje.
+                                También puede habilitar el desbloqueo mediante Biometría Facial (FaceID) o PIN del celular.
+                              </p>
+                              <div className="flex items-center justify-between p-3 bg-white rounded-2xl border border-slate-100">
+                                <span className="font-semibold text-slate-700">Autenticación biométrica móvil</span>
+                                <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-bold">Inactivo (Por defecto)</span>
+                              </div>
+                              <div className="flex items-center justify-between p-3 bg-white rounded-2xl border border-slate-100">
+                                <span className="font-semibold text-slate-700">Encriptación de Triage Clínico</span>
+                                <span className="text-[10px] bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-bold">Activo (AES-256)</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Nested alert notifications checker options */}
+                          {item.id === "notificaciones" && (
+                            <div className="space-y-3 text-left">
+                              <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white rounded-xl border border-slate-100">
+                                <input type="checkbox" defaultChecked className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
+                                <span className="font-semibold text-slate-700">Alertas de vacunas estacionales en Granada</span>
+                              </label>
+                              <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white rounded-xl border border-slate-100">
+                                <input type="checkbox" defaultChecked className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
+                                <span className="font-semibold text-slate-700">Recordatorios de citas agendadas por SMS</span>
+                              </label>
+                              <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white rounded-xl border border-slate-100">
+                                <input type="checkbox" className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
+                                <span className="font-semibold text-slate-700">Emails informativos sobre bienestar público</span>
+                              </label>
+                            </div>
+                          )}
+
+                          {/* Nested Allergologies condition list */}
+                          {item.id === "preferencias" && (
+                            <div className="space-y-4 text-left">
+                              <div>
+                                <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">Condiciones críticas registradas</span>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  {user.healthConditions.map((cond, i) => (
+                                    <span key={i} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-[10px] border border-blue-100 flex items-center space-x-1">
+                                      <span>⚕️</span>
+                                      <span>{cond}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="p-3 bg-white rounded-2xl border border-slate-100 flex items-center justify-between">
+                                <div>
+                                  <span className="font-bold text-slate-800">Tipo de sangre</span>
+                                  <p className="text-[10px] text-slate-400 mt-0.5">Necesario para emergencias de primeros auxilios</p>
+                                </div>
+                                <span className="text-sm font-bold bg-rose-50 text-rose-600 px-3 py-1.5 rounded-full font-mono border border-rose-100">O positivo (O+)</span>
+                              </div>
+                            </div>
+                          )}
+
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Saved feedback card banner */}
