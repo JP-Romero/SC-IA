@@ -207,8 +207,8 @@ export default function App() {
                 key={tab.id}
                 onClick={() => setCurrentView(tab.id as any)}
                 className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all ${currentView === tab.id
-                    ? "bg-blue-50 text-blue-700 font-bold shadow-sm border border-blue-100/50"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium border border-transparent"
+                  ? "bg-blue-50 text-blue-700 font-bold shadow-sm border border-blue-100/50"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium border border-transparent"
                   }`}
               >
                 <div className={`w-5 h-5 ${currentView === tab.id ? "fill-current/20" : ""}`}>{tab.icon}</div>
@@ -230,8 +230,8 @@ export default function App() {
         </aside>
       )}
 
-      {/* Dynamic Content Views based on Router State (Con margen lateral en Laptop) */}
-      <div className={`flex-1 w-full bg-white min-h-screen flex flex-col relative pb-20 md:pb-0 ${currentView !== "login" && currentView !== "register" ? "md:ml-[260px]" : ""}`}>
+      {/* Dynamic Content Views based on Router State (Con padding lateral en Laptop para centrado perfecto) */}
+      <div className={`flex-1 w-full bg-white min-h-screen flex flex-col relative pb-20 md:pb-0 ${currentView !== "login" && currentView !== "register" ? "md:pl-[260px]" : ""}`}>
 
         <AnimatePresence mode="wait">
           {currentView === "login" && (
