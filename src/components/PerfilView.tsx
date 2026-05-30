@@ -107,7 +107,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
 
           <div className="text-center sm:text-left space-y-1.5">
             <h3 className="font-display font-medium text-2.5xl text-slate-900 dark:text-white tracking-tight leading-none flex items-center justify-center sm:justify-start">
-              {user.name}.
+              {(user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name}.
             </h3>
             <p className="text-slate-400 dark:text-slate-500 text-xs font-medium font-mono">{user.email}</p>
             <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold flex items-center justify-center sm:justify-start space-x-1">

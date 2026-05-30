@@ -357,7 +357,6 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                 {filteredPharmacies.length > 0 ? (
                   filteredPharmacies.map((pharm) => (
                     <div
-                      key={pharm.id}
                       id={`row-pharmacy-profile-${pharm.id}`}
                       key={pharm.id}
                       className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between hover:border-blue-100 dark:hover:border-blue-900/50 transition-all group"

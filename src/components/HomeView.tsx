@@ -12,7 +12,8 @@ interface HomeViewProps {
 
 export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewProps) {
   const { t } = useLanguage();
-  const firstName = user.name.split(" ")[0];
+  const isGuest = user.id === "guest" || user.name === "Invitado";
+  const firstName = isGuest ? t('guest') : user.name.split(" ")[0];
 
   return (
     <div className="flex flex-col min-h-screen pb-24 relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">

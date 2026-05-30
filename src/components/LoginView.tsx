@@ -97,7 +97,7 @@ export default function LoginView({
   };
 
   const handleContinueWithoutAccount = () => {
-    onLogin("Invitado");
+    onLogin("guest");
   };
 
   const isLoading = isSubmitting || loading;
