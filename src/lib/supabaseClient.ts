@@ -10,9 +10,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// Proveemos valores de respaldo (placeholders) para evitar que la app 
+// colapse con un "Uncaught Error" si faltan las variables en producción.
 export const supabase = createClient(
-  supabaseUrl || '',
-  supabaseAnonKey || '',
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
   {
     auth: {
       autoRefreshToken: true,
