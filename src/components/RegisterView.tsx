@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, User, Mail, Lock, ArrowRight, LogIn, Moon, Sun, Loader2 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { createToast, type ToastData } from "./Toast";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface RegisterViewProps {
   onRegister: (name: string) => void;
@@ -18,6 +19,7 @@ export default function RegisterView({
   onToggleDarkMode,
   onToast
 }: RegisterViewProps) {
+  const { t } = useLanguage();
   const { register, loginWithGoogle, loading } = useAuth();
 
   const [name, setName] = useState("");
@@ -50,10 +52,10 @@ export default function RegisterView({
 
     // Validate Name
     if (!name.trim()) {
-      setNameError("Ingresa tu nombre completo.");
+      setNameError(t('nameRequired'));
       hasError = true;
     } else if (name.trim().length < 3) {
-      setNameError("El nombre debe tener al menos 3 caracteres.");
+      setNameError(t('nameMin'));
       hasError = true;
     } else {
       setNameError("");
@@ -61,10 +63,10 @@ export default function RegisterView({
 
     // Validate Email
     if (!email.trim()) {
-      setEmailError("Ingresa tu correo electrónico.");
+      setEmailError(t('emailRequired'));
       hasError = true;
     } else if (!validateEmail(email.trim())) {
-      setEmailError("Ingresa un correo electrónico válido.");
+      setEmailError(t('emailInvalid'));
       hasError = true;
     } else {
       setEmailError("");
@@ -72,10 +74,10 @@ export default function RegisterView({
 
     // Validate Password
     if (!password) {
-      setPasswordError("Ingresa una contraseña.");
+      setPasswordError(t('passRequired'));
       hasError = true;
     } else if (password.length < 6) {
-      setPasswordError("La contraseña debe tener al menos 6 caracteres.");
+      setPasswordError(t('passMin'));
       hasError = true;
     } else {
       setPasswordError("");
@@ -83,10 +85,10 @@ export default function RegisterView({
 
     // Validate Confirm Password
     if (!confirmPassword) {
-      setConfirmPasswordError("Confirma tu contraseña.");
+      setConfirmPasswordError(t('confirmPassRequired'));
       hasError = true;
     } else if (confirmPassword !== password) {
-      setConfirmPasswordError("Las contraseñas no coinciden.");
+      setConfirmPasswordError(t('passMismatch'));
       hasError = true;
     } else {
       setConfirmPasswordError("");
@@ -94,7 +96,7 @@ export default function RegisterView({
 
     // Validate Terms Checkbox
     if (!agreeToTerms) {
-      setTermsError("Debes aceptar los Términos y Condiciones.");
+      setTermsError(t('termsRequired'));
       hasError = true;
     } else {
       setTermsError("");
@@ -106,13 +108,13 @@ export default function RegisterView({
     try {
       const result = await register(email.trim(), password, name.trim());
       if (result.success) {
-        onToast?.(createToast("¡Cuenta creada exitosamente! Bienvenido.", "success"));
+        onToast?.(createToast(t('registerSuccess'), "success"));
         onRegister(name.trim());
       } else {
-        onToast?.(createToast(result.error || "Error al crear la cuenta.", "error"));
+        onToast?.(createToast(result.error || t('registerError'), "error"));
       }
     } catch {
-      onToast?.(createToast("Error de conexión. Intenta de nuevo.", "error"));
+      onToast?.(createToast(t('connError'), "error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -124,10 +126,10 @@ export default function RegisterView({
     try {
       const result = await loginWithGoogle();
       if (!result.success) {
-        onToast?.(createToast(result.error || "Error al conectar con Google.", "error"));
+        onToast?.(createToast(result.error || t('googleError'), "error"));
       }
     } catch {
-      onToast?.(createToast("No se pudo conectar con Google.", "error"));
+      onToast?.(createToast(t('googleConnError'), "error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -207,13 +209,10 @@ export default function RegisterView({
         {/* Title Group */}
         <div className="mb-6 text-left">
           <h2 className="text-[34px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-            Crea tu cuenta<span className="text-blue-600 dark:text-blue-500">.</span>
+            {t('createAccount')}<span className="text-blue-600 dark:text-blue-500">.</span>
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-[13.5px] mt-2 font-medium leading-relaxed">
-            Empieza hoy tu camino hacia una vida más{" "}
-            <span className="text-blue-600 dark:text-blue-400 font-semibold">saludable</span>,{" "}
-            <span className="text-blue-600 dark:text-blue-400 font-semibold">conectada</span> e{" "}
-            <span className="text-blue-600 dark:text-blue-400 font-semibold">inteligente</span>.
+            {t('registerSubtitle')}
           </p>
         </div>
 
@@ -222,7 +221,7 @@ export default function RegisterView({
           {/* Nombre Completo Input */}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
-              Nombre completo
+              {t('fullName')}
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
@@ -253,7 +252,7 @@ export default function RegisterView({
           {/* Email Input */}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
-              Correo electrónico
+              {t('emailLabel')}
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
@@ -284,7 +283,7 @@ export default function RegisterView({
           {/* Contraseña Input */}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
-              Contraseña
+              {t('passwordLabel')}
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
@@ -323,7 +322,7 @@ export default function RegisterView({
           {/* Confirmar Contraseña Input */}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-455 dark:text-slate-500 tracking-wider">
-              Confirmar contraseña
+              {t('confirmPassword')}
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
@@ -374,14 +373,7 @@ export default function RegisterView({
                 className="mt-0.5 w-[18px] h-[18px] rounded-[6px] text-blue-600 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-0 cursor-pointer transition-all shrink-0"
               />
               <span className="text-[12.5px] text-slate-500 dark:text-slate-400 leading-snug font-medium select-none">
-                Acepto los{" "}
-                <a href="#terminos" onClick={(e) => { e.preventDefault(); alert("Mostrando Términos y Condiciones..."); }} className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
-                  Términos y Condiciones
-                </a>{" "}
-                y la{" "}
-                <a href="#privacidad" onClick={(e) => { e.preventDefault(); alert("Mostrando Política de Privacidad..."); }} className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
-                  Política de Privacidad
-                </a>.
+                {t('agreeToTerms')}
               </span>
             </label>
             {termsError && (
@@ -399,11 +391,11 @@ export default function RegisterView({
             {isLoading ? (
               <>
                 <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                <span>Creando cuenta...</span>
+                <span>{t('creatingAccount')}</span>
               </>
             ) : (
               <>
-                <span>Registrarse</span>
+                <span>{t('registerButton')}</span>
                 <ArrowRight className="w-4.5 h-4.5" />
               </>
             )}
@@ -417,7 +409,7 @@ export default function RegisterView({
           </div>
           <div className="relative flex justify-center text-xs font-semibold uppercase tracking-wider">
             <span className="bg-[#f8fafc] dark:bg-[#0b0f19] px-4 text-slate-400 dark:text-slate-500 transition-colors duration-300">
-              o regístrate con
+              {t('orContinueWith')}
             </span>
           </div>
         </div>
@@ -440,7 +432,7 @@ export default function RegisterView({
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
             </svg>
           )}
-          <span>Continuar con Google</span>
+            <span>{t('continueWithGoogle')}</span>
         </button>
 
         {/* Already have account -> Login */}
@@ -452,7 +444,7 @@ export default function RegisterView({
           className="w-full bg-transparent hover:bg-blue-50/20 text-blue-600 dark:text-blue-400 py-3.5 px-5 rounded-[20px] border border-blue-600/35 dark:border-blue-400/30 font-bold text-[13.5px] flex items-center justify-center space-x-2 mt-3.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
         >
           <LogIn className="w-5 h-5 text-blue-650 dark:text-blue-450 shrink-0" />
-          <span>Ya tengo cuenta. Iniciar sesión</span>
+            <span>{t('alreadyHaveAccount')}</span>
         </button>
 
       </main>
