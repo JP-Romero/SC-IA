@@ -140,7 +140,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
             </div>
           </motion.button>
 
-          {/* Card 2: Salud pública */}
+          {/* Card 2: Hospitales y centros de salud */}
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={() => onNavigate("centros")}
@@ -157,8 +157,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
                 </svg>
               </div>
               <div className="flex-1 lg:w-full">
-                <h3 className="font-bold text-[#0f172a] text-[15.5px] lg:text-[17px] tracking-tight">Salud pública</h3>
-                <p className="text-[#64748b] text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">Información y servicios oficiales</p>
+                <h3 className="font-bold text-[#0f172a] text-[15.5px] lg:text-[17px] tracking-tight">Hospitales y centros de salud</h3>
+                <p className="text-[#64748b] text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">Encuentra tu centro médico más cercano</p>
               </div>
             </div>
             {/* Arrow key box */}
@@ -169,7 +169,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
             </div>
           </motion.button>
 
-          {/* Card 3: Mis citas */}
+          {/* Card 3: Buscar */}
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={() => onNavigate("buscar")}
@@ -179,16 +179,13 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
               {/* Icon box light purple */}
               <div className="w-[54px] h-[54px] lg:w-[60px] lg:h-[60px] rounded-[18px] lg:rounded-[20px] bg-[#faf5ff] flex items-center justify-center shrink-0 text-[#8b5cf6] group-hover:scale-110 transition-transform duration-300">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-[24px] h-[24px] lg:w-[28px] lg:h-[28px]">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                  <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
               </div>
               <div className="flex-1 lg:w-full">
-                <h3 className="font-bold text-[#0f172a] text-[15.5px] lg:text-[17px] tracking-tight">Mis citas</h3>
-                <p className="text-[#64748b] text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">Gestiona tus próximas citas</p>
+                <h3 className="font-bold text-[#0f172a] text-[15.5px] lg:text-[17px] tracking-tight">Buscar</h3>
+                <p className="text-[#64748b] text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">Encuentra especialistas y citas</p>
               </div>
             </div>
             {/* Arrow key box */}
