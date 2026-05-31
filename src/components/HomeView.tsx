@@ -160,13 +160,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
                 </svg>
               </div>
               <div className="flex-1 lg:w-full">
-<<<<<<< HEAD
-                <h3 className="font-bold text-[#0f172a] text-[15.5px] lg:text-[17px] tracking-tight">Hospitales y centros de salud</h3>
-                <p className="text-[#64748b] text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">Encuentra tu centro médico más cercano</p>
-=======
                 <h3 className="font-bold text-slate-900 dark:text-white text-[15.5px] lg:text-[17px] tracking-tight">{t('publicHealth')}</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">{t('officialServices')}</p>
->>>>>>> 52557d9167ea5881309d8671354ac4da61437f1f
               </div>
             </div>
             {/* Arrow key box */}
@@ -192,13 +187,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
                 </svg>
               </div>
               <div className="flex-1 lg:w-full">
-<<<<<<< HEAD
-                <h3 className="font-bold text-[#0f172a] text-[15.5px] lg:text-[17px] tracking-tight">Buscar</h3>
-                <p className="text-[#64748b] text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">Encuentra especialistas y citas</p>
-=======
                 <h3 className="font-bold text-slate-900 dark:text-white text-[15.5px] lg:text-[17px] tracking-tight">{t('myAppointments')}</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">{t('manageAppointments')}</p>
->>>>>>> 52557d9167ea5881309d8671354ac4da61437f1f
               </div>
             </div>
             {/* Arrow key box */}
