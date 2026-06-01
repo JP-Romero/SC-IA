@@ -130,7 +130,7 @@ module.exports = async function handler(req, res) {
 
     // Use the new @google/genai SDK
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash-lite",
       contents: contents,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
