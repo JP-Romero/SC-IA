@@ -3,28 +3,32 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 let aiClient: GoogleGenerativeAI | null = null;
 
 function getGeminiClient() {
-  if (!aiClient) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey.length < 10) {
-      console.warn("⚠️ Warning: GEMINI_API_KEY is not properly configured");
-    }
-    aiClient = new GoogleGenerativeAI(apiKey || "");
+  const apiKey = process.env.GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY environment variable is not set");
   }
+  
+  if (apiKey.length < 10) {
+    throw new Error("GEMINI_API_KEY is too short");
+  }
+  
+  if (!aiClient) {
+    aiClient = new GoogleGenerativeAI(apiKey);
+  }
+  
   return aiClient;
 }
 
-export default async function handler(
-  req: { method?: string; body?: any; headers?: Record<string, string> },
-  res: {
-    setHeader: (key: string, value: string) => void;
-    status: (code: number) => { json: (data: any) => void; end: () => void };
-  }
-) {
-  // Enable CORS
+export default async function handler(req: any, res: any) {
+  // CORS headers
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
-  res.setHeader("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+  );
 
   if (req.method === "OPTIONS") {
     res.status(200).end();
@@ -42,9 +46,11 @@ export default async function handler(
       return res.status(400).json({ error: "Message is required" });
     }
 
-    // If API key is not configured, return simulated response
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 10) {
-      console.log("Using simulated response (unconfigured API key).");
+    const apiKey = process.env.GEMINI_API_KEY;
+    
+    // If API key is not properly configured, return simulated response
+    if (!apiKey || apiKey.length < 10) {
+      console.log("Using simulated response - API key not configured");
       return res.status(200).json({
         text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
@@ -106,29 +112,30 @@ CENTROS DE REFERENCIA EN GRANADA:
 
 RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 
-    const contents = [];
+    const contents: any[] = [];
+    
     if (history && Array.isArray(history)) {
       for (const turn of history) {
         contents.push({
-          role: (turn.sender === "user" || turn.role === "user") ? "user" : "model",
-          parts: [{ text: turn.text || turn.content || "" }]
+          role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
+          parts: [{ text: turn.text || turn.content || "" }],
         });
       }
     }
 
     contents.push({
       role: "user",
-      parts: [{ text: message }]
+      parts: [{ text: message }],
     });
 
     const model = client.getGenerativeModel({
       model: "gemini-1.5-flash",
-      systemInstruction: systemInstruction
+      systemInstruction: systemInstruction,
     });
 
     const result = await model.generateContent({
       contents: contents,
-      generationConfig: { temperature: 0.75 }
+      generationConfig: { temperature: 0.75 },
     });
 
     const responseAI = await result.response;
@@ -138,24 +145,14 @@ RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
       text: responseText || "No obtuve una respuesta clara del asistente.",
       simulated: false,
     });
-
-  } catch (error) {
-    console.error("Gemini Error:", error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const isDevelopment = process.env.NODE_ENV !== "production";
-
-    console.error("Full error details:", {
-      error: error,
-      message: errorMessage,
-      stack: error instanceof Error ? error.stack : undefined,
-      apiKeyConfigured: !!process.env.GEMINI_API_KEY,
-      apiKeyLength: process.env.GEMINI_API_KEY?.length || 0
-    });
-
+  } catch (error: any) {
+    console.error("API Error:", error);
+    const isDev = process.env.NODE_ENV !== "production";
+    
     return res.status(500).json({
       error: "Ocurrió un error procesando el triaje virtual con IA.",
-      details: isDevelopment ? errorMessage : "Error interno del servidor",
-      timestamp: new Date().toISOString()
+      details: isDev ? error?.message : "Error interno del servidor",
+      timestamp: new Date().toISOString(),
     });
   }
 }
