@@ -1,23 +1,20 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "dist/server.cjs",
-      "use": "@vercel/node"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
     {
-      "src": "dist/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "dist/server.cjs"
+      "source": "/manifest.json",
+      "destination": "/manifest.json"
     },
     {
-      "src": "/(.*)",
-      "dest": "dist/$1"
+      "source": "/sw.js",
+      "destination": "/sw.js"
+    },
+    {
+      "source": "/((?!api/|manifest\\.json|sw\\.js).*)",
+      "destination": "/index.html"
     }
   ]
 }

@@ -26,7 +26,7 @@ var import_express = __toESM(require("express"), 1);
 var import_path = __toESM(require("path"), 1);
 var import_dotenv = __toESM(require("dotenv"), 1);
 var import_vite = require("vite");
-var import_genai = require("@google/genai");
+var import_generative_ai = require("@google/generative-ai");
 import_dotenv.default.config();
 var PORT = 3e3;
 var aiClient = null;
@@ -36,14 +36,7 @@ function getGeminiClient() {
     if (!apiKey) {
       console.warn("\u26A0\uFE0F Warning: GEMINI_API_KEY is not defined in the environment.");
     }
-    aiClient = new import_genai.GoogleGenAI({
-      apiKey: apiKey || "MOCK_KEY",
-      httpOptions: {
-        headers: {
-          "User-Agent": "aistudio-build"
-        }
-      }
-    });
+    aiClient = new import_generative_ai.GoogleGenerativeAI(apiKey || "");
   }
   return aiClient;
 }
@@ -56,41 +49,84 @@ async function startServer() {
       if (!message) {
         return res.status(400).json({ error: "Message is required" });
       }
-      if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "MY_GEMINI_API_KEY" || process.env.GEMINI_API_KEY === "MOCK_KEY") {
+      if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 10) {
         console.log("Using simulated response (unconfigured API key).");
         return res.json({
-          text: `[Respuesta Simulada - Salud-Conecta IA]
+          text: `Nivel de prioridad: \u{1F7E1} Moderado
 
-\xA1Hola Granada! He recibido tus s\xEDntomas sobre: "${message}". Como tu asistente de salud inteligente, te sugiero lo siguiente:
+\u{1F50D} EVALUACI\xD3N INICIAL
+Los s\xEDntomas reportados ("${message}") indican una situaci\xF3n que requiere vigilancia activa. El an\xE1lisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.
 
-1. **Autocuidado**: Mantente hidratado y descansa. 
-2. **Centros recomendados**: Puedes acudir al **Centro de Salud S\xF3crates Flores** para una atenci\xF3n regular, o al **Hospital Bautista** si requieres consulta especializada urgente en Granada.
-3. **Urgencia**: Si presentas dolor abdominal agudo, dificultad para respirar o fiebre alta mayor a 39\xB0C que no cede, por favor llama a emergencias al **118** de inmediato.
+\u2705 RECOMENDACIONES
+\u{1F539} Mantener reposo absoluto y evitar esfuerzos f\xEDsicos.
+\u{1F539} Hidrataci\xF3n constante con l\xEDquidos claros o suero oral.
+\u{1F539} Monitorear s\xEDntomas cada 2-4 horas.
+\u{1F539} Si los s\xEDntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.
+\u{1F539} Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.
 
-*Nota: Recuerde configurar su clave GEMINI_API_KEY en la secci\xF3n Secrets para recibir un verdadero an\xE1lisis cl\xEDnico avanzado de IA.*`,
+\u26A0\uFE0F Esta orientaci\xF3n es \xFAnicamente informativa y no reemplaza la evaluaci\xF3n de un profesional de salud.`,
           simulated: true
         });
       }
       const client = getGeminiClient();
-      const systemInstruction = `Eres "Salud-Conecta IA", un asistente m\xE9dico virtual y asesor de triaje cl\xEDnico inteligente extremadamente emp\xE1tico, profesional y calificado para los ciudadanos de Granada, Nicaragua y general.
-      
-Tu objetivo principal es escuchar los s\xEDntomas que describe el usuario, priorizar con base en la urgencia y dar orientaci\xF3n m\xE9dica general clara, respetando los est\xE1ndares internacionales de salud.
+      const systemInstruction = `Eres "Salud-Conecta IA", un asistente m\xE9dico virtual y asesor de triaje cl\xEDnico inteligente para Nicaragua.
 
-Sigue estas directrices estrictas:
-1. **Saluda cordialmente** y mant\xE9n un tono tranquilizador, emp\xE1tico pero cl\xEDnicamente riguroso.
-2. **Triaje (Clasificaci\xF3n de Gravedad)**: Analiza los s\xEDntomas descritos y especifica un nivel de riesgo (Bajo, Medio, Alto/Servicio de Urgencias).
-3. **Recomendaciones de Acci\xF3n**: Indica posibles medidas de alivio temporal seguro (por ejemplo: rehidrataci\xF3n para malestares estomacales o fiebres ligeras, reposo absoluto, etc.) y advierte sobre los signos de alarma cl\xEDnicamente cr\xEDticos.
-4. **Centros Recomendados**: Menciona que en Granada pueden visitar el **Hospital Bautista** (hospital general - abierto 24h), el **Centro de Salud S\xF3crates Flores** (para casos no graves, cierra a las 8:00 p.m.) o el **Hospital Amistad Jap\xF3n Nicaragua** (servicios avanzados especializados).
-5. **Emergencias**: Para urgencias extremas, enfatiza que deben llamar inmediatamente al n\xFAmero de emergencias **118** local.
-6. **Limitaci\xF3n de Responsabilidad**: Agrega siempre una nota sutil al final recordando que esta es una herramienta de triaje orientativa y no sustituye un examen de diagn\xF3stico f\xEDsico cara a cara con un doctor colegiado.
-      
-Responde en un espa\xF1ol amigable, estructurado y f\xE1cil de leer con vi\xF1etas.`;
+TU OBJETIVO PRINCIPAL:
+Analizar los s\xEDntomas ingresados por el usuario y proporcionar un triaje m\xE9dico estructurado que clasifique la urgencia, explique la evaluaci\xF3n y genere recomendaciones preliminares.
+
+FUNCIONES OBLIGATORIAS:
+
+1. **AN\xC1LISIS DE S\xCDNTOMAS**: Analiza los s\xEDntomas ingresados por el usuario utilizando razonamiento cl\xEDnico b\xE1sico y contextual.
+
+2. **CLASIFICACI\xD3N DE PRIORIDAD**: Clasifica el caso en EXACTAMENTE UNA de estas categor\xEDas:
+   - \u{1F534} Alta urgencia
+   - \u{1F7E1} Moderado
+   - \u{1F7E2} Leve
+
+3. **EXPLICACI\xD3N DE CLASIFICACI\xD3N**: Explica claramente por qu\xE9 se asign\xF3 esa clasificaci\xF3n usando lenguaje sencillo y comprensible.
+
+4. **RECOMENDACIONES PRELIMINARES**: Genera recomendaciones apropiadas seg\xFAn los s\xEDntomas reportados, incluyendo:
+   - Medidas generales de cuidado
+   - Recomendaciones de descanso o hidrataci\xF3n cuando aplique
+   - Sugerencias de vigilancia de s\xEDntomas
+
+5. **IDENTIFICACI\xD3N DE SE\xD1ALES DE RIESGO**: Identifica se\xF1ales de riesgo potencial y recomienda buscar atenci\xF3n m\xE9dica profesional cuando los s\xEDntomas sugieran mayor gravedad.
+
+RESTRICCIONES OBLIGATORIAS:
+- NO diagnosticar enfermedades de forma definitiva
+- NO asegurar resultados m\xE9dicos
+- NO sustituir la evaluaci\xF3n de profesionales de salud
+- Evitar lenguaje alarmista
+- Siempre mantener tono emp\xE1tico y tranquilizador
+
+FORMATO OBLIGATORIO DE RESPUESTA:
+
+Nivel de prioridad: [Categor\xEDa con emoji]
+
+\u{1F50D} EVALUACI\xD3N INICIAL
+[An\xE1lisis breve explicando por qu\xE9 se asign\xF3 esa clasificaci\xF3n]
+
+\u2705 RECOMENDACIONES
+\u{1F539} [Recomendaci\xF3n 1]
+\u{1F539} [Recomendaci\xF3n 2]
+\u{1F539} [Recomendaci\xF3n 3 si aplica]
+\u{1F539} [M\xE1s recomendaciones seg\xFAn sea necesario]
+
+\u26A0\uFE0F Esta orientaci\xF3n es \xFAnicamente informativa y no reemplaza la evaluaci\xF3n de un profesional de salud.
+
+CENTROS DE REFERENCIA EN GRANADA:
+- Hospital Bautista (hospital general - abierto 24h)
+- Centro de Salud S\xF3crates Flores (para casos no graves, cierra a las 8:00 p.m.)
+- Hospital Amistad Jap\xF3n Nicaragua (servicios avanzados especializados)
+- Emergencias: Llamar al 118
+
+RECUERDA: Siempre finaliza con la advertencia m\xE9dica obligatoria.`;
       const contents = [];
       if (history && Array.isArray(history)) {
         for (const turn of history) {
           contents.push({
-            role: turn.sender === "user" ? "user" : "model",
-            parts: [{ text: turn.text }]
+            role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
+            parts: [{ text: turn.text || turn.content || "" }]
           });
         }
       }
@@ -98,16 +134,18 @@ Responde en un espa\xF1ol amigable, estructurado y f\xE1cil de leer con vi\xF1et
         role: "user",
         parts: [{ text: message }]
       });
-      const response = await client.models.generateContent({
-        model: "gemini-3.5-flash",
-        contents,
-        config: {
-          systemInstruction,
-          temperature: 0.75
-        }
+      const model = client.getGenerativeModel({
+        model: "gemini-1.5-pro",
+        systemInstruction
       });
+      const result = await model.generateContent({
+        contents,
+        generationConfig: { temperature: 0.75 }
+      });
+      const responseAI = await result.response;
+      const responseText = responseAI.text();
       return res.json({
-        text: response.text || "No obtuve una respuesta clara del asistente.",
+        text: responseText || "No obtuve una respuesta clara del asistente.",
         simulated: false
       });
     } catch (error) {
@@ -127,10 +165,10 @@ Responde en un espa\xF1ol amigable, estructurado y f\xE1cil de leer con vi\xF1et
     app.use(vite.middlewares);
   } else {
     console.log("Serving production build of client from /dist...");
-    const distPath = import_path.default.join(process.cwd(), "dist");
-    app.use(import_express.default.static(distPath));
+    const distPath = import_path.default.resolve(process.cwd(), "dist");
+    app.use(import_express.default.static(distPath, { index: false }));
     app.get("*", (req, res) => {
-      res.sendFile(import_path.default.join(distPath, "index.html"));
+      res.sendFile(import_path.default.resolve(distPath, "index.html"));
     });
   }
   app.listen(PORT, "0.0.0.0", () => {

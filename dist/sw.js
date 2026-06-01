@@ -1,11 +1,8 @@
-const CACHE_NAME = "salud-conecta-v1";
+const CACHE_NAME = "salud-conecta-v3";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
-  "/src/main.tsx",
-  "/src/App.tsx",
-  "/src/index.css",
-  "/public/manifest.json"
+  "/manifest.json"
 ];
 
 // Install Event
@@ -45,25 +42,43 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        // Cache newly requested resources dynamically if they are HTML/CSS/JS
-        const isSafeToCache = event.request.url.startsWith(self.location.origin);
-        if (isSafeToCache && networkResponse.status === 200) {
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          });
-        }
-        return networkResponse;
+  const isNavigation = event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html');
+
+  if (isNavigation) {
+    // NETWORK-FIRST: Para el HTML (Evita cargar un HTML viejo con hashes JS/CSS muertos)
+    event.respondWith(
+      fetch(event.request).then((networkResponse) => {
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        });
       }).catch(() => {
-        // If both cache and network fail, try to serve offline fallback (index.html)
-        return caches.match("/");
-      });
-    })
-  );
+        // Fallback offline si no hay internet
+        return caches.match(event.request).then((cachedResponse) => {
+          return cachedResponse || caches.match("/");
+        });
+      })
+    );
+  } else {
+    // CACHE-FIRST: Para assets estáticos (JS, CSS, Imágenes)
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        return fetch(event.request).then((networkResponse) => {
+          const isSafeToCache = event.request.url.startsWith(self.location.origin);
+          if (isSafeToCache && networkResponse.status === 200) {
+            return caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, networkResponse.clone());
+              return networkResponse;
+            });
+          }
+          return networkResponse;
+        }).catch(() => {
+          return new Response('', { status: 404, statusText: 'Not Found' });
+        });
+      })
+    );
+  }
 });
