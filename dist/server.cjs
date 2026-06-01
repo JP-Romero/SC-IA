@@ -135,7 +135,7 @@ RECUERDA: Siempre finaliza con la advertencia m\xE9dica obligatoria.`;
         parts: [{ text: message }]
       });
       const model = client.getGenerativeModel({
-        model: "gemini-1.5-flash",
+        model: "gemini-pro",
         systemInstruction
       });
       const result = await model.generateContent({
