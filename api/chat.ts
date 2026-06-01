@@ -71,7 +71,7 @@ Responde en un español amigable, estructurado y fácil de leer con viñetas.`;
     });
 
     const response = await client.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       contents: contents,
       config: {
         systemInstruction: systemInstruction,
