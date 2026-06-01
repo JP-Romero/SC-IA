@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { UserProfile } from "../types";
+import { UserProfile, ChatMessage } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -119,6 +119,11 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
+  // --- CHAT STATE ---
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
   // Carousel scroll ref and state
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -148,7 +153,14 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         window.removeEventListener("resize", checkScroll);
       };
     }
-  }, []);
+  }, [messages.length]); // Re-attach if DOM changes due to messages length
+
+  // Auto-scroll chat to bottom
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isLoading]);
 
   const scrollByAmount = (offset: number) => {
     const el = scrollRef.current;
@@ -188,85 +200,88 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     }
   };
 
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    const userText = inputValue.trim();
+    const newUserMsg: ChatMessage = {
+      id: Date.now().toString(),
+      text: userText,
+      sender: "user",
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setMessages(prev => [...prev, newUserMsg]);
+    setInputValue("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userText, history: messages })
+      });
+      
+      const data = await response.json();
+      
+      const botMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: data.text || "Lo siento, no pude procesar la respuesta.",
+        sender: "bot",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      
+      setMessages(prev => [...prev, botMsg]);
+    } catch (error) {
+      const errorMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: "Error de red. Verifica tu conexión a internet o intenta de nuevo más tarde.",
+        sender: "bot",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   const firstName = user.name.split(" ")[0];
+  const isChatMode = messages.length > 0;
+
+  // Simple formatting for bold text
+  const formatMessageText = (text: string) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
+      return <span key={i}>{part}</span>;
+    });
+  };
 
   return (
     <div className="flex flex-col min-h-screen relative overflow-hidden font-sans bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
 
       {/* ═══════════════ ORGANIC BACKGROUND BLOBS ═══════════════ */}
-      {/* Top-right large blob — soft blue */}
-      <div
-        className="absolute pointer-events-none z-0"
-        style={{
-          top: "-8%",
-          right: "-15%",
-          width: "420px",
-          height: "420px",
-          background: "radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.03) 50%, transparent 75%)",
-          borderRadius: "55% 45% 60% 40% / 45% 55% 40% 60%",
-          filter: "blur(40px)",
-        }}
-      />
-      {/* Top-left small accent */}
-      <div
-        className="absolute pointer-events-none z-0"
-        style={{
-          top: "5%",
-          left: "-8%",
-          width: "220px",
-          height: "220px",
-          background: "radial-gradient(ellipse at center, rgba(99,102,241,0.06) 0%, transparent 70%)",
-          borderRadius: "40% 60% 55% 45% / 55% 45% 60% 40%",
-          filter: "blur(35px)",
-        }}
-      />
-      {/* Mid-right subtle accent */}
-      <div
-        className="absolute pointer-events-none z-0"
-        style={{
-          top: "35%",
-          right: "-5%",
-          width: "280px",
-          height: "280px",
-          background: "radial-gradient(ellipse at center, rgba(37,99,235,0.04) 0%, transparent 70%)",
-          borderRadius: "50% 50% 40% 60% / 60% 40% 50% 50%",
-          filter: "blur(50px)",
-        }}
-      />
-      {/* Bottom-left light blob */}
-      <div
-        className="absolute pointer-events-none z-0"
-        style={{
-          bottom: "15%",
-          left: "-12%",
-          width: "350px",
-          height: "350px",
-          background: "radial-gradient(ellipse at center, rgba(147,197,253,0.07) 0%, transparent 70%)",
-          borderRadius: "60% 40% 45% 55% / 45% 55% 50% 50%",
-          filter: "blur(45px)",
-        }}
-      />
-      {/* Very subtle center glow */}
-      <div
-        className="absolute pointer-events-none z-0"
-        style={{
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "500px",
-          height: "500px",
-          background: "radial-gradient(ellipse at center, rgba(219,234,254,0.15) 0%, transparent 60%)",
-          borderRadius: "50%",
-          filter: "blur(60px)",
-        }}
-      />
+      <div className="absolute pointer-events-none z-0" style={{ top: "-8%", right: "-15%", width: "420px", height: "420px", background: "radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.03) 50%, transparent 75%)", borderRadius: "55% 45% 60% 40% / 45% 55% 40% 60%", filter: "blur(40px)" }} />
+      <div className="absolute pointer-events-none z-0" style={{ top: "5%", left: "-8%", width: "220px", height: "220px", background: "radial-gradient(ellipse at center, rgba(99,102,241,0.06) 0%, transparent 70%)", borderRadius: "40% 60% 55% 45% / 55% 45% 60% 40%", filter: "blur(35px)" }} />
+      <div className="absolute pointer-events-none z-0" style={{ top: "35%", right: "-5%", width: "280px", height: "280px", background: "radial-gradient(ellipse at center, rgba(37,99,235,0.04) 0%, transparent 70%)", borderRadius: "50% 50% 40% 60% / 60% 40% 50% 50%", filter: "blur(50px)" }} />
+      <div className="absolute pointer-events-none z-0" style={{ bottom: "15%", left: "-12%", width: "350px", height: "350px", background: "radial-gradient(ellipse at center, rgba(147,197,253,0.07) 0%, transparent 70%)", borderRadius: "60% 40% 45% 55% / 45% 55% 50% 50%", filter: "blur(45px)" }} />
+      <div className="absolute pointer-events-none z-0" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "500px", height: "500px", background: "radial-gradient(ellipse at center, rgba(219,234,254,0.15) 0%, transparent 60%)", borderRadius: "50%", filter: "blur(60px)" }} />
 
       {/* ═══════════════ HEADER ═══════════════ */}
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-2 z-20 relative w-full max-w-5xl mx-auto"
+        className={`flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-2 z-20 relative w-full max-w-5xl mx-auto ${isChatMode ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0" : ""}`}
         style={{ paddingTop: "max(env(safe-area-inset-top, 20px), 40px)" }}
       >
         {/* Logo */}
@@ -287,238 +302,166 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           </span>
         </div>
 
-        {/* Emergency Button */}
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={onTriggerEmergency}
-          className="relative flex flex-col items-center justify-center w-[52px] h-[52px] rounded-full overflow-hidden"
-          style={{
-            background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-            boxShadow: "0 6px 24px rgba(239,68,68,0.35), 0 2px 8px rgba(239,68,68,0.2)",
-          }}
-        >
-          {/* Inner glow */}
-          <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 mb-[1px]">
-            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v10H2" />
-            <circle cx="16.5" cy="17.5" r="2.5" />
-            <circle cx="7.5" cy="17.5" r="2.5" />
-            <path d="M10 10v4" />
-            <path d="M8 12h4" />
-          </svg>
-          <span className="text-white text-[10px] font-bold relative z-10 leading-none mt-[-1px]">128</span>
-        </motion.button>
+        {/* Action Buttons: Reset Chat / Emergency Button */}
+        <div className="flex items-center gap-3">
+          {isChatMode && (
+            <button
+              onClick={() => setMessages([])}
+              className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
+            >
+              Reiniciar
+            </button>
+          )}
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={onTriggerEmergency}
+            className="relative flex flex-col items-center justify-center w-[52px] h-[52px] rounded-full overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+              boxShadow: "0 6px 24px rgba(239,68,68,0.35), 0 2px 8px rgba(239,68,68,0.2)",
+            }}
+          >
+            {/* Inner glow */}
+            <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 mb-[1px]">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v10H2" />
+              <circle cx="16.5" cy="17.5" r="2.5" />
+              <circle cx="7.5" cy="17.5" r="2.5" />
+              <path d="M10 10v4" />
+              <path d="M8 12h4" />
+            </svg>
+            <span className="text-white text-[10px] font-bold relative z-10 leading-none mt-[-1px]">128</span>
+          </motion.button>
+        </div>
       </motion.header>
 
-      {/* ═══════════════ MAIN TEXT CONTENT ═══════════════ */}
-      <motion.main
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
-        className="px-7 pt-10 z-10 relative w-full max-w-5xl mx-auto"
-      >
-        {/* Primary heading */}
-        <h1
-          className="text-slate-900 dark:text-white tracking-[-0.03em]"
-          style={{
-            fontSize: "clamp(36px, 9vw, 44px)",
-            lineHeight: 1.08,
-            fontWeight: 600,
-            fontFamily: "'Inter', sans-serif",
-          }}
-        >
-          {t('hello')} {firstName}.
-        </h1>
-
-        {/* Secondary heading */}
-        <h2
-          className="text-slate-700 dark:text-slate-300 mt-3 tracking-[-0.015em]"
-          style={{
-            fontSize: "clamp(24px, 6.5vw, 30px)",
-            lineHeight: 1.3,
-            fontWeight: 400,
-            fontFamily: "'Inter', sans-serif",
-          }}
-        >
-          {t('assistant')}<br />
-          {t('in')} <span className="text-blue-600 dark:text-blue-400 font-medium">Granada.</span>
-        </h2>
-
-        {/* Divider line */}
-        <div
-          className="mt-8 mb-7 rounded-full bg-slate-200 dark:bg-slate-800"
-          style={{
-            width: "36px",
-            height: "2.5px",
-          }}
-        />
-
-        {/* Descriptive text */}
-        <div
-          className="space-y-[6px]"
-          style={{
-            fontFamily: "'Inter', sans-serif",
-          }}
-        >
-          <p
-            className="text-slate-500 dark:text-slate-400"
-            style={{
-              fontSize: "clamp(15px, 4vw, 17px)",
-              lineHeight: 1.5,
-              fontWeight: 300,
-              letterSpacing: "0.01em",
-            }}
-          >
-            {t('howFeel')}
-          </p>
-          <p
-            className="text-slate-400 dark:text-slate-500"
-            style={{
-              fontSize: "clamp(15px, 4vw, 17px)",
-              lineHeight: 1.5,
-              fontWeight: 300,
-              letterSpacing: "0.01em",
-            }}
-          >
-            {t('hereToHelp')}
-          </p>
-        </div>
-      </motion.main>
-
-      {/* ═══════════════ SYMPTOM CHIPS ═══════════════ */}
-      {/* ═══════════════ SYMPTOM CHIPS CAROUSEL ═══════════════ */}
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
-        className="w-full max-w-5xl mx-auto relative mt-12 mb-4 z-20 group"
-      >
-        {/* Left Arrow Button */}
+      {/* ═══════════════ CONDITIONAL RENDER: HERO VS CHAT ═══════════════ */}
+      {!isChatMode ? (
         <AnimatePresence>
-          {showLeftArrow && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              onClick={() => scrollByAmount(-220)}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95"
-              style={{
-                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              }}
+          <motion.div exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+            {/* ═══════════════ MAIN TEXT CONTENT ═══════════════ */}
+            <motion.main
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
+              className="px-7 pt-10 z-10 relative w-full max-w-5xl mx-auto"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </motion.button>
-          )}
-        </AnimatePresence>
+              <h1 className="text-slate-900 dark:text-white tracking-[-0.03em]" style={{ fontSize: "clamp(36px, 9vw, 44px)", lineHeight: 1.08, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
+                {t('hello')} {firstName}.
+              </h1>
+              <h2 className="text-slate-700 dark:text-slate-300 mt-3 tracking-[-0.015em]" style={{ fontSize: "clamp(24px, 6.5vw, 30px)", lineHeight: 1.3, fontWeight: 400, fontFamily: "'Inter', sans-serif" }}>
+                {t('assistant')}<br />
+                {t('in')} <span className="text-blue-600 dark:text-blue-400 font-medium">Granada.</span>
+              </h2>
+              <div className="mt-8 mb-7 rounded-full bg-slate-200 dark:bg-slate-800" style={{ width: "36px", height: "2.5px" }} />
+              <div className="space-y-[6px]" style={{ fontFamily: "'Inter', sans-serif" }}>
+                <p className="text-slate-500 dark:text-slate-400" style={{ fontSize: "clamp(15px, 4vw, 17px)", lineHeight: 1.5, fontWeight: 300, letterSpacing: "0.01em" }}>
+                  {t('howFeel')}
+                </p>
+                <p className="text-slate-400 dark:text-slate-500" style={{ fontSize: "clamp(15px, 4vw, 17px)", lineHeight: 1.5, fontWeight: 300, letterSpacing: "0.01em" }}>
+                  {t('hereToHelp')}
+                </p>
+              </div>
+            </motion.main>
 
-        {/* Right Arrow Button */}
-        <AnimatePresence>
-          {showRightArrow && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              onClick={() => scrollByAmount(220)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95"
-              style={{
-                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              }}
+            {/* ═══════════════ SYMPTOM CHIPS CAROUSEL ═══════════════ */}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
+              className="w-full max-w-5xl mx-auto relative mt-12 mb-4 z-20 group"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </motion.button>
-          )}
+              {/* Left Arrow */}
+              <AnimatePresence>
+                {showLeftArrow && (
+                  <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollByAmount(-220)} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+                  </motion.button>
+                )}
+              </AnimatePresence>
+
+              {/* Right Arrow */}
+              <AnimatePresence>
+                {showRightArrow && (
+                  <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollByAmount(220)} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                  </motion.button>
+                )}
+              </AnimatePresence>
+
+              {/* Overlays */}
+              <div className="absolute left-0 top-0 bottom-0 pointer-events-none z-10 transition-opacity duration-300" style={{ width: "80px", background: "linear-gradient(90deg, var(--tw-gradient-from) 0%, rgba(248,250,255,0) 100%)", opacity: showLeftArrow ? 1 : 0 }} />
+              <div className="absolute right-0 top-0 bottom-0 pointer-events-none z-10 transition-opacity duration-300" style={{ width: "80px", background: "linear-gradient(270deg, var(--tw-gradient-from) 0%, rgba(248,250,255,0) 100%)", opacity: showRightArrow ? 1 : 0 }} />
+
+              {/* Scroll Container */}
+              <div ref={scrollRef} onMouseDown={handleMouseDown} onMouseLeave={handleMouseLeave} onMouseUp={handleMouseUp} onMouseMove={handleMouseMove} className="chips-scroll flex px-7 gap-3 pb-2 overflow-x-auto select-none" style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch", cursor: isDragging ? "grabbing" : "grab" }}>
+                <style>{`.chips-scroll::-webkit-scrollbar { display: none; }`}</style>
+                {SYMPTOM_CHIPS.map((chip) => {
+                  const isActive = activeChip === chip.id;
+                  return (
+                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(`Tengo ${chip.label.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-blue-600 text-white border-transparent" : "bg-white dark:bg-slate-900 text-blue-800 dark:text-blue-400 border-slate-200 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(37,99,235,0.28), 0 2px 8px rgba(37,99,235,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
+                      <span className="flex items-center justify-center" style={{ opacity: isActive ? 1 : 0.7 }}>{chip.icon}</span>
+                      <span className="mt-[-0.5px]">{chip.label}</span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </motion.div>
         </AnimatePresence>
-
-        {/* Left Gradient Overlay */}
-        <div
-          className="absolute left-0 top-0 bottom-0 pointer-events-none z-10 transition-opacity duration-300"
-          style={{
-            width: "80px",
-            background: "linear-gradient(90deg, var(--tw-gradient-from) 0%, rgba(248,250,255,0) 100%)",
-            opacity: showLeftArrow ? 1 : 0,
-          }}
-        />
-        {/* Right Gradient Overlay */}
-        <div
-          className="absolute right-0 top-0 bottom-0 pointer-events-none z-10 transition-opacity duration-300"
-          style={{
-            width: "80px",
-            background: "linear-gradient(270deg, var(--tw-gradient-from) 0%, rgba(248,250,255,0) 100%)",
-            opacity: showRightArrow ? 1 : 0,
-          }}
-        />
-
-        {/* Scroll Container */}
-        <div
-          ref={scrollRef}
-          onMouseDown={handleMouseDown}
-          onMouseLeave={handleMouseLeave}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          className="chips-scroll flex px-7 gap-3 pb-2 overflow-x-auto select-none"
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            WebkitOverflowScrolling: "touch",
-            cursor: isDragging ? "grabbing" : "grab",
-          }}
-        >
-          <style>{`.chips-scroll::-webkit-scrollbar { display: none; }`}</style>
-          {SYMPTOM_CHIPS.map((chip) => {
-            const isActive = activeChip === chip.id;
-            return (
-              <motion.button
-                key={chip.id}
-                whileTap={{ scale: 0.95 }}
-                onClick={(e) => {
-                  if (dragMoved) {
-                    e.preventDefault();
-                    return;
-                  }
-                  setActiveChip(chip.id);
-                  setInputValue(`Tengo ${chip.label.toLowerCase()}`);
-                }}
-                className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${
-                  isActive
-                    ? "bg-blue-600 text-white border-transparent"
-                    : "bg-white dark:bg-slate-900 text-blue-800 dark:text-blue-400 border-slate-200 dark:border-slate-800"
-                }`}
-                style={{
-                  padding: "12px 22px",
-                  borderRadius: "100px",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  fontFamily: "'Inter', sans-serif",
-                  letterSpacing: "0.01em",
-                  borderWidth: "1.5px",
-                  boxShadow: isActive
-                    ? "0 8px 24px rgba(37,99,235,0.28), 0 2px 8px rgba(37,99,235,0.12)"
-                    : "0 2px 6px rgba(0,0,0,0.04)",
-                }}
+      ) : (
+        /* ═══════════════ CHAT MESSAGES LIST ═══════════════ */
+        <div className="flex-1 w-full max-w-5xl mx-auto px-5 py-4 overflow-y-auto z-10 flex flex-col gap-4">
+          <AnimatePresence>
+            {messages.map((msg, idx) => (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className={`flex w-full ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
               >
-                <span className="flex items-center justify-center" style={{ opacity: isActive ? 1 : 0.7 }}>
-                  {chip.icon}
-                </span>
-                <span className="mt-[-0.5px]">{chip.label}</span>
-              </motion.button>
-            );
-          })}
+                <div
+                  className={`max-w-[85%] rounded-2xl px-5 py-3.5 shadow-sm text-[15px] leading-[1.6] whitespace-pre-wrap ${
+                    msg.sender === "user"
+                      ? "bg-blue-600 text-white rounded-tr-sm"
+                      : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-tl-sm"
+                  }`}
+                >
+                  {formatMessageText(msg.text)}
+                  <div className={`text-[10px] mt-1.5 opacity-70 text-right ${msg.sender === "user" ? "text-blue-100" : "text-slate-400"}`}>
+                    {msg.timestamp}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            {isLoading && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex w-full justify-start"
+              >
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-tl-sm px-5 py-4 flex gap-1.5 shadow-sm">
+                  <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <div ref={chatEndRef} />
         </div>
-      </motion.div>
+      )}
 
-      {/* Flexible spacer */}
-      <div className="flex-1 min-h-[40px]" />
+      {/* Flexible spacer (only when not chatting) */}
+      {!isChatMode && <div className="flex-1 min-h-[40px]" />}
 
       {/* ═══════════════ CHAT INPUT CARD ═══════════════ */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.35, ease: "easeOut" }}
-        className="w-full max-w-5xl mx-auto px-5 mb-5 relative z-20"
+        className={`w-full max-w-5xl mx-auto px-5 relative z-20 ${isChatMode ? "pb-6 pt-2" : "mb-5"}`}
       >
         <div
           className={`relative overflow-hidden transition-all duration-300 bg-white dark:bg-slate-900 rounded-[28px] p-[20px_18px_14px_18px] border-1.5 ${
@@ -526,13 +469,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           }`}
         >
           {/* Subtle inner gradient for premium feel */}
-          <div
-            className="absolute inset-0 pointer-events-none opacity-50 dark:opacity-10"
-            style={{
-              background: "linear-gradient(180deg, rgba(248,250,252,0.5) 0%, transparent 40%)",
-              borderRadius: "28px",
-            }}
-          />
+          <div className="absolute inset-0 pointer-events-none opacity-50 dark:opacity-10" style={{ background: "linear-gradient(180deg, rgba(248,250,252,0.5) 0%, transparent 40%)", borderRadius: "28px" }} />
 
           {/* Textarea */}
           <textarea
@@ -540,74 +477,33 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Describe tus síntomas…"
-            className="relative z-10 w-full bg-transparent outline-none resize-none placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-slate-200"
-            style={{
-              height: "56px",
-              fontSize: "15px",
-              lineHeight: 1.5,
-              fontWeight: 400,
-              fontFamily: "'Inter', sans-serif",
-              paddingLeft: "4px",
-              paddingRight: "4px",
-            }}
+            onKeyDown={handleKeyDown}
+            placeholder={isChatMode ? "Escribe tu consulta aquí..." : "Describe tus síntomas…"}
+            disabled={isLoading}
+            className="relative z-10 w-full bg-transparent outline-none resize-none placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-slate-200 disabled:opacity-50"
+            style={{ height: "56px", fontSize: "15px", lineHeight: 1.5, fontWeight: 400, fontFamily: "'Inter', sans-serif", paddingLeft: "4px", paddingRight: "4px" }}
           />
 
           {/* Action buttons row */}
           <div className="flex justify-between items-center relative z-10 mt-1">
             {/* Attach button */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              className="flex items-center justify-center hover:bg-slate-50 transition-colors"
-              style={{
-                width: "42px",
-                height: "42px",
-                borderRadius: "50%",
-                color: "#64748b",
-              }}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}>
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-              </svg>
+            <motion.button whileTap={{ scale: 0.9 }} className="flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" style={{ width: "42px", height: "42px", borderRadius: "50%", color: "#64748b" }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
             </motion.button>
 
             {/* Right side: Mic + Send */}
             <div className="flex items-center gap-2">
-              {/* Microphone button */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className="flex items-center justify-center hover:bg-slate-50 transition-colors"
-                style={{
-                  width: "42px",
-                  height: "42px",
-                  borderRadius: "50%",
-                  color: "#64748b",
-                }}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}>
-                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                  <line x1="12" x2="12" y1="19" y2="22" />
-                </svg>
+              <motion.button whileTap={{ scale: 0.9 }} className="flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" style={{ width: "42px", height: "42px", borderRadius: "50%", color: "#64748b" }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" x2="12" y1="19" y2="22" /></svg>
               </motion.button>
-
-              {/* Send button */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className="flex items-center justify-center hover:brightness-105 transition-all"
-                style={{
-                  width: "52px",
-                  height: "52px",
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)",
-                  boxShadow: "0 6px 20px rgba(37,99,235,0.32), 0 2px 6px rgba(37,99,235,0.15)",
-                  color: "#ffffff",
-                }}
+              <motion.button 
+                whileTap={{ scale: 0.9 }} 
+                onClick={handleSendMessage}
+                disabled={!inputValue.trim() || isLoading}
+                className="flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105" 
+                style={{ width: "52px", height: "52px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", boxShadow: "0 6px 20px rgba(37,99,235,0.32), 0 2px 6px rgba(37,99,235,0.15)", color: "#ffffff" }}
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px", marginLeft: "-1px" }}>
-                  <line x1="22" x2="11" y1="2" y2="13" />
-                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px", marginLeft: "-1px" }}><line x1="22" x2="11" y1="2" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
               </motion.button>
             </div>
           </div>
@@ -615,37 +511,19 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       </motion.div>
 
       {/* ═══════════════ TRUST BADGE ═══════════════ */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.45 }}
-        className="flex items-center justify-center gap-3.5 mb-24 z-10 w-full max-w-5xl mx-auto relative px-6"
-      >
-        {/* Shield icon with checkmark */}
-        <div className="relative shrink-0" style={{ width: "32px", height: "34px" }}>
-          <svg viewBox="0 0 24 24" className="w-full h-full" style={{ color: "#2563eb" }}>
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="currentColor" />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ marginTop: "-1px" }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "16px", height: "16px" }}>
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+      {!isChatMode && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.45 }} className="flex items-center justify-center gap-3.5 mb-24 z-10 w-full max-w-5xl mx-auto relative px-6">
+          <div className="relative shrink-0" style={{ width: "32px", height: "34px" }}>
+            <svg viewBox="0 0 24 24" className="w-full h-full" style={{ color: "#2563eb" }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="currentColor" /></svg>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ marginTop: "-1px" }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "16px", height: "16px" }}><polyline points="20 6 9 17 4 12" /></svg>
+            </div>
           </div>
-        </div>
-
-        <p
-          className="text-slate-600 dark:text-slate-400"
-          style={{
-            fontSize: "13px",
-            fontWeight: 500,
-            lineHeight: 1.35,
-            fontFamily: "'Inter', sans-serif",
-            letterSpacing: "-0.01em",
-          }}
-        >
-          {t('internationalNorms')}<br />{t('internationalNorms2')}
-        </p>
-      </motion.div>
+          <p className="text-slate-600 dark:text-slate-400" style={{ fontSize: "13px", fontWeight: 500, lineHeight: 1.35, fontFamily: "'Inter', sans-serif", letterSpacing: "-0.01em" }}>
+            {t('internationalNorms')}<br />{t('internationalNorms2')}
+          </p>
+        </motion.div>
+      )}
     </div>
   );
 }
