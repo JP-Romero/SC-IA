@@ -1,29 +1,22 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import path from "path";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 
 const PORT = 3000;
 
 // Initialize Gemini client on the server
-let aiClient: GoogleGenAI | null = null;
-function getGeminiClient(): GoogleGenAI {
+let aiClient: GoogleGenerativeAI | null = null;
+function getGeminiClient() {
   if (!aiClient) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       console.warn("⚠️ Warning: GEMINI_API_KEY is not defined in the environment.");
     }
-    aiClient = new GoogleGenAI({
-      apiKey: apiKey || "MOCK_KEY",
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        }
-      }
-    });
+    aiClient = new GoogleGenerativeAI(apiKey || "");
   }
   return aiClient;
 }
@@ -33,7 +26,7 @@ async function startServer() {
   app.use(express.json());
 
   // API router setup - Triage / Chat IA endpoint
-  app.post("/api/chat", async (req, res) => {
+  app.post("/api/chat", async (req: Request, res: Response) => {
     try {
       const { message, history } = req.body;
       if (!message) {
@@ -41,67 +34,43 @@ async function startServer() {
       }
 
       // Check if API key is mock/missing, if so return a helpful simulated medic response to preserve experience
-      if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "MY_GEMINI_API_KEY" || process.env.GEMINI_API_KEY === "MOCK_KEY") {
+      if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 10) {
         console.log("Using simulated response (unconfigured API key).");
         return res.json({
-          text: `Nivel de prioridad: 🟡 Moderado
-
-🔍 EVALUACIÓN INICIAL
-Los síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. No se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para evitar que el cuadro progrese.
-
-✅ RECOMENDACIONES
-🔹 Mantener reposo absoluto y evitar esfuerzos físicos.
-🔹 Hidratación constante con líquidos claros o suero oral.
-🔹 Monitorear la temperatura cada 4 horas.
-🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.
-
-⚠️ Advertencia: Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+          text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. No se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para evitar que el cuadro progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear la temperatura cada 4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n\n⚠️ Advertencia: Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
           simulated: true,
         });
       }
 
       const client = getGeminiClient();
+
+      const systemInstruction = `Eres "Salud-Conecta IA", un asistente médico virtual y asesor de triaje clínico inteligente para Nicaragua.
       
-      const systemInstruction = `Actúa como un sistema de triaje médico conversacional para Salud-Conecta IA. Tu función es analizar los síntomas proporcionados por el usuario y generar orientación médica preliminar sin reemplazar una consulta profesional.
+      Tu objetivo es analizar síntomas y priorizar la urgencia:
+      1. Clasifica el riesgo: 🔴 Alta urgencia, 🟡 Moderado, 🟢 Leve.
+      2. Explica brevemente la evaluación sin alarmismos.
+      3. Da recomendaciones claras (reposo, hidratación, etc.) usando el diamante azul 🔹.
+      4. Menciona centros en Granada: Hospital Bautista, Centro de Salud Sócrates Flores o Hospital Amistad Japón Nicaragua.
+      5. Emergencias extremas: Llamar al 118.
 
-Funciones obligatorias:
-1. Analiza los síntomas ingresados por el usuario utilizando razonamiento clínico básico y contextual.
-2. Clasifica el caso en un nivel de prioridad médica utilizando estas categorías:
-🔴 Alta urgencia
-🟡 Moderado
-🟢 Leve
-3. Explica claramente por qué se asignó esa clasificación usando lenguaje sencillo y comprensible.
-4. Genera recomendaciones preliminares apropiadas según los síntomas reportados, incluyendo:
-   - Medidas generales de cuidado
-   - Recomendaciones de descanso o hidratación cuando aplique
-   - Sugerencias de vigilancia de síntomas
-5. Identifica señales de riesgo potencial y recomienda buscar atención médica profesional cuando los síntomas sugieran mayor gravedad.
+      REGLAS DE FORMATO OBLIGATORIO:
+      Nivel de prioridad: [Emoji] [Categoría]
 
-Mantén siempre las siguientes restricciones:
-- No diagnosticar enfermedades de forma definitiva.
-- No asegurar resultados médicos.
-- No sustituir la evaluación de profesionales de salud.
-- Evitar lenguaje alarmista.
+      🔍 EVALUACIÓN INICIAL
+      [Análisis breve]
 
-Formato obligatorio de respuesta:
-Nivel de prioridad: [🔴 Alta urgencia / 🟡 Moderado / 🟢 Leve]
+      ✅ RECOMENDACIONES
+      🔹 [Punto 1]
+      🔹 [Punto 2]
 
-🔍 EVALUACIÓN INICIAL
-[Escribe aquí el análisis breve de forma clara y organizada]
+      ⚠️ Advertencia: Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`;
 
-✅ RECOMENDACIONES
-[Usa el símbolo 🔹 para cada punto de la lista, sin usar guiones o puntos genéricos]
-
-⚠️ Advertencia: Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`;
-
-      // Transform history to expected Gemini parts/contents format if history is passed
-      // For simplicity, we can use generateContent with the full conversation or use chats.create
       const contents = [];
       if (history && Array.isArray(history)) {
         for (const turn of history) {
           contents.push({
-            role: turn.sender === "user" ? "user" : "model",
-            parts: [{ text: turn.text }]
+            role: (turn.sender === "user" || turn.role === "user") ? "user" : "model",
+            parts: [{ text: turn.text || turn.content || "" }]
           });
         }
       }
@@ -112,17 +81,21 @@ Nivel de prioridad: [🔴 Alta urgencia / 🟡 Moderado / 🟢 Leve]
         parts: [{ text: message }]
       });
 
-      const response = await client.models.generateContent({
+      const model = client.getGenerativeModel({
         model: "gemini-1.5-flash",
-        systemInstruction: systemInstruction,
-        contents: contents,
-        generationConfig: {
-          temperature: 0.75,
-        }
+        systemInstruction: systemInstruction
       });
 
+      const result = await model.generateContent({
+        contents: contents,
+        generationConfig: { temperature: 0.75 }
+      });
+
+      const responseAI = await result.response;
+      const responseText = responseAI.text();
+
       return res.json({
-        text: response.text || "No obtuve una respuesta clara del asistente.",
+        text: responseText || "No obtuve una respuesta clara del asistente.",
         simulated: false,
       });
 
@@ -147,7 +120,7 @@ Nivel de prioridad: [🔴 Alta urgencia / 🟡 Moderado / 🟢 Leve]
     console.log("Serving production build of client from /dist...");
     const distPath = path.resolve(process.cwd(), 'dist');
     app.use(express.static(distPath, { index: false }));
-    app.get('*', (req, res) => {
+    app.get('*', (req: Request, res: Response) => {
       res.sendFile(path.resolve(distPath, 'index.html'));
     });
   }

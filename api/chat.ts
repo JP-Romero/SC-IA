@@ -1,26 +1,19 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-let aiClient = null;
+let aiClient: GoogleGenerativeAI | null = null;
 
 function getGeminiClient() {
   if (!aiClient) {
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.warn("⚠️ Warning: GEMINI_API_KEY is not defined in the environment.");
-    }
-    aiClient = new GoogleGenAI({
-      apiKey: apiKey || "MOCK_KEY",
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        }
-      }
-    });
+    aiClient = new GoogleGenerativeAI(apiKey || "");
   }
   return aiClient;
 }
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: { method?: string; body?: any },
+  res: { status: (code: number) => { json: (data: any) => void } }
+) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -31,7 +24,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "MY_GEMINI_API_KEY" || process.env.GEMINI_API_KEY === "MOCK_KEY") {
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 10) {
       console.log("Using simulated response (unconfigured API key).");
       return res.status(200).json({
         text: `[Respuesta Simulada - Salud-Conecta IA]\n\n¡Hola Granada! He recibido tus síntomas sobre: "${message}". Como tu asistente de salud inteligente, te sugiero lo siguiente:\n\n1. **Autocuidado**: Mantente hidratado y descansa. \n2. **Centros recomendados**: Puedes acudir al **Centro de Salud Sócrates Flores** para una atención regular, o al **Hospital Bautista** si requieres consulta especializada urgente en Granada.\n3. **Urgencia**: Si presentas dolor abdominal agudo, dificultad para respirar o fiebre alta mayor a 39°C que no cede, por favor llama a emergencias al **118** de inmediato.\n\n*Nota: Recuerde configurar su clave GEMINI_API_KEY en la sección Secrets para recibir un verdadero análisis clínico avanzado de IA.*`,
@@ -59,8 +52,8 @@ Responde en un español amigable, estructurado y fácil de leer con viñetas.`;
     if (history && Array.isArray(history)) {
       for (const turn of history) {
         contents.push({
-          role: turn.sender === "user" ? "user" : "model",
-          parts: [{ text: turn.text }]
+          role: (turn.sender === "user" || turn.role === "user") ? "user" : "model",
+          parts: [{ text: turn.text || turn.content || "" }]
         });
       }
     }
@@ -70,25 +63,25 @@ Responde en un español amigable, estructurado y fácil de leer con viñetas.`;
       parts: [{ text: message }]
     });
 
-    const response = await client.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: contents,
-      config: {
-        systemInstruction: systemInstruction,
-        temperature: 0.75,
-      }
+    const model = client.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      systemInstruction: systemInstruction
     });
 
+    const result = await model.generateContent({ contents });
+    const response = await result.response;
+
     return res.status(200).json({
-      text: response.text || "No obtuve una respuesta clara del asistente.",
+      text: response.text() || "No obtuve una respuesta clara del asistente.",
       simulated: false,
     });
 
   } catch (error) {
     console.error("Gemini Error:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       error: "Ocurrió un error procesando el triaje virtual con IA.",
-      details: error?.message || ""
+      details: message
     });
   }
 }
