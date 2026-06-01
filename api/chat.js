@@ -1,26 +1,27 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-let aiClient: GoogleGenerativeAI | null = null;
+let aiClient = null;
 
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
   
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY environment variable is not set");
-  }
-  
-  if (apiKey.length < 10) {
-    throw new Error("GEMINI_API_KEY is too short");
+  if (!apiKey || apiKey.length < 10) {
+    throw new Error("GEMINI_API_KEY is not properly configured");
   }
   
   if (!aiClient) {
-    aiClient = new GoogleGenerativeAI(apiKey);
+    try {
+      aiClient = new GoogleGenerativeAI(apiKey);
+    } catch (e) {
+      console.error("Error creating Gemini client:", e);
+      throw e;
+    }
   }
   
   return aiClient;
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req, res) {
   // CORS headers
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -31,8 +32,7 @@ export default async function handler(req: any, res: any) {
   );
 
   if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   if (req.method !== "POST") {
@@ -48,9 +48,8 @@ export default async function handler(req: any, res: any) {
 
     const apiKey = process.env.GEMINI_API_KEY;
     
-    // If API key is not properly configured, return simulated response
     if (!apiKey || apiKey.length < 10) {
-      console.log("Using simulated response - API key not configured");
+      console.log("API key not configured, returning simulated response");
       return res.status(200).json({
         text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
@@ -112,7 +111,7 @@ CENTROS DE REFERENCIA EN GRANADA:
 
 RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 
-    const contents: any[] = [];
+    const contents = [];
     
     if (history && Array.isArray(history)) {
       for (const turn of history) {
@@ -145,13 +144,12 @@ RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
       text: responseText || "No obtuve una respuesta clara del asistente.",
       simulated: false,
     });
-  } catch (error: any) {
-    console.error("API Error:", error);
-    const isDev = process.env.NODE_ENV !== "production";
+  } catch (error) {
+    console.error("Chat API Error:", error);
     
     return res.status(500).json({
       error: "Ocurrió un error procesando el triaje virtual con IA.",
-      details: isDev ? error?.message : "Error interno del servidor",
+      details: error?.message || error || "Error desconocido",
       timestamp: new Date().toISOString(),
     });
   }
