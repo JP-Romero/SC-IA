@@ -117,10 +117,13 @@ RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 
   } catch (error) {
     console.error("Gemini Error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+    
     return res.status(500).json({
       error: "Ocurrió un error procesando el triaje virtual con IA.",
-      details: message
+      details: isDevelopment ? errorMessage : "Error interno del servidor",
+      timestamp: new Date().toISOString()
     });
   }
 }
