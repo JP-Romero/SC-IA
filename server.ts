@@ -44,7 +44,18 @@ async function startServer() {
       if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "MY_GEMINI_API_KEY" || process.env.GEMINI_API_KEY === "MOCK_KEY") {
         console.log("Using simulated response (unconfigured API key).");
         return res.json({
-          text: `Nivel de prioridad: 🟡 Moderado\nEvaluación inicial: Los síntomas reportados ("${message}") sugieren un cuadro que requiere atención preventiva. La clasificación es moderada porque, aunque no hay signos de emergencia inmediata, es necesario vigilar la evolución para evitar complicaciones.\nRecomendaciones:\n- Guarde reposo absoluto y mantenga una hidratación constante con agua o sueros orales.\n- Monitoree su temperatura cada 4 horas.\n- Vigile si aparece dificultad para respirar o dolor intenso.\n- Busque atención médica profesional si los síntomas no mejoran en 24 horas.\nAdvertencia: ⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+          text: `Nivel de prioridad: 🟡 Moderado
+
+🔍 EVALUACIÓN INICIAL
+Los síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. No se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para evitar que el cuadro progrese.
+
+✅ RECOMENDACIONES
+🔹 Mantener reposo absoluto y evitar esfuerzos físicos.
+🔹 Hidratación constante con líquidos claros o suero oral.
+🔹 Monitorear la temperatura cada 4 horas.
+🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.
+
+⚠️ Advertencia: Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
           simulated: true,
         });
       }
@@ -71,13 +82,17 @@ Mantén siempre las siguientes restricciones:
 - No asegurar resultados médicos.
 - No sustituir la evaluación de profesionales de salud.
 - Evitar lenguaje alarmista.
-Finaliza siempre agregando una advertencia médica: “⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.”
 
 Formato obligatorio de respuesta:
-Nivel de prioridad: [Categoría]
-Evaluación inicial: [Análisis breve]
-Recomendaciones: [Lista clara]
-Advertencia: ⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`;
+Nivel de prioridad: [🔴 Alta urgencia / 🟡 Moderado / 🟢 Leve]
+
+🔍 EVALUACIÓN INICIAL
+[Escribe aquí el análisis breve de forma clara y organizada]
+
+✅ RECOMENDACIONES
+[Usa el símbolo 🔹 para cada punto de la lista, sin usar guiones o puntos genéricos]
+
+⚠️ Advertencia: Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`;
 
       // Transform history to expected Gemini parts/contents format if history is passed
       // For simplicity, we can use generateContent with the full conversation or use chats.create
