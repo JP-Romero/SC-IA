@@ -1,4 +1,7 @@
+// @ts-ignore: Falta @types/react en este entorno
 import React, { useState } from "react";
+// @ts-ignore: Falta @types/react en este entorno
+import type { ReactNode } from "react";
 import { Search, Pill, Stethoscope, Star, Calendar, Clock, MapPin, ChevronRight, CheckCircle, Navigation, BadgeAlert, Sparkles, Filter, X } from "lucide-react";
 import { Doctor, Pharmacy, Appointment } from "../types";
 import { DOCTORS, PHARMACIES, INITIAL_APPOINTMENTS } from "../data/medicalData";
@@ -391,7 +394,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
 
                         <button
                           id={`btn-run-route-for-${pharm.id}`}
-                          onClick={() => alert(`Iniciando navegación con Google Maps para ${pharm.name} en ${pharm.address}. Distancia aproximada de ${pharm.distance}`)}
+                          onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pharm.name + ' ' + pharm.address)}`, '_blank')}
                           className="mt-4 px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-full text-blue-600 font-bold text-[10px] flex items-center space-x-1 transition-all active:scale-95 shadow-sm border border-blue-100"
                         >
                           <Navigation className="w-3 h-3" />

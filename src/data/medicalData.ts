@@ -173,8 +173,8 @@ export const HEALTH_CENTERS: HealthCenter[] = [
     schedule: "Abierto 24h",
     distance: "1.2 km",
     durationMin: 4,
-    lat: 30, // Y coordinate % on customized visual map
-    lng: 58  // X coordinate %
+    lat: 11.9304,
+    lng: -85.9560
   },
   {
     id: "hc-2",
@@ -183,8 +183,8 @@ export const HEALTH_CENTERS: HealthCenter[] = [
     schedule: "Abierto · Cierra a las 8:00 p.m.",
     distance: "2.1 km",
     durationMin: 6,
-    lat: 50,
-    lng: 32
+    lat: 11.9285,
+    lng: -85.9512
   },
   {
     id: "hc-3",
@@ -193,8 +193,8 @@ export const HEALTH_CENTERS: HealthCenter[] = [
     schedule: "Abierto 24h",
     distance: "3.6 km",
     durationMin: 8,
-    lat: 42,
-    lng: 78
+    lat: 11.9351,
+    lng: -85.9634
   },
   {
     id: "hc-4",
@@ -203,8 +203,8 @@ export const HEALTH_CENTERS: HealthCenter[] = [
     schedule: "Abierto · Cierra a las 6:00 p.m.",
     distance: "4.0 km",
     durationMin: 12,
-    lat: 68,
-    lng: 24
+    lat: 11.9250,
+    lng: -85.9555
   },
   {
     id: "hc-5",
@@ -213,7 +213,7 @@ export const HEALTH_CENTERS: HealthCenter[] = [
     schedule: "Abierto 24h",
     distance: "4.5 km",
     durationMin: 10,
-    lat: 82,
-    lng: 52
+    lat: 11.9200,
+    lng: -85.9600
   }
 ];
