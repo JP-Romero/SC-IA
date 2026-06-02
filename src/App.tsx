@@ -128,6 +128,7 @@ export default function App() {
     if (profile) {
       setLocalUser((prev) => ({
         ...prev,
+        id: profile.id || prev.id,
         name: profile.nombre || prev.name,
         email: profile.email || prev.email,
         city: profile.ciudad || prev.city,
