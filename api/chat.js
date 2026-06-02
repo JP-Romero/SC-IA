@@ -128,12 +128,20 @@ module.exports = async function handler(req, res) {
       parts: [{ text: message }],
     });
 
+    // Evaluamos la hora actual para inyectarla en el contexto del agente
+    const now = new Date();
+    const localTimeStr = now.toLocaleString("es-NI", { timeZone: "America/Managua", weekday: 'long', hour: '2-digit', minute: '2-digit' });
+    
+    const timeContext = `\n\n[CONTEXTO TEMPORAL ACTUAL IMPORTANTE PARA TRIAGE]
+Hora y día actual en Nicaragua: ${localTimeStr}
+REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba está fuera de ese horario (noches o fines de semana), ESTÁN CERRADOS. En caso de síntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos sí atienden 24/7. Es vital para la seguridad no derivarlos a clínicas cerradas.`;
+
     // Use the new @google/genai SDK
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash-lite",
       contents: contents,
       config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
+        systemInstruction: SYSTEM_INSTRUCTION + timeContext,
         temperature: 0.75,
       },
     });

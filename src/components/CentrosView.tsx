@@ -35,6 +35,28 @@ function getDistanceKm(from: UserLocation, to: HealthCenter): number {
   return earthRadiusKm * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 }
 
+function getCenterOperatingStatus(type: string): { isOpen: boolean; text: string; is24h: boolean } {
+  const lowerType = type.toLowerCase();
+  // Los hospitales y centros maternos atienden emergencias 24/7
+  if (lowerType.includes("hospital") || lowerType.includes("materna") || lowerType.includes("emergencia")) {
+    return { isOpen: true, text: "Abierto 24h", is24h: true };
+  }
+
+  // Horario típico de Puestos y Centros de Salud MINSA: Lunes a Viernes 8:00 AM - 4:00 PM
+  const now = new Date();
+  const day = now.getDay(); // 0: Dom, 1: Lun...
+  const hour = now.getHours();
+
+  const isWeekday = day >= 1 && day <= 5;
+  const isWorkingHour = hour >= 8 && hour < 16;
+
+  if (isWeekday && isWorkingHour) {
+    return { isOpen: true, text: "Abierto hoy hasta 4:00 PM", is24h: false };
+  }
+
+  return { isOpen: false, text: "Cerrado (Abre Lun-Vie 8am)", is24h: false };
+}
+
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
@@ -184,17 +206,29 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       return matchesType;
     });
 
+    // 1. Añadir estatus de operación y distancia a todos los centros filtrados por tipo
+    const centersWithStatus = typeFilteredCenters.map(center => {
+      const status = getCenterOperatingStatus(center.type);
+      return {
+        ...center,
+        distanceKm: userLocation ? getDistanceKm(userLocation, center) : undefined,
+        isOpenNow: status.isOpen
+      };
+    });
+
+    let finalCenters = centersWithStatus;
+
     if (locationMode === "nearby" && userLocation) {
       const normalizedCity = normalizeQuery(detectedCity);
 
-      const centersByDistance = typeFilteredCenters
-        .filter((center) => center.latitude && center.longitude)
-        .map((center) => ({
-          ...center,
-          distanceKm: getDistanceKm(userLocation, center),
-        }))
-        .filter((center) => center.distanceKm <= NEARBY_RADIUS_KM)
-        .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
+      // 2. Filtrar por radio y ORDENAR PRIORIZANDO LOS ABIERTOS
+      const centersByDistance = centersWithStatus
+        .filter((center) => center.latitude && center.longitude && center.distanceKm! <= NEARBY_RADIUS_KM)
+        .sort((a, b) => {
+          if (a.isOpenNow && !b.isOpenNow) return -1; // Abiertos primero
+          if (!a.isOpenNow && b.isOpenNow) return 1;  // Cerrados después
+          return (a.distanceKm ?? 0) - (b.distanceKm ?? 0); // Luego por distancia
+        });
 
       const centersInDetectedCity = centersByDistance
         .filter((center) => {
@@ -206,21 +240,29 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           );
         });
 
-      return centersInDetectedCity.length > 0 ? centersInDetectedCity : centersByDistance;
+      finalCenters = centersInDetectedCity.length > 0 ? centersInDetectedCity : centersByDistance;
+    } else {
+      const query = normalizeQuery(locationQuery.trim());
+      if (query) {
+        finalCenters = centersWithStatus.filter((center) => {
+          const searchableText = normalizeQuery(
+            [center.name, center.department, center.municipality, center.locality, center.silais]
+              .filter(Boolean)
+              .join(" "),
+          );
+          return searchableText.includes(query);
+        });
+      }
+
+      // En búsqueda manual, también ordenamos para mostrar abiertos arriba
+      finalCenters = finalCenters.sort((a, b) => {
+        if (a.isOpenNow && !b.isOpenNow) return -1;
+        if (!a.isOpenNow && b.isOpenNow) return 1;
+        return 0;
+      });
     }
 
-    const query = normalizeQuery(locationQuery.trim());
-    if (!query) return typeFilteredCenters;
-
-    return typeFilteredCenters.filter((center) => {
-      const searchableText = normalizeQuery(
-        [center.name, center.department, center.municipality, center.locality, center.silais]
-          .filter(Boolean)
-          .join(" "),
-      );
-
-      return searchableText.includes(query);
-    });
+    return finalCenters;
   }, [activeFilter, detectedCity, locationMode, locationQuery, userLocation]);
   const visibleCenters = filteredCenters.slice(0, 60);
 
@@ -476,6 +518,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             ) : visibleCenters.slice(0, 12).map((hc) => {
               const isHospital = hc.type.toLowerCase().includes("hospital");
               const isSelected = selectedCenter?.id === hc.id;
+              const operatingStatus = getCenterOperatingStatus(hc.type);
 
               return (
                 <motion.button
@@ -509,12 +552,23 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     </div>
 
                     {/* Text content */}
-                    <div className="min-w-0">
+                    <div className="min-w-0 text-left">
                       <h4 className="text-[14px] font-semibold text-slate-900 dark:text-white leading-tight truncate">{hc.name}</h4>
                       <p className="text-[11.5px] text-slate-400 dark:text-slate-500 mt-0.5">{hc.type}</p>
                       <div className="flex items-center gap-1 mt-1">
-                        <span className={`w-[5px] h-[5px] rounded-full ${hc.hasCoordinates ? "bg-[#10b981]" : "bg-amber-400"} inline-block`} />
+                        <span className={`w-[5px] h-[5px] rounded-full ${hc.hasCoordinates ? "bg-[#10b981]" : "bg-amber-400"} inline-block shrink-0`} />
                         <span className="text-[10.5px] font-medium text-slate-500 dark:text-slate-400 truncate">{hc.locality}</span>
+                      </div>
+                      {/* Horario de Atención Badge */}
+                      <div className="mt-1.5">
+                        <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                          operatingStatus.isOpen
+                            ? (operatingStatus.is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
+                            : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${operatingStatus.isOpen ? (operatingStatus.is24h ? "bg-blue-500" : "bg-emerald-500") : "bg-red-500"}`} />
+                          {operatingStatus.text}
+                        </span>
                       </div>
                     </div>
                   </div>
