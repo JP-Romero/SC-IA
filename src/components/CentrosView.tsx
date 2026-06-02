@@ -332,7 +332,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
       {/* ═══════════════ HEADER ═══════════════ */}
       <div className="w-full max-w-6xl mx-auto">
-        <header className="flex justify-between items-center px-6 z-30 relative bg-transparent" style={{ paddingTop: "max(env(safe-area-inset-top, 16px), 36px)", paddingBottom: "12px" }}>
+        <header className="flex justify-between items-center px-4 md:px-6 z-30 relative bg-transparent" style={{ paddingTop: "max(env(safe-area-inset-top, 16px), 36px)", paddingBottom: "12px" }}>
           <div
             onClick={() => onNavigate && onNavigate("home")}
             className="flex items-center gap-2.5 cursor-pointer active:opacity-70 transition-opacity"
@@ -374,7 +374,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </div>
 
       {/* ═══════════════ TITLE & LOCATION SELECTOR ═══════════════ */}
-      <div className="px-6 pt-2 pb-3 z-10 relative w-full max-w-6xl mx-auto">
+      <div className="px-4 md:px-6 pt-2 pb-3 z-10 relative w-full max-w-6xl mx-auto">
         <h1 className="text-[28px] font-bold text-slate-900 dark:text-white tracking-[-0.03em] leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
           {t('centros')}
         </h1>
@@ -477,7 +477,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         {/* ═══════════════ MAP AREA ═══════════════ */}
         <div className="w-full md:w-1/2 md:sticky md:top-24 self-start">
           <div
-            className="relative overflow-hidden mx-3 md:mx-0 rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 h-[340px] md:h-[500px]"
+            className="relative overflow-hidden mx-4 md:mx-0 rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 h-[340px] md:h-[500px]"
             style={{
               background: "linear-gradient(135deg, #e8f0fe 0%, #dce8f5 30%, #d4e3f2 60%, #cddcee 100%)",
               boxShadow: "inset 0 2px 10px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)",
@@ -553,7 +553,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         </div>
 
         {/* ═══════════════ LIST SECTION ═══════════════ */}
-        <div className="w-full md:w-1/2 px-6 md:px-0 pt-6 md:pt-0 z-10 relative flex-1 flex flex-col">
+        <div className="w-full md:w-1/2 px-4 md:px-0 pt-6 md:pt-0 z-10 relative flex-1 flex flex-col">
           {/* Section header */}
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -652,7 +652,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
                       {hc.distanceKm !== undefined ? `${hc.distanceKm.toFixed(1)} km` : hc.municipality}
                     </span>
-                    <span className="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                    <span className="hidden md:flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
                       {hc.municipality} · {hc.department}
                     </span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mt-0.5">
@@ -667,7 +667,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </div>
 
       {/* ═══════════════ BOTTOM ACTION BAR ═══════════════ */}
-      <div className="px-5 py-4 mt-4 z-10 relative w-full max-w-6xl mx-auto">
+      <div className="px-4 py-4 mt-4 z-10 relative w-full max-w-6xl mx-auto">
         <div className="flex items-center justify-start">
           {/* Emergency call button */}
           <motion.button
