@@ -328,16 +328,18 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
 
   return (
-    <div className="flex flex-col min-h-screen pb-24 relative overflow-x-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
 
-      {/* ═══════════════ HEADER ═══════════════ */}
-      <div className="w-full max-w-6xl mx-auto">
-        <header className="flex justify-between items-center px-4 md:px-6 z-30 relative bg-transparent" style={{ paddingTop: "max(env(safe-area-inset-top, 16px), 36px)", paddingBottom: "12px" }}>
+      {/* ═══════════════ SIDEBAR PANEL (Left side on desktop) ═══════════════ */}
+      <div className="w-full md:w-[380px] lg:w-[420px] flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20">
+        
+        {/* Header inside Sidebar */}
+        <header className="flex justify-between items-center px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800/60 shrink-0">
           <div
             onClick={() => onNavigate && onNavigate("home")}
             className="flex items-center gap-2.5 cursor-pointer active:opacity-70 transition-opacity"
           >
-            <div className="w-[34px] h-[34px] relative shrink-0">
+            <div className="w-[30px] h-[30px] relative shrink-0">
               <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
                 <path d="M26.6667 13.3333C26.6667 20.6971 20.6971 26.6667 13.3333 26.6667C5.96954 26.6667 0 20.6971 0 13.3333C0 5.96954 5.96954 0 13.3333 0C20.6971 0 26.6667 5.96954 26.6667 13.3333Z" fill="#3b82f6" fillOpacity="0.12" />
                 <path d="M40 26.6667C40 34.0305 34.0305 40 26.6667 40C19.3029 40 13.3333 34.0305 13.3333 26.6667C13.3333 19.3029 19.3029 13.3333 26.6667 13.3333C34.0305 13.3333 40 19.3029 40 26.6667Z" fill="#3b82f6" fillOpacity="0.12" />
@@ -345,347 +347,307 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 <path d="M13.3333 13.3333C13.3333 17.0434 14.8519 20.4008 17.3134 22.8622C19.7749 25.3237 23.1323 26.8423 26.8423 26.8423C26.9542 26.8423 27.0656 26.8406 27.1764 26.8373C25.9266 32.4249 20.9568 36.6667 15 36.6667C8.55734 36.6667 3.33333 31.4427 3.33333 25C3.33333 19.0432 7.57508 14.0734 13.1627 12.8236C13.2735 12.8269 13.3853 12.83 13.4981 12.8344L13.3333 13.3333Z" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <span className="font-bold text-[19px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <span className="font-bold text-[17px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
               Salud-Conecta <span className="text-blue-500">IA</span>
             </span>
           </div>
 
-          {/* Emergency button */}
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={onTriggerEmergency}
-            className="relative flex flex-col items-center justify-center w-[50px] h-[50px] rounded-full overflow-hidden"
-            style={{
-              background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-              boxShadow: "0 6px 20px rgba(239,68,68,0.3)",
-            }}
+            className="flex items-center justify-center w-[36px] h-[36px] rounded-full text-white bg-red-600 shadow-[0_4px_12px_rgba(239,68,68,0.25)]"
           >
-            <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 mb-[1px]">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v10H2" />
               <circle cx="16.5" cy="17.5" r="2.5" />
               <circle cx="7.5" cy="17.5" r="2.5" />
               <path d="M10 10v4" />
               <path d="M8 12h4" />
             </svg>
-            <span className="text-white text-[9px] font-bold relative z-10 leading-none">128</span>
           </motion.button>
         </header>
-      </div>
 
-      {/* ═══════════════ TITLE & LOCATION SELECTOR ═══════════════ */}
-      <div className="px-4 md:px-6 pt-2 pb-3 z-10 relative w-full max-w-6xl mx-auto">
-        <h1 className="text-[28px] font-bold text-slate-900 dark:text-white tracking-[-0.03em] leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
-          {t('centros')}
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 text-[13px] mt-1.5 leading-relaxed max-w-[280px]">
-          {locationMode === "nearby"
-            ? `Mostrando centros cercanos en ${selectedLocationLabel}.`
-            : `${HEALTH_CENTER_TOTAL} registros oficiales cargados desde archivos JSON locales.`}
-        </p>
-
-        {/* Location search pill */}
-        <div className="mt-4 flex flex-col gap-2 max-w-sm">
-          <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full px-4 py-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0 text-slate-500">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-            <input
-              value={locationQuery}
-              onChange={(event) => {
-                setLocationMode("manual");
-                setLocationQuery(event.target.value);
-              }}
-              placeholder="Buscar departamento, municipio o centro"
-              className="w-full bg-transparent text-[13px] font-medium text-slate-700 dark:text-slate-300 outline-none placeholder:text-slate-400"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => {
-                if (userLocation) {
-                  setLocationMode("nearby");
-                  setLocationQuery(detectedCity || "Mi ubicación");
-                  return;
-                }
-                requestCurrentLocation();
-              }}
-              className={`rounded-full px-3 py-1.5 text-[11px] font-bold transition-all ${
-                locationMode === "nearby"
-                  ? "bg-blue-600 text-white shadow-[0_2px_8px_rgba(37,99,235,0.22)]"
-                  : "bg-white text-blue-700 border border-blue-100 dark:bg-slate-900 dark:text-blue-300 dark:border-blue-900/40"
-              } active:scale-95`}
-            >
-              {geoStatus === "loading" ? "Detectando ubicación..." : "Usar mi ubicación"}
-            </button>
-            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+        {/* Title, Search Pill and Filters */}
+        <div className="px-4 py-4 border-b border-slate-100 dark:border-slate-800/60 shrink-0 bg-slate-50/50 dark:bg-slate-900/50 space-y-3">
+          <div>
+            <h1 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-[-0.03em] leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+              {t('centros')}
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
               {locationMode === "nearby"
-                ? `${NEARBY_RADIUS_KM} km · ${COORDINATED_CENTER_COUNT} con coordenadas`
-                : "Búsqueda manual"}
-            </span>
-          </div>
-
-          {/* Filter chips at the top */}
-          <div className="flex items-center gap-1.5 mt-2">
-            <button
-              onClick={() => setActiveFilter(activeFilter === "hospital" ? "todos" : "hospital")}
-              className={`flex items-center gap-1 px-3 py-2 rounded-full text-[11px] font-semibold transition-all ${activeFilter === "hospital"
-                ? "bg-blue-600 text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)]"
-                : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
-                }`}
-            >
-              <span className={`text-[10px] font-bold ${activeFilter === "hospital" ? "text-white" : "text-blue-600"}`}>H</span>
-              {t('hospitals')}
-            </button>
-            <button
-              onClick={() => setActiveFilter(activeFilter === "centro" ? "todos" : "centro")}
-              className={`flex items-center gap-1 px-3 py-2 rounded-full text-[11px] font-semibold transition-all ${activeFilter === "centro"
-                ? "bg-emerald-500 text-white shadow-[0_2px_8px_rgba(16,185,129,0.25)]"
-                : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
-                }`}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-2.5 h-2.5">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              {t('centers')}
-            </button>
-          </div>
-          {geoStatus === "error" && (
-            <p className="text-[11px] font-medium text-amber-600 dark:text-amber-400">
-              {geoError} Puedes buscar por ciudad manualmente.
+                ? `Cercanos en ${selectedLocationLabel}.`
+                : `${HEALTH_CENTER_TOTAL} registros cargados.`}
             </p>
-          )}
-          {locationMode === "manual" && filteredDepartments.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {filteredDepartments.map((department) => (
-                <button
-                  key={department}
-                  onClick={() => setLocationQuery(department ?? "")}
-                  className="rounded-full bg-blue-50 dark:bg-blue-950/40 px-3 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-300"
-                >
-                  {department}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      <div className="flex flex-col md:flex-row md:gap-8 max-w-6xl mx-auto w-full px-0 md:px-6 relative z-10 mt-2">
-        {/* ═══════════════ MAP AREA ═══════════════ */}
-        <div className="w-full md:w-1/2 md:sticky md:top-24 self-start">
-          <div
-            className="relative overflow-hidden mx-4 md:mx-0 rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 h-[340px] md:h-[500px]"
-            style={{
-              background: "linear-gradient(135deg, #e8f0fe 0%, #dce8f5 30%, #d4e3f2 60%, #cddcee 100%)",
-              boxShadow: "inset 0 2px 10px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)",
-            }}
-          >
-            {googleMapsEmbedUrl ? (
-              <iframe
-                title={`Mapa de ${selectedCenter?.name ?? selectedLocationLabel}`}
-                src={googleMapsEmbedUrl}
-                className="absolute inset-0 h-full w-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                allowFullScreen
+          {/* Location search pill */}
+          <div className="flex flex-col gap-2">
+            <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full px-3.5 py-2 shadow-[0_2px_6px_rgba(0,0,0,0.03)]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0 text-slate-500">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <input
+                value={locationQuery}
+                onChange={(event) => {
+                  setLocationMode("manual");
+                  setLocationQuery(event.target.value);
+                }}
+                placeholder="Buscar ciudad o centro..."
+                className="w-full bg-transparent text-[12.5px] font-medium text-slate-700 dark:text-slate-300 outline-none placeholder:text-slate-400"
               />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-slate-100 px-6 text-center dark:bg-slate-900">
-                <div>
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Google Maps no está configurado</p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Agrega VITE_GOOGLE_MAPS_API_KEY en tu archivo .env.</p>
-                </div>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                onClick={() => {
+                  if (userLocation) {
+                    setLocationMode("nearby");
+                    setLocationQuery(detectedCity || "Mi ubicación");
+                    return;
+                  }
+                  requestCurrentLocation();
+                }}
+                className={`rounded-full px-2.5 py-1 text-[10px] font-bold transition-all ${
+                  locationMode === "nearby"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-blue-700 border border-blue-100 dark:bg-slate-950 dark:text-blue-300 dark:border-blue-900/40"
+                }`}
+              >
+                {geoStatus === "loading" ? "Ubicando..." : "Mi ubicación"}
+              </button>
+              
+              {/* Type Filter Chips */}
+              <button
+                onClick={() => setActiveFilter(activeFilter === "hospital" ? "todos" : "hospital")}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                  activeFilter === "hospital"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                }`}
+              >
+                Hosp.
+              </button>
+              <button
+                onClick={() => setActiveFilter(activeFilter === "centro" ? "todos" : "centro")}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                  activeFilter === "centro"
+                    ? "bg-emerald-600 text-white"
+                    : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                }`}
+              >
+                Centros
+              </button>
+            </div>
+
+            {locationMode === "manual" && filteredDepartments.length > 0 && (
+              <div className="flex flex-wrap gap-1 max-h-[50px] overflow-y-auto no-scrollbar pt-1">
+                {filteredDepartments.map((department) => (
+                  <button
+                    key={department}
+                    onClick={() => setLocationQuery(department ?? "")}
+                    className="rounded-full bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 text-[9.5px] font-semibold text-blue-700 dark:text-blue-300"
+                  >
+                    {department}
+                  </button>
+                ))}
               </div>
             )}
-
-            {selectedCenter && (
-              <motion.div
-                key={selectedCenter.id}
-                initial={{ opacity: 0, y: 6, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.2 }}
-                className="absolute left-3 right-3 bottom-3 md:bottom-auto md:top-3 md:right-3 md:left-auto md:max-w-[260px] z-30"
-              >
-                <div className="rounded-2xl border border-slate-100 bg-white/95 p-3 shadow-[0_8px_24px_rgba(0,0,0,0.14)] backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
-                  <h4 className="text-[13px] font-bold leading-tight text-slate-900 dark:text-white">{selectedCenter.name}</h4>
-                  <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{selectedCenter.type}</p>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                    <span className="flex items-center gap-1 text-[10px] font-medium text-[#10b981]">
-                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#10b981]" />
-                      {selectedCenter.municipality}
-                    </span>
-                    <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{selectedCenter.department}</span>
-                  </div>
-
-                  {!getCenterOperatingStatus(selectedCenter.type).isOpen && (() => {
-                    const referenceLocation = (selectedCenter.latitude && selectedCenter.longitude) 
-                      ? { latitude: selectedCenter.latitude, longitude: selectedCenter.longitude }
-                      : userLocation;
-                    const nearestHospitalInfo = referenceLocation ? getNearestHospital(referenceLocation) : null;
-                    return nearestHospitalInfo ? (
-                      <div className="mt-2.5 p-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-900/40 rounded-xl text-[10px] text-amber-800 dark:text-amber-300">
-                        <p className="font-bold flex items-center gap-1">
-                          <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-                          <span>Centro Cerrado</span>
-                        </p>
-                        <p className="mt-1 leading-normal">
-                          Te recomendamos acudir al hospital más cercano: <span className="font-bold">{nearestHospitalInfo.hospital.name}</span> ({nearestHospitalInfo.distanceKm.toFixed(1)} km).
-                        </p>
-                      </div>
-                    ) : null;
-                  })()}
-
-                  <a
-                    href={googleMapsSearchUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-2 inline-flex rounded-full bg-blue-600 px-3 py-1.5 text-[10px] font-bold text-white shadow-sm hover:bg-blue-700"
-                  >
-                    Abrir en Google Maps
-                  </a>
-                </div>
-              </motion.div>
-            )}
           </div>
         </div>
 
-        {/* ═══════════════ LIST SECTION ═══════════════ */}
-        <div className="w-full md:w-1/2 px-4 md:px-0 pt-6 md:pt-0 z-10 relative flex-1 flex flex-col">
-          {/* Section header */}
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+        {/* Scrollable Centers List */}
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 no-scrollbar pb-32">
+          <div className="flex justify-between items-center mb-1.5">
+            <h3 className="text-[12.5px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               {locationMode === "nearby" ? "Cerca de mí" : t('nearYou')}
             </h3>
-            <span className="text-[13px] font-semibold text-blue-600 dark:text-blue-400">{filteredCenters.length} encontrados</span>
+            <span className="text-[11.5px] font-semibold text-blue-600 dark:text-blue-400">{filteredCenters.length} encontrados</span>
           </div>
 
-          {/* Center list */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {visibleCenters.length === 0 ? (
-              <div className="rounded-[20px] border border-dashed border-slate-300 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-900">
-                <p className="text-sm font-bold text-slate-700 dark:text-slate-200">No hay centros cercanos con coordenadas disponibles.</p>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Prueba buscar manualmente por departamento o ciudad mientras completamos coordenadas en la base local.
-                </p>
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 p-5 text-center dark:border-slate-850 dark:bg-slate-900/50">
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-200">No hay centros en este radio.</p>
                 <button
                   onClick={() => setLocationMode("manual")}
-                  className="mt-3 rounded-full bg-blue-600 px-4 py-2 text-xs font-bold text-white active:scale-95"
+                  className="mt-2.5 rounded-full bg-blue-600 px-3.5 py-1.5 text-[10px] font-bold text-white"
                 >
                   Buscar manualmente
                 </button>
               </div>
-            ) : visibleCenters.slice(0, 12).map((hc) => {
-              const isHospital = hc.type.toLowerCase().includes("hospital");
-              const isSelected = selectedCenter?.id === hc.id;
-              const operatingStatus = getCenterOperatingStatus(hc.type);
+            ) : (
+              visibleCenters.slice(0, 12).map((hc) => {
+                const isHospital = hc.type.toLowerCase().includes("hospital");
+                const isSelected = selectedCenter?.id === hc.id;
+                const operatingStatus = getCenterOperatingStatus(hc.type);
 
-              return (
-                <motion.button
-                  key={hc.id}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setSelectedCenter(hc)}
-                  className={`w-full text-left flex items-center justify-between rounded-[20px] px-4 py-3.5 transition-all bg-white dark:bg-slate-900 ${
-                    isSelected ? "border-1.5 border-blue-600/20" : "border-1.5 border-slate-100 dark:border-slate-800"
-                  }`}
-                  style={{
-                    boxShadow: isSelected ? "0 4px 16px rgba(37,99,235,0.06)" : "0 1px 4px rgba(0,0,0,0.02)",
-                  }}
-                >
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    {/* Icon marker circle */}
-                    <div
-                      className="w-[44px] h-[44px] rounded-[14px] flex items-center justify-center shrink-0"
-                      style={{
-                        background: isHospital ? "#eff6ff" : "#f0fdf4",
-                        border: isHospital ? "1.5px solid #dbeafe" : "1.5px solid #dcfce7",
-                      }}
+                return (
+                  <motion.div
+                    key={hc.id}
+                    layout
+                    className={`rounded-2xl p-3.5 transition-all bg-white dark:bg-slate-950 border ${
+                      isSelected 
+                        ? "border-blue-600 dark:border-blue-500 shadow-[0_4px_16px_rgba(37,99,235,0.08)]" 
+                        : "border-slate-100 dark:border-slate-800 shadow-[0_1px_4px_rgba(0,0,0,0.01)]"
+                    }`}
+                  >
+                    <div 
+                      onClick={() => setSelectedCenter(hc)}
+                      className="flex items-center justify-between cursor-pointer gap-3 min-w-0"
                     >
-                      {isHospital ? (
-                        <span className="text-[16px] font-bold text-[#2563eb]">H</span>
-                      ) : (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[16px] h-[16px]">
-                          <line x1="12" y1="5" x2="12" y2="19" />
-                          <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                      )}
-                    </div>
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Icon circle */}
+                        <div
+                          className="w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0"
+                          style={{
+                            background: isHospital ? "#eff6ff" : "#f0fdf4",
+                            border: isHospital ? "1px solid #dbeafe" : "1px solid #dcfce7",
+                          }}
+                        >
+                          {isHospital ? (
+                            <span className="text-xs font-bold text-[#2563eb]">H</span>
+                          ) : (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[14px] h-[14px]">
+                              <line x1="12" y1="5" x2="12" y2="19" />
+                              <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                          )}
+                        </div>
 
-                    {/* Text content */}
-                    <div className="min-w-0 text-left">
-                      <h4 className="text-[14px] font-semibold text-slate-900 dark:text-white leading-tight truncate">{hc.name}</h4>
-                      <p className="text-[11.5px] text-slate-400 dark:text-slate-500 mt-0.5">{hc.type}</p>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className={`w-[5px] h-[5px] rounded-full ${hc.hasCoordinates ? "bg-[#10b981]" : "bg-amber-400"} inline-block shrink-0`} />
-                        <span className="text-[10.5px] font-medium text-slate-500 dark:text-slate-400 truncate">{hc.locality}</span>
+                        {/* Title & Type */}
+                        <div className="min-w-0 text-left">
+                          <h4 className="text-[13px] font-bold text-slate-900 dark:text-white leading-tight truncate">{hc.name}</h4>
+                          <p className="text-[10.5px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">{hc.type}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <span className={`w-1.5 h-1.5 rounded-full ${hc.hasCoordinates ? "bg-[#10b981]" : "bg-amber-400"} inline-block shrink-0`} />
+                            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 truncate">{hc.locality}</span>
+                          </div>
+                        </div>
                       </div>
-                      {/* Horario de Atención Badge */}
-                      <div className="mt-1.5 flex flex-col gap-1">
-                        <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded w-max ${
-                          operatingStatus.isOpen
-                            ? (operatingStatus.is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
-                            : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${operatingStatus.isOpen ? (operatingStatus.is24h ? "bg-blue-500" : "bg-emerald-500") : "bg-red-500"}`} />
-                          {operatingStatus.text}
+
+                      {/* Distance */}
+                      <div className="shrink-0 text-right ml-2 flex flex-col items-end">
+                        <span className="text-[12.5px] font-semibold text-slate-700 dark:text-slate-300">
+                          {hc.distanceKm !== undefined ? `${hc.distanceKm.toFixed(1)} km` : hc.municipality}
                         </span>
-
-                        {!operatingStatus.isOpen && (() => {
-                          const referenceLoc = (hc.latitude && hc.longitude)
-                            ? { latitude: hc.latitude, longitude: hc.longitude }
-                            : userLocation;
-                          const nearestHospitalInfo = referenceLoc ? getNearestHospital(referenceLoc) : null;
-                          return nearestHospitalInfo ? (
-                            <span className="text-[9.5px] font-medium text-amber-700 dark:text-amber-500">
-                              Hospital más cercano: <span className="font-bold">{nearestHospitalInfo.hospital.name}</span> ({nearestHospitalInfo.distanceKm.toFixed(1)} km)
-                            </span>
-                          ) : null;
-                        })()}
+                        <span className="text-[9.5px] text-slate-400 dark:text-slate-500 font-medium">
+                          {hc.municipality}
+                        </span>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Right side - distance & time */}
-                  <div className="shrink-0 text-right ml-3 flex flex-col items-end gap-0.5">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
-                      {hc.distanceKm !== undefined ? `${hc.distanceKm.toFixed(1)} km` : hc.municipality}
-                    </span>
-                    <span className="hidden md:flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-                      {hc.municipality} · {hc.department}
-                    </span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mt-0.5">
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </div>
-                </motion.button>
-              );
-            })}
+                    {/* EXPANDED SECTION FOR ACTIONS (Same concept as Burger King Locator) */}
+                    <AnimatePresence>
+                      {isSelected && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 overflow-hidden"
+                        >
+                          <div className="space-y-2">
+                            {/* Schedule Badge */}
+                            <div className="flex items-center gap-2">
+                              <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                                operatingStatus.isOpen
+                                  ? (operatingStatus.is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
+                                  : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                              }`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${operatingStatus.isOpen ? (operatingStatus.is24h ? "bg-blue-500" : "bg-emerald-500") : "bg-red-500"}`} />
+                                {operatingStatus.text}
+                              </span>
+                              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">ID: {hc.sourceNumber}</span>
+                            </div>
+
+                            {/* Closed hospital warning recommendation */}
+                            {!operatingStatus.isOpen && (() => {
+                              const referenceLoc = (hc.latitude && hc.longitude)
+                                ? { latitude: hc.latitude, longitude: hc.longitude }
+                                : userLocation;
+                              const nearestHospitalInfo = referenceLoc ? getNearestHospital(referenceLoc) : null;
+                              return nearestHospitalInfo ? (
+                                <div className="p-2.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 rounded-xl text-[10.5px] text-amber-800 dark:text-amber-300 leading-normal">
+                                  <span className="font-bold flex items-center gap-1 mb-0.5">
+                                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                    Centro Cerrado
+                                  </span>
+                                  Te sugerimos ir al hospital más cercano: <span className="font-bold">{nearestHospitalInfo.hospital.name}</span> ({nearestHospitalInfo.distanceKm.toFixed(1)} km).
+                                </div>
+                              ) : null;
+                            })()}
+
+                            {/* Location description */}
+                            <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100/50 dark:border-slate-800/40">
+                              <span className="font-bold block text-slate-700 dark:text-slate-300 mb-0.5">Dirección:</span>
+                              {hc.locality}
+                            </p>
+
+                            {/* CTA Action buttons inside the card */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1.5">
+                              <a
+                                href={googleMapsSearchUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
+                              >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                  <circle cx="12" cy="10" r="3" />
+                                </svg>
+                                <span>Cómo llegar</span>
+                              </a>
+
+                              {hc.phone ? (
+                                <a
+                                  href={`tel:${hc.phone}`}
+                                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-[11px] py-2.5 px-3 active:scale-95 transition-all"
+                                >
+                                  <Phone className="w-3.5 h-3.5" />
+                                  <span>Llamar</span>
+                                </a>
+                              ) : (
+                                <button
+                                  onClick={onTriggerEmergency}
+                                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 font-bold text-[11px] py-2.5 px-3 active:scale-95 transition-all"
+                                >
+                                  <AlertTriangle className="w-3.5 h-3.5" />
+                                  <span>Emergencia 128</span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
 
-      {/* ═══════════════ BOTTOM ACTION BAR ═══════════════ */}
-      <div className="px-4 py-4 mt-4 z-10 relative w-full max-w-6xl mx-auto">
-        <div className="flex items-center justify-start">
-          {/* Emergency call button */}
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={onTriggerEmergency}
-            className="flex items-center gap-2.5 bg-white dark:bg-slate-900 rounded-full px-4 py-3 border border-red-200 dark:border-red-900/30 shadow-[0_2px_8px_rgba(239,68,68,0.06)]"
-          >
-            <div className="w-8 h-8 rounded-full bg-[#fee2e2] flex items-center justify-center shrink-0">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-              </svg>
+      {/* ═══════════════ MAP PANEL (Right side on desktop) ═══════════════ */}
+      <div className="flex-1 h-[280px] md:h-full relative z-10 shrink-0">
+        {googleMapsEmbedUrl ? (
+          <iframe
+            title={`Mapa de ${selectedCenter?.name ?? selectedLocationLabel}`}
+            src={googleMapsEmbedUrl}
+            className="w-full h-full border-0"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-100 px-6 text-center dark:bg-slate-900">
+            <div>
+              <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Google Maps no está configurado</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Agrega VITE_GOOGLE_MAPS_API_KEY en tu archivo .env.</p>
             </div>
-            <div className="text-left">
-              <span className="text-[12px] font-bold text-red-500 block leading-tight">{t('emergencies247')}</span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">{t('call128')}</span>
-            </div>
-          </motion.button>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ═══════════════ EMERGENCY CONFIRMATION MODAL ═══════════════ */}
