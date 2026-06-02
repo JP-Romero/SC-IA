@@ -296,7 +296,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
   const filteredDepartments = useMemo(() => {
     const query = normalizeQuery(locationQuery.trim());
-    return HEALTH_CENTER_DEPARTMENTS.filter((department) => normalizeQuery(department).includes(query)).slice(0, 5);
+    return HEALTH_CENTER_DEPARTMENTS.filter((department) => normalizeQuery(department).includes(query));
   }, [locationQuery]);
 
   const selectedLocationLabel = locationMode === "nearby"
