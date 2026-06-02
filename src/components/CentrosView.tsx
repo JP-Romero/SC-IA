@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { HealthCenter } from "../types";
-import { HEALTH_CENTERS } from "../data/medicalData";
+import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS, HEALTH_CENTER_TOTAL } from "../data/healthUnits";
 import { useLanguage } from "../contexts/LanguageContext";
 import { AlertTriangle, Phone } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -12,13 +12,63 @@ interface CentrosViewProps {
 
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
-  const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(HEALTH_CENTERS[0]);
+  const [locationQuery, setLocationQuery] = useState("Granada");
+  const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
+    HEALTH_CENTERS.find((center) => center.department?.toLowerCase().includes("granada")) ?? HEALTH_CENTERS[0],
+  );
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
 
-  const filteredCenters = HEALTH_CENTERS.filter((center) => {
-    if (activeFilter === "hospital") return center.type.toLowerCase().includes("hospital");
-    if (activeFilter === "centro") return center.type.toLowerCase().includes("centro") || center.type.toLowerCase().includes("clínica");
+  const normalizeQuery = (value: string) =>
+    value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  const filteredCenters = useMemo(() => HEALTH_CENTERS.filter((center) => {
+    const typeText = normalizeQuery(center.type);
+    const matchesType =
+      activeFilter === "hospital"
+        ? typeText.includes("hospital")
+        : activeFilter === "centro"
+          ? typeText.includes("centro") || typeText.includes("clinica") || typeText.includes("puesto")
+          : true;
+
+    const query = normalizeQuery(locationQuery.trim());
+    if (!query) return matchesType;
+
+    const searchableText = normalizeQuery(
+      [center.name, center.department, center.municipality, center.locality, center.silais]
+        .filter(Boolean)
+        .join(" "),
+    );
+
+    return matchesType && searchableText.includes(query);
+  }), [activeFilter, locationQuery]);
+  const visibleCenters = filteredCenters.slice(0, 60);
+
+  useEffect(() => {
+    if (!filteredCenters.length) {
+      setSelectedCenter(null);
+      return;
+    }
+
+    if (!selectedCenter || !filteredCenters.some((center) => center.id === selectedCenter.id)) {
+      setSelectedCenter(filteredCenters[0]);
+    }
+  }, [filteredCenters, selectedCenter]);
+
+  const filteredDepartments = useMemo(() => {
+    const query = normalizeQuery(locationQuery.trim());
+    return HEALTH_CENTER_DEPARTMENTS.filter((department) => normalizeQuery(department).includes(query)).slice(0, 5);
+  }, [locationQuery]);
+
+  const selectedLocationLabel = locationQuery.trim() || "Nicaragua";
+
+  const filteredMarkerCenters = visibleCenters.filter((center) => {
+    const typeText = normalizeQuery(center.type);
+    if (activeFilter === "hospital") return typeText.includes("hospital");
+    if (activeFilter === "centro") return typeText.includes("centro") || typeText.includes("clinica") || typeText.includes("puesto");
     return true;
   });
 
@@ -79,19 +129,36 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           {t('centros')}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-[13px] mt-1.5 leading-relaxed max-w-[280px]">
-          {t('findCenters')}<br />{t('nearYou')}.
+          {HEALTH_CENTER_TOTAL} registros oficiales cargados desde archivos JSON locales.
         </p>
 
-        {/* Location dropdown pill */}
-        <div className="mt-4 inline-flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full px-4 py-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+        {/* Location search pill */}
+        <div className="mt-4 flex flex-col gap-2 max-w-sm">
+          <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full px-4 py-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0 text-slate-500">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Granada, Nicaragua</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 ml-1">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
+            <input
+              value={locationQuery}
+              onChange={(event) => setLocationQuery(event.target.value)}
+              placeholder="Buscar departamento, municipio o centro"
+              className="w-full bg-transparent text-[13px] font-medium text-slate-700 dark:text-slate-300 outline-none placeholder:text-slate-400"
+            />
+          </div>
+          {filteredDepartments.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {filteredDepartments.map((department) => (
+                <button
+                  key={department}
+                  onClick={() => setLocationQuery(department)}
+                  className="rounded-full bg-blue-50 dark:bg-blue-950/40 px-3 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-300"
+                >
+                  {department}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -123,9 +190,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             <div className="absolute" style={{ top: "30%", left: "0", right: "0", height: "1px", background: "rgba(148,163,184,0.12)" }} />
             <div className="absolute" style={{ top: "70%", left: "0", right: "0", height: "1px", background: "rgba(148,163,184,0.12)" }} />
 
-            {/* "Granada" text label on map */}
+            {/* Location text label on map */}
             <div className="absolute z-10 select-none pointer-events-none" style={{ top: "38%", left: "28%", transform: "translate(-50%, -50%)" }}>
-              <span className="text-[16px] font-bold text-slate-700/20 dark:text-slate-300/20 tracking-wide" style={{ fontFamily: "'Inter', sans-serif" }}>Granada</span>
+              <span className="text-[16px] font-bold text-slate-700/20 dark:text-slate-300/20 tracking-wide" style={{ fontFamily: "'Inter', sans-serif" }}>{selectedLocationLabel}</span>
             </div>
 
             {/* User location blue pulsing dot */}
@@ -135,7 +202,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             </div>
 
             {/* Map markers for health centers */}
-            {filteredCenters.map((hc) => {
+            {filteredMarkerCenters.map((hc) => {
               const isSelected = selectedCenter?.id === hc.id;
               const markerType = getMarkerType(hc);
 
@@ -197,9 +264,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     <div className="flex items-center gap-3 mt-1.5">
                       <span className="flex items-center gap-1 text-[10px] font-medium text-[#10b981]">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] inline-block" />
-                        {selectedCenter.schedule.split("·")[0].trim()}
+                        {selectedCenter.municipality}
                       </span>
-                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{selectedCenter.distance}</span>
+                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{selectedCenter.department}</span>
                     </div>
                   </div>
                 </motion.div>
@@ -240,12 +307,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           {/* Section header */}
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>{t('nearYou')}</h3>
-            <button className="text-[13px] font-semibold text-blue-600 dark:text-blue-400">{t('all')}</button>
+            <span className="text-[13px] font-semibold text-blue-600 dark:text-blue-400">{filteredCenters.length} encontrados</span>
           </div>
 
           {/* Center list */}
           <div className="space-y-3">
-            {filteredCenters.slice(0, 3).map((hc) => {
+            {visibleCenters.slice(0, 12).map((hc) => {
               const isHospital = hc.type.toLowerCase().includes("hospital");
               const isSelected = selectedCenter?.id === hc.id;
 
@@ -285,21 +352,17 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                       <h4 className="text-[14px] font-semibold text-slate-900 dark:text-white leading-tight truncate">{hc.name}</h4>
                       <p className="text-[11.5px] text-slate-400 dark:text-slate-500 mt-0.5">{hc.type}</p>
                       <div className="flex items-center gap-1 mt-1">
-                        <span className="w-[5px] h-[5px] rounded-full bg-[#10b981] inline-block" />
-                        <span className="text-[10.5px] font-medium text-[#10b981]">{hc.schedule}</span>
+                        <span className={`w-[5px] h-[5px] rounded-full ${hc.hasCoordinates ? "bg-[#10b981]" : "bg-amber-400"} inline-block`} />
+                        <span className="text-[10.5px] font-medium text-slate-500 dark:text-slate-400 truncate">{hc.locality}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Right side - distance & time */}
                   <div className="shrink-0 text-right ml-3 flex flex-col items-end gap-0.5">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">{hc.distance}</span>
+                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">{hc.municipality}</span>
                     <span className="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
-                      {hc.durationMin} min
+                      {hc.department}
                     </span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mt-0.5">
                       <polyline points="9 18 15 12 9 6" />

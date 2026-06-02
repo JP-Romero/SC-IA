@@ -29,6 +29,14 @@ export interface HealthCenter {
   durationMin: number;
   lat: number; // percentage of map container Y (0 - 100) for custom interactive map
   lng: number; // percentage of map container X (0 - 100)
+  department?: string;
+  municipality?: string;
+  locality?: string;
+  zone?: string;
+  phone?: string;
+  silais?: string;
+  sourceNumber?: number;
+  hasCoordinates?: boolean;
 }
 
 export interface ChatMessage {

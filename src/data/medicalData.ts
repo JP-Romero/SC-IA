@@ -1,4 +1,5 @@
-import { Doctor, Pharmacy, HealthCenter, UserProfile, Appointment } from "../types";
+import { Doctor, Pharmacy, UserProfile, Appointment } from "../types";
+export { HEALTH_CENTERS } from "./healthUnits";
 
 export const DEFAULT_USER: UserProfile = {
   name: "Kenneth",
@@ -916,55 +917,3 @@ export const PHARMACIES: Pharmacy[] = [
   }
 ];
 
-export const HEALTH_CENTERS: HealthCenter[] = [
-  {
-    id: "hc-1",
-    name: "Hospital Bautista",
-    type: "Hospital general",
-    schedule: "Abierto 24h",
-    distance: "1.2 km",
-    durationMin: 4,
-    lat: 11.9304,
-    lng: -85.9560
-  },
-  {
-    id: "hc-2",
-    name: "Centro de Salud Sócrates Flores",
-    type: "Centro de salud",
-    schedule: "Abierto · Cierra a las 8:00 p.m.",
-    distance: "2.1 km",
-    durationMin: 6,
-    lat: 11.9285,
-    lng: -85.9512
-  },
-  {
-    id: "hc-3",
-    name: "Hospital Amistad Japón Nicaragua",
-    type: "Hospital especializado",
-    schedule: "Abierto 24h",
-    distance: "3.6 km",
-    durationMin: 8,
-    lat: 11.9351,
-    lng: -85.9634
-  },
-  {
-    id: "hc-4",
-    name: "Clínica San Francisco",
-    type: "Clínica privada",
-    schedule: "Abierto · Cierra a las 6:00 p.m.",
-    distance: "4.0 km",
-    durationMin: 12,
-    lat: 11.9250,
-    lng: -85.9555
-  },
-  {
-    id: "hc-5",
-    name: "Centro de Salud Granada Sur",
-    type: "Centro de salud",
-    schedule: "Abierto 24h",
-    distance: "4.5 km",
-    durationMin: 10,
-    lat: 11.9200,
-    lng: -85.9600
-  }
-];
