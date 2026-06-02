@@ -344,7 +344,7 @@ export default function App() {
   // ─── Loading Screen ────────────────────────────────────────
   if (!initialized) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-slate-900 dark:to-slate-950 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -970,7 +970,7 @@ export default function App() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.93, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
-              className="bg-white rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(239,68,68,0.15)] border border-red-50 relative overflow-hidden"
+              className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(239,68,68,0.15)] border border-red-50 dark:border-red-900/30 relative overflow-hidden"
             >
               {/* Subtle top decoration */}
               <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-red-500 via-rose-500 to-red-600" />
@@ -993,7 +993,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <h3 className="text-xl font-bold text-slate-900 tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
                   Llamada de Emergencia
                 </h3>
                 <p className="text-xs text-red-500 font-bold uppercase tracking-wider mt-1 font-mono">
@@ -1005,12 +1005,12 @@ export default function App() {
               <div className="space-y-4 mb-6" style={{ fontFamily: "'Inter', sans-serif" }}>
 
                 {/* When to call */}
-                <div className="bg-emerald-50/60 rounded-[20px] p-3.5 border border-emerald-100/50">
-                  <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
+                <div className="bg-emerald-50/60 dark:bg-emerald-500/10 rounded-[20px] p-3.5 border border-emerald-100/50 dark:border-emerald-500/20">
+                  <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
                     ¿Cuándo sí debes llamar?
                   </span>
-                  <ul className="text-[11px] text-slate-600 space-y-1 pl-1 leading-relaxed">
+                  <ul className="text-[11px] text-slate-600 dark:text-slate-400 space-y-1 pl-1 leading-relaxed">
                     <li className="flex items-start gap-1">
                       <span className="text-emerald-500 font-bold">✓</span>
                       <span>Dificultad respiratoria severa o asfixia.</span>
@@ -1031,12 +1031,12 @@ export default function App() {
                 </div>
 
                 {/* When NOT to call */}
-                <div className="bg-slate-50 rounded-[20px] p-3.5 border border-slate-200/50">
-                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[20px] p-3.5 border border-slate-200/50 dark:border-slate-700/50">
+                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
                     <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
                     ¿Cuándo usar la Consulta IA en su lugar?
                   </span>
-                  <ul className="text-[11px] text-slate-600 space-y-1 pl-1 leading-relaxed">
+                  <ul className="text-[11px] text-slate-600 dark:text-slate-400 space-y-1 pl-1 leading-relaxed">
                     <li className="flex items-start gap-1">
                       <span className="text-slate-400 font-bold">•</span>
                       <span>Fiebre moderada o síntomas de gripe.</span>
@@ -1073,7 +1073,7 @@ export default function App() {
 
                 <button
                   onClick={() => setIsEmergencyModalOpen(false)}
-                  className="w-full py-3 text-slate-500 hover:text-slate-800 font-bold text-[13px] tracking-wide transition-colors active:scale-95"
+                  className="w-full py-3 text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 font-bold text-[13px] tracking-wide transition-colors active:scale-95"
                 >
                   Cancelar
                 </button>
