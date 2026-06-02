@@ -50,8 +50,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
 
-  const normalizeQuery = (value: string) =>
-    value
+  const normalizeQuery = (value?: string) =>
+    (value ?? "")
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
@@ -376,7 +376,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               {filteredDepartments.map((department) => (
                 <button
                   key={department}
-                  onClick={() => setLocationQuery(department)}
+                  onClick={() => setLocationQuery(department ?? "")}
                   className="rounded-full bg-blue-50 dark:bg-blue-950/40 px-3 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-300"
                 >
                   {department}
