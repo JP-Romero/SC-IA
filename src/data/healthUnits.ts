@@ -112,7 +112,10 @@ export const HEALTH_CENTERS: HealthCenter[] = HEALTH_UNIT_DATABASE.flatMap((depa
       .slice(0, HEALTH_UNIT_DATABASE.indexOf(department))
       .reduce((total, current) => total + current.unidades_salud.length, 0) + unitIndex;
     const position = coordinateToMapPosition(unit, globalIndex);
-    const departmentName = normalizeText(unit.departamento_region, department.departamento);
+    const rawDept = department.departamento || "Nicaragua";
+    const departmentName = rawDept === "RACCN" || rawDept === "RACCS"
+      ? rawDept
+      : rawDept.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
     const municipality = normalizeText(unit.municipio);
     const zone = normalizeText(unit.zona);
 
