@@ -594,7 +594,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     boxShadow: isSelected ? "0 4px 16px rgba(37,99,235,0.06)" : "0 1px 4px rgba(0,0,0,0.02)",
                   }}
                 >
-                  <div className="flex items-center gap-3.5">
+                  <div className="flex items-center gap-3.5 min-w-0">
                     {/* Icon marker circle */}
                     <div
                       className="w-[44px] h-[44px] rounded-[14px] flex items-center justify-center shrink-0"
