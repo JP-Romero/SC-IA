@@ -972,23 +972,44 @@ export default function App() {
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
               className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(251,113,133,0.08)] border border-rose-50 dark:border-rose-900/10 relative overflow-hidden"
             >
-              {/* Simple Emergency Content */}
-              <div className="flex flex-col mt-2 mb-4">
-                <h3 className="text-[22px] font-bold text-[#d32f2f] flex items-center justify-center gap-2 mb-3">
-                  <span className="text-2xl">🚨</span> Emergencia médica
-                </h3>
+              {/* Professional Emergency Content */}
+              <div className="flex flex-col mt-2 mb-5">
+                <div className="flex flex-col items-center justify-center text-center mb-5 mt-2">
+                  <div className="w-[64px] h-[64px] rounded-full bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mb-3 shadow-[0_4px_16px_rgba(251,113,133,0.15)] relative">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-rose-100 dark:bg-rose-500/20 animate-ping opacity-75" />
+                    <Siren className="w-[32px] h-[32px] text-[#d32f2f] relative z-10" />
+                  </div>
+                  <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+                    Emergencia médica
+                  </h3>
+                </div>
                 
-                <p className="text-[#334155] dark:text-slate-300 text-[15px] font-medium leading-snug mb-4 text-left">
-                  Si estás con alguno de estos síntomas, actuá ahora:
+                <p className="text-slate-600 dark:text-slate-400 text-[14px] font-medium leading-snug mb-3 text-left px-1">
+                  Si presentas alguno de estos síntomas, actúa de inmediato:
                 </p>
 
-                <div className="bg-[#f0f4f8] dark:bg-slate-800/80 rounded-xl rounded-l-none border-l-[4px] border-[#3b82f6] p-4 py-4 text-left shadow-sm mb-2">
-                  <ul className="space-y-3.5 text-[14px] text-[#334155] dark:text-slate-300 font-medium leading-tight">
-                    <li className="flex items-center gap-2.5"><span className="text-lg">💔</span> Dolor o presión en el pecho</li>
-                    <li className="flex items-center gap-2.5"><span className="text-lg">😮‍💨</span> Dificultad severa para respirar</li>
-                    <li className="flex items-center gap-2.5"><span className="text-lg">🩸</span> Sangrado abundante</li>
-                    <li className="flex items-start gap-2.5"><span className="text-lg mt-[-2px]">🧠</span> <span>Confusión o pérdida del<br/>conocimiento</span></li>
-                    <li className="flex items-center gap-2.5"><span className="text-lg">⚡</span> Convulsiones o parálisis súbita</li>
+                <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 p-4 py-4 text-left mb-2">
+                  <ul className="space-y-3.5 text-[14px] text-slate-700 dark:text-slate-300 font-medium leading-tight">
+                    <li className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>Dolor o presión en el pecho</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>Dificultad severa para respirar</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>Sangrado abundante</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0 mt-1.5" />
+                      <span>Confusión o pérdida del conocimiento</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>Convulsiones o parálisis súbita</span>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -1001,34 +1022,17 @@ export default function App() {
                   onClick={() => {
                     setTimeout(() => setIsEmergencyModalOpen(false), 500);
                   }}
-                  className="w-full py-3 bg-[#d32f2f] text-white font-bold text-[16px] rounded-[12px] shadow-sm hover:brightness-105 transition-all flex flex-col items-center justify-center leading-snug"
+                  className="w-full py-3.5 bg-[#d32f2f] text-white font-bold text-[15px] tracking-wide rounded-[12px] shadow-sm hover:brightness-105 transition-all flex items-center justify-center gap-2.5"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-[18px]">📞</span>
-                    <span>Llamar al 128 —</span>
-                  </div>
-                  <span>Cruz Blanca</span>
+                  <Siren className="w-5 h-5" />
+                  <span>Llamar al 128 — Cruz Blanca</span>
                 </motion.a>
 
                 <button
-                  onClick={() => {
-                    setIsEmergencyModalOpen(false);
-                    setCurrentView("centros");
-                  }}
-                  className="w-full py-3 bg-[#2563eb] text-white font-bold text-[15px] rounded-[12px] shadow-sm transition-all flex flex-col items-center justify-center leading-snug"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-[18px]">🗺️</span>
-                    <span>Ver centros de urgencias</span>
-                  </div>
-                  <span>cercanos</span>
-                </button>
-
-                <button
                   onClick={() => setIsEmergencyModalOpen(false)}
-                  className="w-full py-3 mt-1 bg-transparent border-[1.5px] border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-[15px] rounded-[12px] transition-colors active:scale-95"
+                  className="w-full py-3 bg-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 font-bold text-[14px] rounded-[12px] transition-colors active:scale-95"
                 >
-                  Entendido, volver
+                  Cancelar
                 </button>
               </div>
 
