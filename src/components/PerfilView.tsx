@@ -69,14 +69,19 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   const displayName = (user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name;
+  const qrRefreshWindow = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
   const qrTelemetryText = React.useMemo(() => {
-    const qrGeneratedAt = new Date();
+    const qrGeneratedAt = new Date(qrRefreshWindow * 24 * 60 * 60 * 1000);
     const qrExpiresAt = new Date(qrGeneratedAt.getTime() + 24 * 60 * 60 * 1000);
+    const profileUrl = typeof window !== "undefined"
+      ? `${window.location.origin}/profile/${user.id || "guest"}`
+      : undefined;
 
     return JSON.stringify({
       app: "Salud-Conecta IA",
       type: "emergency-medical-profile",
       version: 1,
+      profileUrl,
       generatedAt: qrGeneratedAt.toISOString(),
       expiresAt: qrExpiresAt.toISOString(),
       patient: {
@@ -89,7 +94,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         emergencyContact: "+505 8888-9999",
       },
     });
-  }, [displayName, user.city, user.country, user.email, user.healthConditions, user.id]);
+  }, [displayName, qrRefreshWindow, user.city, user.country, user.email, user.healthConditions, user.id]);
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
