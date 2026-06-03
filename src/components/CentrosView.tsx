@@ -347,7 +347,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
 
       {/* ═══════════════ SIDEBAR PANEL (Left side on desktop) ═══════════════ */}
-      <div className="w-full md:w-[380px] lg:w-[420px] flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20">
+      <div className="w-full md:w-[380px] lg:w-[420px] flex flex-col h-[55vh] md:h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20">
         
         {/* Header inside Sidebar */}
         <header className="flex justify-between items-center px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800/60 shrink-0">
@@ -640,7 +640,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </div>
 
       {/* ═══════════════ MAP PANEL (Right side on desktop) ═══════════════ */}
-      <div className="flex-1 h-[280px] md:h-full relative z-10 shrink-0">
+      <div className="flex-1 h-[45vh] md:h-full relative z-10 shrink-0">
         {googleMapsEmbedUrl ? (
           <iframe
             title={`Mapa de ${selectedCenter?.name ?? selectedLocationLabel}`}
