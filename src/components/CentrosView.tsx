@@ -211,9 +211,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       } catch (error) {
         if (!controller.signal.aborted) {
           try {
-            // Fallback to free OpenStreetMap Nominatim API
+            // Fallback to our serverless geocode proxy to avoid CORS and User-Agent blocks
             const osmResponse = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${userLocation.latitude}&lon=${userLocation.longitude}`,
+              `/api/geocode?lat=${userLocation.latitude}&lng=${userLocation.longitude}`,
               { signal: controller.signal }
             );
             const osmData = await osmResponse.json();
