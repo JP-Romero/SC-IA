@@ -344,6 +344,118 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${selectedCenter.latitude},${selectedCenter.longitude}`
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
 
+  // Message listener for Leaflet marker clicks
+  useEffect(() => {
+    const handleMapMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === "SELECT_CENTER") {
+        const center = HEALTH_CENTERS.find((c) => c.id === event.data.centerId);
+        if (center) {
+          setSelectedCenter(center);
+        }
+      }
+    };
+    window.addEventListener("message", handleMapMessage);
+    return () => window.removeEventListener("message", handleMapMessage);
+  }, []);
+
+  const mapCenters = useMemo(() => {
+    return HEALTH_CENTERS.filter((c) => c.latitude && c.longitude).map((c) => ({
+      id: c.id,
+      name: c.name,
+      type: c.type,
+      lat: c.latitude,
+      lng: c.longitude,
+      isHospital: c.type.toLowerCase().includes("hospital"),
+      isSelected: selectedCenter?.id === c.id,
+    }));
+  }, [selectedCenter]);
+
+  const defaultCenter = selectedCenter?.latitude && selectedCenter?.longitude
+    ? [selectedCenter.latitude, selectedCenter.longitude]
+    : userLocation
+      ? [userLocation.latitude, userLocation.longitude]
+      : [12.1364, -86.2514]; // Managua fallback
+
+  const defaultZoom = selectedCenter?.latitude && selectedCenter?.longitude ? 15 : 9;
+
+  const leafletHtml = useMemo(() => {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <style>
+          html, body, #map { height: 100%; margin: 0; padding: 0; background: #f1f5f9; }
+          .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
+          .leaflet-bar a { background-color: #ffffff !important; color: #1e293b !important; border-bottom: 1px solid #e2e8f0 !important; }
+          .leaflet-bar a:hover { background-color: #f8fafc !important; }
+        </style>
+      </head>
+      <body>
+        <div id="map"></div>
+        <script>
+          const map = L.map('map', {
+            zoomControl: true,
+            attributionControl: false
+          }).setView([${defaultCenter[0]}, ${defaultCenter[1]}], ${defaultZoom});
+
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+          }).addTo(map);
+
+          const centers = ${JSON.stringify(mapCenters)};
+
+          centers.forEach(c => {
+            const isSelected = c.isSelected;
+            const size = isSelected ? 38 : 28;
+            const anchor = size / 2;
+            const borderSize = isSelected ? '3px' : '2px';
+            const borderColor = isSelected ? '#3b82f6' : '#ffffff';
+            const shadow = isSelected ? '0 0 12px #3b82f6' : '0 2px 6px rgba(0,0,0,0.2)';
+            
+            const htmlIcon = c.isHospital
+              ? \`<div style="background-color: #2563eb; width: \${size}px; height: \${size}px; border-radius: 50%; border: \${borderSize} solid \${borderColor}; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: \${isSelected ? 15 : 12}px; box-shadow: \${shadow}; transition: all 0.2s;">H</div>\`
+              : \`<div style="background-color: #10b981; width: \${size}px; height: \${size}px; border-radius: 50%; border: \${borderSize} solid \${borderColor}; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: \${isSelected ? 19 : 15}px; box-shadow: \${shadow}; transition: all 0.2s;">+</div>\`;
+
+            const icon = L.divIcon({
+              html: htmlIcon,
+              className: '',
+              iconSize: [size, size],
+              iconAnchor: [anchor, anchor]
+            });
+
+            const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(map);
+            
+            marker.on('click', () => {
+              window.parent.postMessage({ type: 'SELECT_CENTER', centerId: c.id }, '*');
+            });
+          });
+
+          // User location marker
+          ${userLocation ? `
+            const userIcon = L.divIcon({
+              html: '<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 10px rgba(59,130,246,0.6); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
+              className: '',
+              iconSize: [14, 14],
+              iconAnchor: [7, 7]
+            });
+            L.marker([${userLocation.latitude}, ${userLocation.longitude}], { icon: userIcon }).addTo(map);
+          ` : ''}
+        </script>
+        <style>
+          @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+          }
+        </style>
+      </body>
+      </html>
+    `;
+  }, [defaultCenter, defaultZoom, mapCenters, userLocation]);
+
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
 
@@ -671,23 +783,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
       {/* ═══════════════ MAP PANEL (Right side on desktop) ═══════════════ */}
       <div className={`flex-1 relative z-10 shrink-0 ${mobileView === "map" ? "h-full flex flex-col" : "hidden md:flex md:flex-col md:h-full"}`}>
-        {googleMapsEmbedUrl ? (
-          <iframe
-            title={`Mapa de ${selectedCenter?.name ?? selectedLocationLabel}`}
-            src={googleMapsEmbedUrl}
-            className="w-full h-full border-0"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            allowFullScreen
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-slate-100 px-6 text-center dark:bg-slate-900">
-            <div>
-              <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Google Maps no está configurado</p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Agrega VITE_GOOGLE_MAPS_API_KEY en tu archivo .env.</p>
-            </div>
-          </div>
-        )}
+        <iframe
+          title={`Mapa de Centros Médicos`}
+          srcDoc={leafletHtml}
+          className="w-full h-full border-0"
+          loading="lazy"
+        />
 
         {/* Floating Toggle Button on Mobile Map View */}
         {mobileView === "map" && (
