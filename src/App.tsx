@@ -435,7 +435,7 @@ export default function App() {
       )}
 
       {/* Dynamic Content Views based on Router State (Con padding lateral en Laptop para centrado perfecto) */}
-      <div className={`flex-1 w-full bg-white dark:bg-slate-950 min-h-screen flex flex-col relative pb-20 md:pb-0 ${currentView !== "login" && currentView !== "register" ? "md:pl-[260px]" : ""}`}>
+      <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "centros" ? "h-[100dvh] overflow-hidden pb-0" : "min-h-screen pb-20"} md:pb-0 ${currentView !== "login" && currentView !== "register" ? "md:pl-[260px]" : ""}`}>
 
         {/* PWA Download/Install Banner */}
         <AnimatePresence>

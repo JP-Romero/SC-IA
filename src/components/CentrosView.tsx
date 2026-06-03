@@ -492,7 +492,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         </div>
 
         {/* Scrollable Centers List */}
-        <div className={`flex-1 overflow-y-auto px-4 py-3 space-y-3 no-scrollbar pb-6 ${mobileView === "list" ? "block" : "hidden md:block"}`}>
+        <div className={`flex-1 overflow-y-auto px-4 py-3 space-y-3 no-scrollbar pb-24 ${mobileView === "list" ? "block" : "hidden md:block"}`}>
           <div className="flex justify-between items-center mb-1.5">
             <h3 className="text-[12.5px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               {locationMode === "nearby" ? "Cerca de mí" : t('nearYou')}
