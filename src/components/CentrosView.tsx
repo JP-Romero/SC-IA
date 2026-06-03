@@ -712,7 +712,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="absolute bottom-6 left-4 right-4 z-30 md:hidden bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800/80"
+            className="absolute bottom-24 left-4 right-4 z-30 md:hidden bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800/80"
           >
             <div className="flex items-start justify-between gap-3 min-w-0">
               <div className="flex items-center gap-3 min-w-0">
