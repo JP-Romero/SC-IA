@@ -55,9 +55,9 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
   };
 
   return (
-    <div className="flex flex-col min-h-screen pb-24 bg-gradient-to-b from-[#f5f8ff] to-[#f8fafc]">
+    <div className="flex flex-col min-h-screen pb-24 bg-gradient-to-b from-[#f5f8ff] to-[#f8fafc] dark:from-slate-900 dark:to-slate-950">
       {/* Header */}
-      <header className="flex justify-between items-center px-6 py-4 bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50">
+      <header className="flex justify-between items-center px-6 py-4 bg-white/70 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50 dark:border-slate-800">
         <div className="flex justify-between items-center w-full max-w-5xl mx-auto">
           <div
             onClick={() => onNavigate && onNavigate("home")}
@@ -66,11 +66,11 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center">
               <span className="text-white font-bold text-sm">S</span>
             </div>
-            <span className="font-display font-bold text-lg text-slate-800">
+            <span className="font-display font-bold text-lg text-slate-800 dark:text-white">
               Salud-Conecta <span className="text-blue-600">IA</span>
             </span>
           </div>
-          <span className="text-xs font-bold text-blue-600 animate-pulse bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">🔥 Premium</span>
+          <span className="text-xs font-bold text-blue-600 animate-pulse bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-full border border-blue-100 dark:border-blue-900/50">🔥 Premium</span>
         </div>
       </header>
 
@@ -103,7 +103,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* PREMIUM BÁSICO CARD */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-100/90 shadow-sm relative overflow-hidden flex flex-col gap-6 justify-between transform hover:scale-[1.01] transition-transform duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100/90 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col gap-6 justify-between transform hover:scale-[1.01] transition-transform duration-200">
             <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/5 rounded-full blur-2xl pointer-events-none"></div>
 
             <div className="flex-1 text-left">
@@ -141,7 +141,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
                   t('basicBenefit4'),
                   t('basicBenefit5')
                 ].map((benefit, i) => (
-                  <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700">
+                  <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
                     <Check className="w-4 h-4 text-blue-600 shrink-0" />
                     <span>{benefit}</span>
                   </li>
@@ -190,7 +190,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
                   t('institutionBenefit5'),
                   t('institutionBenefit6')
                 ].map((benefit, i) => (
-                  <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700">
+                  <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
                     <Check className="w-4 h-4 text-indigo-600 shrink-0" />
                     <span>{benefit}</span>
                   </li>
@@ -243,7 +243,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
         </div>
 
         {promoMessage && (
-          <p className={`text-xs ml-2 text-left font-medium ${promoMessage.error ? "text-rose-600" : "text-emerald-700"}`}>
+          <p className={`text-xs ml-2 text-left font-medium ${promoMessage.error ? "text-rose-400" : "text-emerald-700"}`}>
             {promoMessage.text}
           </p>
         )}
@@ -263,38 +263,38 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
               initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 15 }}
-              className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-xl border border-slate-100 relative overflow-hidden"
+              className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-sm p-6 shadow-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden"
             >
               {checkoutSuccess ? (
                 <div className="text-center py-6 space-y-4">
-                  <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 border-4 border-emerald-50">
+                  <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 border-4 border-emerald-50 dark:border-emerald-900/50">
                     <Check className="w-8 h-8 text-emerald-600 animate-bounce" />
                   </div>
-                  <h3 className="font-display font-medium text-2xl text-slate-950">{t('subscriptionActive')}</h3>
-                  <p className="text-xs text-slate-500 max-w-[260px] mx-auto leading-relaxed">
+                  <h3 className="font-display font-medium text-2xl text-slate-950 dark:text-white">{t('subscriptionActive')}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-[260px] mx-auto leading-relaxed">
                     {t('checkoutSuccessMsg').replace('{price}', checkoutPlan.price).replace('{name}', checkoutPlan.name)}
                   </p>
-                  <p className="text-[10px] text-slate-400 font-mono">{t('transactionId')}: TXN-{Math.floor(Math.random() * 89999 + 10000)}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{t('transactionId')}: TXN-{Math.floor(Math.random() * 89999 + 10000)}</p>
                 </div>
               ) : (
                 <form onSubmit={handleCheckoutSubmit} className="space-y-4 text-left">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-display font-bold text-lg text-slate-900">{t('checkoutTitle')}</h3>
-                      <p className="text-xs text-slate-400 mt-0.5">{t('checkoutSubtitle')}</p>
+                      <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white">{t('checkoutTitle')}</h3>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{t('checkoutSubtitle')}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setCheckoutPlan(null)}
-                      className="p-1.5 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
 
                   {/* Summary row */}
-                  <div className="p-3.5 bg-blue-50/50 rounded-2xl border border-blue-100 flex justify-between items-center text-xs font-bold leading-none mt-1">
-                    <span className="text-slate-600">{checkoutPlan.name}</span>
+                  <div className="p-3.5 bg-blue-50/50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 flex justify-between items-center text-xs font-bold leading-none mt-1">
+                    <span className="text-slate-600 dark:text-slate-300">{checkoutPlan.name}</span>
                     <span className="text-blue-700 font-mono">{checkoutPlan.price}</span>
                   </div>
 
@@ -353,7 +353,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
                     <span>{isProcessingCheckout ? t('processing') : t('pay').replace('{price}', checkoutPlan.price)}</span>
                   </button>
 
-                  <div className="text-[10px] text-slate-400/80 text-center leading-normal">
+                  <div className="text-[10px] text-slate-400/80 dark:text-slate-500/80 text-center leading-normal">
                     {t('pciStandard')}
                   </div>
                 </form>

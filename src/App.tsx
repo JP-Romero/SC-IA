@@ -9,10 +9,11 @@ import LoginView from "./components/LoginView";
 import RegisterView from "./components/RegisterView";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
+import { updateUserProfile } from "./lib/authService";
 import { useLanguage } from "./contexts/LanguageContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
-import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download } from "lucide-react";
+import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
@@ -122,17 +123,62 @@ export default function App() {
     }
   }, [session, user, initialized]);
 
-  // Sync profile data from Supabase to local state
+  // Carga inicial del perfil desde caché local para evitar parpadeos visuales en móviles
+  useEffect(() => {
+    if (initialized && user && user.id !== "guest") {
+      try {
+        const cachedAvatar = localStorage.getItem(`avatar_${user.id}`);
+        const cachedName = localStorage.getItem(`name_${user.id}`);
+        const cachedCity = localStorage.getItem(`city_${user.id}`);
+        const cachedCountry = localStorage.getItem(`country_${user.id}`);
+
+        if (cachedAvatar || cachedName || cachedCity || cachedCountry) {
+          setLocalUser((prev) => ({
+            ...prev,
+            id: user.id,
+            email: user.email || prev.email,
+            name: cachedName || prev.name,
+            city: cachedCity || prev.city,
+            country: cachedCountry || prev.country,
+            avatarUrl: cachedAvatar || prev.avatarUrl,
+          }));
+        }
+      } catch (err) {
+        console.warn("Error al recuperar datos de perfil de cache:", err);
+      }
+    }
+  }, [initialized, user]);
+
+  // Sync profile data from Supabase to local state con persistencia en caché
   useEffect(() => {
     if (profile) {
-      setLocalUser((prev) => ({
-        ...prev,
-        name: profile.nombre || prev.name,
-        email: profile.email || prev.email,
-        city: profile.ciudad || prev.city,
-        country: profile.pais || prev.country,
-        avatarUrl: profile.avatar_url || prev.avatarUrl,
-      }));
+      setLocalUser((prev) => {
+        const updatedAvatar = profile.avatar_url || "";
+        const updatedName = profile.nombre || prev.name;
+        const updatedCity = profile.ciudad || prev.city;
+        const updatedCountry = profile.pais || prev.country;
+
+        if (profile.id) {
+          try {
+            localStorage.setItem(`avatar_${profile.id}`, updatedAvatar);
+            localStorage.setItem(`name_${profile.id}`, updatedName);
+            localStorage.setItem(`city_${profile.id}`, updatedCity);
+            localStorage.setItem(`country_${profile.id}`, updatedCountry);
+          } catch (e) {
+            console.warn("Could not cache profile data:", e);
+          }
+        }
+
+        return {
+          ...prev,
+          id: profile.id || prev.id,
+          name: updatedName,
+          email: profile.email || prev.email,
+          city: updatedCity,
+          country: updatedCountry,
+          avatarUrl: updatedAvatar,
+        };
+      });
     }
   }, [profile]);
 
@@ -149,20 +195,27 @@ export default function App() {
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
+      console.log("[PWA] beforeinstallprompt event captured, saved for later");
       setDeferredPrompt(e);
       try {
         const dismissed = localStorage.getItem("dismissedPwaBanner");
         if (dismissed !== "true") {
           setShowPwaBanner(true);
+          console.log("[PWA] Banner will be shown");
+        } else {
+          console.log("[PWA] Banner hidden (previously dismissed)");
         }
       } catch (err) {
+        console.log("[PWA] localStorage error, showing banner anyway");
         setShowPwaBanner(true);
       }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    console.log("[PWA] beforeinstallprompt listener registered");
 
     const handleAppInstalled = () => {
+      console.log("[PWA] App installed successfully");
       setShowPwaBanner(false);
       setDeferredPrompt(null);
       addToast(createToast(t("pwaSuccessToast"), "success"));
@@ -180,21 +233,33 @@ export default function App() {
   }, [t, addToast]);
 
   const handleInstallPwa = async () => {
+    console.log("[PWA] Install button clicked, deferredPrompt is:", deferredPrompt ? "available" : "null");
+    
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult: any) => {
-        if (choiceResult.outcome === "accepted") {
-          addToast(createToast(t("pwaSuccessToast"), "success"));
-          setShowPwaBanner(false);
-          try {
-            localStorage.setItem("dismissedPwaBanner", "true");
-          } catch (e) {}
-        }
-        setDeferredPrompt(null);
-      });
+      try {
+        deferredPrompt.prompt();
+        console.log("[PWA] prompt() called");
+        
+        deferredPrompt.userChoice.then((choiceResult: any) => {
+          console.log("[PWA] User choice:", choiceResult.outcome);
+          if (choiceResult.outcome === "accepted") {
+            addToast(createToast(t("pwaSuccessToast"), "success"));
+            setShowPwaBanner(false);
+            try {
+              localStorage.setItem("dismissedPwaBanner", "true");
+            } catch (e) {}
+          }
+          setDeferredPrompt(null);
+        });
+      } catch (error) {
+        console.error("[PWA] Error calling prompt():", error);
+        addToast(createToast("Error al intentar instalar. Por favor intenta de nuevo.", "error"));
+      }
     } else {
       const userAgent = window.navigator.userAgent.toLowerCase();
       const isIos = /iphone|ipad|ipod/.test(userAgent);
+      console.log("[PWA] No deferredPrompt available. iOS:", isIos);
+      
       if (isIos) {
         setShowIosGuideModal(true);
       } else {
@@ -225,8 +290,28 @@ export default function App() {
     setAppointments((prev) => [newApp, ...prev]);
   };
 
-  const handleUpdateUser = (updatedUser: UserProfile) => {
+  const handleUpdateUser = async (updatedUser: UserProfile) => {
     setLocalUser(updatedUser);
+
+    // Guardar cambios en Supabase si no es usuario invitado
+    if (user && user.id !== "guest") {
+      try {
+        const { success, error } = await updateUserProfile(user.id, {
+          nombre: updatedUser.name,
+          ciudad: updatedUser.city,
+          full_name: updatedUser.name,
+        } as any);
+
+        if (success) {
+          addToast(createToast("Perfil guardado en la base de datos.", "success"));
+        } else {
+          addToast(createToast(error || "Error al sincronizar perfil con la base de datos.", "error"));
+        }
+      } catch (err) {
+        console.error("Error updating profile:", err);
+        addToast(createToast("Error inesperado al guardar los cambios del perfil.", "error"));
+      }
+    }
   };
 
   const handleUnlockPremium = () => {
@@ -259,7 +344,7 @@ export default function App() {
   // ─── Loading Screen ────────────────────────────────────────
   if (!initialized) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-slate-900 dark:to-slate-950 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -331,7 +416,13 @@ export default function App() {
           {/* Bottom Profile Section */}
           <div className="p-4 border-t border-slate-100 dark:border-slate-800">
             <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" : "hover:bg-slate-50 dark:hover:bg-slate-800 border-transparent"} text-left`}>
-              <img src={localUser.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
+              {localUser.avatarUrl ? (
+                <img src={localUser.avatarUrl} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-sm select-none shrink-0">
+                  {localUser.name ? localUser.name.charAt(0).toUpperCase() : "U"}
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
                   {(localUser.id === "guest" || localUser.name === "Invitado") ? t('guest') : localUser.name}
@@ -879,33 +970,27 @@ export default function App() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.93, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
-              className="bg-white rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(239,68,68,0.15)] border border-red-50 relative overflow-hidden"
+              className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(251,113,133,0.08)] border border-rose-50 dark:border-rose-900/10 relative overflow-hidden"
             >
               {/* Subtle top decoration */}
-              <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-red-500 via-rose-500 to-red-600" />
+              <div className="absolute top-0 inset-x-0 h-1.5 bg-rose-400" />
 
               {/* Pulse alert icon container */}
               <div className="flex flex-col items-center text-center mt-3 mb-5">
-                <div className="w-[74px] h-[74px] rounded-full bg-red-50 flex items-center justify-center relative mb-4">
+                <div className="w-[74px] h-[74px] rounded-full bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center relative mb-4">
                   {/* Ping effect */}
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-red-100 animate-ping opacity-75" />
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-rose-100 dark:bg-rose-500/20 animate-ping opacity-75" />
 
                   {/* Inner dark red icon container */}
-                  <div className="w-[56px] h-[56px] rounded-full bg-gradient-to-tr from-red-500 to-rose-600 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(239,68,68,0.3)] relative z-10">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[28px] h-[28px] animate-pulse">
-                      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v10H2" />
-                      <circle cx="16.5" cy="17.5" r="2.5" />
-                      <circle cx="7.5" cy="17.5" r="2.5" />
-                      <path d="M10 10v4" />
-                      <path d="M8 12h4" />
-                    </svg>
+                  <div className="w-[56px] h-[56px] rounded-full bg-rose-400 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(251,113,133,0.25)] relative z-10">
+                    <Siren className="w-[28px] h-[28px] animate-pulse" />
                   </div>
                 </div>
 
-                <h3 className="text-xl font-bold text-slate-900 tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
                   Llamada de Emergencia
                 </h3>
-                <p className="text-xs text-red-500 font-bold uppercase tracking-wider mt-1 font-mono">
+                <p className="text-xs text-rose-400 font-bold uppercase tracking-wider mt-1 font-mono">
                   Cruz Roja • Línea 128
                 </p>
               </div>
@@ -914,12 +999,12 @@ export default function App() {
               <div className="space-y-4 mb-6" style={{ fontFamily: "'Inter', sans-serif" }}>
 
                 {/* When to call */}
-                <div className="bg-emerald-50/60 rounded-[20px] p-3.5 border border-emerald-100/50">
-                  <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
+                <div className="bg-emerald-50/60 dark:bg-emerald-500/10 rounded-[20px] p-3.5 border border-emerald-100/50 dark:border-emerald-500/20">
+                  <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
                     ¿Cuándo sí debes llamar?
                   </span>
-                  <ul className="text-[11px] text-slate-600 space-y-1 pl-1 leading-relaxed">
+                  <ul className="text-[11px] text-slate-600 dark:text-slate-400 space-y-1 pl-1 leading-relaxed">
                     <li className="flex items-start gap-1">
                       <span className="text-emerald-500 font-bold">✓</span>
                       <span>Dificultad respiratoria severa o asfixia.</span>
@@ -940,12 +1025,12 @@ export default function App() {
                 </div>
 
                 {/* When NOT to call */}
-                <div className="bg-slate-50 rounded-[20px] p-3.5 border border-slate-200/50">
-                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[20px] p-3.5 border border-slate-200/50 dark:border-slate-700/50">
+                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
                     <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
                     ¿Cuándo usar la Consulta IA en su lugar?
                   </span>
-                  <ul className="text-[11px] text-slate-600 space-y-1 pl-1 leading-relaxed">
+                  <ul className="text-[11px] text-slate-600 dark:text-slate-400 space-y-1 pl-1 leading-relaxed">
                     <li className="flex items-start gap-1">
                       <span className="text-slate-400 font-bold">•</span>
                       <span>Fiebre moderada o síntomas de gripe.</span>
@@ -972,17 +1057,15 @@ export default function App() {
                     // El ligero retraso evita que React cancele la llamada en el SO al desmontar el componente
                     setTimeout(() => setIsEmergencyModalOpen(false), 500);
                   }}
-                  className="w-full py-3.5 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold text-sm tracking-wide rounded-2xl shadow-[0_6px_20px_rgba(239,68,68,0.28)] hover:brightness-105 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-rose-400 text-white font-bold text-sm tracking-wide rounded-2xl shadow-[0_6px_20px_rgba(251,113,133,0.2)] hover:brightness-105 transition-all flex items-center justify-center gap-2"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
+                  <Siren className="w-4.5 h-4.5" />
                   <span>Llamar al 128 ahora</span>
                 </motion.a>
 
                 <button
                   onClick={() => setIsEmergencyModalOpen(false)}
-                  className="w-full py-3 text-slate-500 hover:text-slate-800 font-bold text-[13px] tracking-wide transition-colors active:scale-95"
+                  className="w-full py-3 text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 font-bold text-[13px] tracking-wide transition-colors active:scale-95"
                 >
                   Cancelar
                 </button>

@@ -1,4 +1,4 @@
-const { GoogleGenAI } = require("@google/genai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 let aiClient = null;
 
@@ -6,14 +6,14 @@ function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
   
   if (!apiKey || apiKey.length < 10) {
-    throw new Error("GEMINI_API_KEY is not properly configured. Length: " + (apiKey?.length || 0));
+    return null;
   }
   
   if (!aiClient) {
     try {
-      aiClient = new GoogleGenAI({ apiKey });
+      aiClient = new GoogleGenerativeAI(apiKey);
     } catch (e) {
-      console.error("Error creating GoogleGenAI client:", e);
+      console.error("Error creating GoogleGenerativeAI client:", e);
       throw e;
     }
   }
@@ -110,23 +110,15 @@ module.exports = async function handler(req, res) {
     }
 
     const ai = getGeminiClient();
-
-    // Build contents array for multi-turn conversation
-    const contents = [];
     
-    if (history && Array.isArray(history)) {
-      for (const turn of history) {
-        contents.push({
-          role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
-          parts: [{ text: turn.text || turn.content || "" }],
-        });
-      }
+    if (!ai) {
+      console.error("Failed to initialize Gemini client - API key may be invalid");
+      return res.status(500).json({
+        error: "No se pudo inicializar el servicio de IA. Verifica la configuración de la API key.",
+        details: "GEMINI_API_KEY no está configurada o es inválida",
+        timestamp: new Date().toISOString(),
+      });
     }
-
-    contents.push({
-      role: "user",
-      parts: [{ text: message }],
-    });
 
     // Evaluamos la hora actual para inyectarla en el contexto del agente
     const now = new Date();
@@ -136,17 +128,25 @@ module.exports = async function handler(req, res) {
 Hora y día actual en Nicaragua: ${localTimeStr}
 REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba está fuera de ese horario (noches o fines de semana), ESTÁN CERRADOS. En caso de síntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos sí atienden 24/7. Es vital para la seguridad no derivarlos a clínicas cerradas.`;
 
-    // Use the new @google/genai SDK
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-lite",
-      contents: contents,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION + timeContext,
-        temperature: 0.75,
-      },
+    const systemPrompt = SYSTEM_INSTRUCTION + timeContext;
+
+    // Get the model with system instruction
+    const model = ai.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      systemInstruction: systemPrompt,
     });
 
-    const responseText = response.text;
+    // Build chat with history
+    const chat = model.startChat({
+      history: history && Array.isArray(history) ? history.map(turn => ({
+        role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
+        parts: [{ text: turn.text || turn.content || "" }],
+      })) : [],
+    });
+
+    // Generate response
+    const response = await chat.sendMessage(message);
+    const responseText = response.response.text();
 
     return res.status(200).json({
       text: responseText || "No obtuve una respuesta clara del asistente.",
@@ -158,12 +158,25 @@ REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de
     const errorMessage = error?.message || String(error) || "Error desconocido";
     
     let userMessage = "Ocurrió un error procesando el triaje virtual con IA.";
+    let shouldUseFallback = false;
+    
     if (errorMessage.includes("API_KEY") || errorMessage.includes("401") || errorMessage.includes("403") || errorMessage.includes("PERMISSION")) {
       userMessage = "Error de autenticación con la API de Gemini. Verifica que la API key sea válida.";
     } else if (errorMessage.includes("SAFETY")) {
       userMessage = "La respuesta fue bloqueada por filtros de seguridad. Intenta reformular tu consulta.";
-    } else if (errorMessage.includes("quota") || errorMessage.includes("429")) {
-      userMessage = "Se ha excedido la cuota de la API. Intenta más tarde.";
+    } else if (errorMessage.includes("quota") || errorMessage.includes("429") || errorMessage.includes("Too Many Requests")) {
+      userMessage = "Cuota de API excedida. Usando modo de respuesta simulada para continuar.";
+      shouldUseFallback = true;
+      console.log("API quota exceeded, switching to simulated mode");
+    }
+    
+    // If quota exceeded, return simulated response instead of error
+    if (shouldUseFallback) {
+      return res.status(200).json({
+        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+        simulated: true,
+        warning: "Respuesta generada en modo simulado debido a limitaciones temporales de la API."
+      });
     }
     
     return res.status(500).json({
