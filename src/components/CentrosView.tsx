@@ -95,6 +95,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [geoError, setGeoError] = useState("");
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
+  const [mobileView, setMobileView] = useState<"map" | "list">("map");
 
   const normalizeQuery = (value?: string) =>
     (value ?? "")
@@ -194,20 +195,36 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           { signal: controller.signal },
         );
         const data = await response.json();
-        const components = data.results?.[0]?.address_components ?? [];
-        const cityComponent = components.find((component: { types: string[] }) =>
-          component.types.includes("locality") ||
-          component.types.includes("administrative_area_level_2") ||
-          component.types.includes("administrative_area_level_1"),
-        );
-        const city = cityComponent?.long_name || fallbackCity;
-
-        setDetectedCity(city);
-        setLocationQuery(city || "Mi ubicación");
+        if (data.status === "OK" && data.results?.[0]) {
+          const components = data.results[0].address_components ?? [];
+          const cityComponent = components.find((component: { types: string[] }) =>
+            component.types.includes("locality") ||
+            component.types.includes("administrative_area_level_2") ||
+            component.types.includes("administrative_area_level_1"),
+          );
+          const city = cityComponent?.long_name || fallbackCity;
+          setDetectedCity(city);
+          setLocationQuery(city || "Mi ubicación");
+        } else {
+          throw new Error(data.status || "Google Maps API returned non-OK status");
+        }
       } catch (error) {
         if (!controller.signal.aborted) {
-          setDetectedCity(fallbackCity);
-          setLocationQuery(fallbackCity || "Mi ubicación");
+          try {
+            // Fallback to our serverless geocode proxy to avoid CORS and User-Agent blocks
+            const osmResponse = await fetch(
+              `/api/geocode?lat=${userLocation.latitude}&lng=${userLocation.longitude}`,
+              { signal: controller.signal }
+            );
+            const osmData = await osmResponse.json();
+            const address = osmData.address || {};
+            const city = address.city || address.town || address.village || address.municipality || address.county || fallbackCity;
+            setDetectedCity(city);
+            setLocationQuery(city || "Mi ubicación");
+          } catch (osmError) {
+            setDetectedCity(fallbackCity);
+            setLocationQuery(fallbackCity || "Mi ubicación");
+          }
         }
       }
     };
@@ -328,10 +345,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
 
   return (
-    <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
+    <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
 
       {/* ═══════════════ SIDEBAR PANEL (Left side on desktop) ═══════════════ */}
-      <div className="w-full md:w-[380px] lg:w-[420px] flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20">
+      <div className={`w-full md:w-[380px] lg:w-[420px] flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20 transition-all duration-300 ${mobileView === "list" ? "h-full flex" : "hidden md:flex md:h-full"}`}>
         
         {/* Header inside Sidebar */}
         <header className="flex justify-between items-center px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800/60 shrink-0">
@@ -352,13 +369,37 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             </span>
           </div>
 
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            onClick={onTriggerEmergency}
-            className="flex items-center justify-center w-[36px] h-[36px] rounded-full text-white bg-rose-400 shadow-[0_4px_12px_rgba(251,113,133,0.15)]"
-          >
-            <Siren className="w-4 h-4" />
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              onClick={onTriggerEmergency}
+              className="flex items-center justify-center w-[36px] h-[36px] rounded-full text-white bg-rose-400 shadow-[0_4px_12px_rgba(251,113,133,0.15)]"
+            >
+              <Siren className="w-4 h-4" />
+            </motion.button>
+            
+            <button
+              onClick={() => setMobileView(mobileView === "map" ? "list" : "map")}
+              className="md:hidden flex items-center justify-center w-[36px] h-[36px] rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >
+              {mobileView === "map" ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                  <line x1="8" y1="6" x2="21" y2="6" />
+                  <line x1="8" y1="12" x2="21" y2="12" />
+                  <line x1="8" y1="18" x2="21" y2="18" />
+                  <line x1="3" y1="6" x2="3.01" y2="6" />
+                  <line x1="3" y1="12" x2="3.01" y2="12" />
+                  <line x1="3" y1="18" x2="3.01" y2="18" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+                  <line x1="9" y1="3" x2="9" y2="18" />
+                  <line x1="15" y1="6" x2="15" y2="21" />
+                </svg>
+              )}
+            </button>
+          </div>
         </header>
 
         {/* Title, Search Pill and Filters */}
@@ -451,7 +492,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         </div>
 
         {/* Scrollable Centers List */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 no-scrollbar pb-32">
+        <div className={`flex-1 overflow-y-auto px-4 py-3 space-y-3 no-scrollbar pb-6 ${mobileView === "list" ? "block" : "hidden md:block"}`}>
           <div className="flex justify-between items-center mb-1.5">
             <h3 className="text-[12.5px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               {locationMode === "nearby" ? "Cerca de mí" : t('nearYou')}
@@ -487,7 +528,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     }`}
                   >
                     <div 
-                      onClick={() => setSelectedCenter(hc)}
+                      onClick={() => {
+                        setSelectedCenter(hc);
+                        if (window.innerWidth < 768) {
+                          setMobileView("map");
+                        }
+                      }}
                       className="flex items-center justify-between cursor-pointer gap-3 min-w-0"
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -624,7 +670,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </div>
 
       {/* ═══════════════ MAP PANEL (Right side on desktop) ═══════════════ */}
-      <div className="flex-1 h-[280px] md:h-full relative z-10 shrink-0">
+      <div className={`flex-1 relative z-10 shrink-0 ${mobileView === "map" ? "h-full flex flex-col" : "hidden md:flex md:flex-col md:h-full"}`}>
         {googleMapsEmbedUrl ? (
           <iframe
             title={`Mapa de ${selectedCenter?.name ?? selectedLocationLabel}`}
@@ -641,6 +687,121 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Agrega VITE_GOOGLE_MAPS_API_KEY en tu archivo .env.</p>
             </div>
           </div>
+        )}
+
+        {/* Floating Toggle Button on Mobile Map View */}
+        {mobileView === "map" && (
+          <button
+            onClick={() => setMobileView("list")}
+            className="absolute top-4 right-4 z-30 md:hidden flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800/80 hover:scale-105 active:scale-95 transition-all"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <line x1="8" y1="6" x2="21" y2="6" />
+              <line x1="8" y1="12" x2="21" y2="12" />
+              <line x1="8" y1="18" x2="21" y2="18" />
+              <line x1="3" y1="6" x2="3.01" y2="6" />
+              <line x1="3" y1="12" x2="3.01" y2="12" />
+              <line x1="3" y1="18" x2="3.01" y2="18" />
+            </svg>
+          </button>
+        )}
+
+        {/* Floating selected center card on mobile when map is active */}
+        {selectedCenter && mobileView === "map" && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="absolute bottom-6 left-4 right-4 z-30 md:hidden bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800/80"
+          >
+            <div className="flex items-start justify-between gap-3 min-w-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <div
+                  className="w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0"
+                  style={{
+                    background: selectedCenter.type.toLowerCase().includes("hospital") ? "#eff6ff" : "#f0fdf4",
+                    border: selectedCenter.type.toLowerCase().includes("hospital") ? "1px solid #dbeafe" : "1px solid #dcfce7",
+                  }}
+                >
+                  {selectedCenter.type.toLowerCase().includes("hospital") ? (
+                    <span className="text-xs font-bold text-[#2563eb]">H</span>
+                  ) : (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[14px] h-[14px]">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  )}
+                </div>
+
+                <div className="min-w-0 text-left">
+                  <h4 className="text-[14px] font-bold text-slate-900 dark:text-white leading-tight truncate">{selectedCenter.name}</h4>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">{selectedCenter.type}</p>
+                  <div className="flex items-center gap-1 mt-1">
+                    <span className={`w-1.5 h-1.5 rounded-full ${selectedCenter.hasCoordinates ? "bg-[#10b981]" : "bg-amber-400"} inline-block shrink-0`} />
+                    <span className="text-[10.5px] font-medium text-slate-500 dark:text-slate-400 truncate">{selectedCenter.locality}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="shrink-0 text-right ml-2 flex flex-col items-end">
+                <span className="text-[13px] font-bold text-slate-700 dark:text-slate-300">
+                  {selectedCenter.distanceKm !== undefined ? `${selectedCenter.distanceKm.toFixed(1)} km` : selectedCenter.municipality}
+                </span>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                  {selectedCenter.municipality}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-1.5 py-0.5 rounded ${
+                    getCenterOperatingStatus(selectedCenter.type).isOpen
+                      ? (getCenterOperatingStatus(selectedCenter.type).is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
+                      : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${getCenterOperatingStatus(selectedCenter.type).isOpen ? (getCenterOperatingStatus(selectedCenter.type).is24h ? "bg-blue-500" : "bg-emerald-500") : "bg-red-500"}`} />
+                    {getCenterOperatingStatus(selectedCenter.type).text}
+                  </span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">ID: {selectedCenter.sourceNumber}</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <a
+                    href={googleMapsSearchUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    <span>Cómo llegar</span>
+                  </a>
+
+                  {selectedCenter.phone ? (
+                    <a
+                      href={`tel:${selectedCenter.phone}`}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-[11px] py-2 px-3 active:scale-95 transition-all"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Llamar</span>
+                    </a>
+                  ) : (
+                    <button
+                      onClick={onTriggerEmergency}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 font-bold text-[11px] py-2 px-3 active:scale-95 transition-all"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      <span>Emergencia</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
         )}
       </div>
 
