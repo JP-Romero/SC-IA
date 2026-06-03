@@ -194,20 +194,36 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           { signal: controller.signal },
         );
         const data = await response.json();
-        const components = data.results?.[0]?.address_components ?? [];
-        const cityComponent = components.find((component: { types: string[] }) =>
-          component.types.includes("locality") ||
-          component.types.includes("administrative_area_level_2") ||
-          component.types.includes("administrative_area_level_1"),
-        );
-        const city = cityComponent?.long_name || fallbackCity;
-
-        setDetectedCity(city);
-        setLocationQuery(city || "Mi ubicación");
+        if (data.status === "OK" && data.results?.[0]) {
+          const components = data.results[0].address_components ?? [];
+          const cityComponent = components.find((component: { types: string[] }) =>
+            component.types.includes("locality") ||
+            component.types.includes("administrative_area_level_2") ||
+            component.types.includes("administrative_area_level_1"),
+          );
+          const city = cityComponent?.long_name || fallbackCity;
+          setDetectedCity(city);
+          setLocationQuery(city || "Mi ubicación");
+        } else {
+          throw new Error(data.status || "Google Maps API returned non-OK status");
+        }
       } catch (error) {
         if (!controller.signal.aborted) {
-          setDetectedCity(fallbackCity);
-          setLocationQuery(fallbackCity || "Mi ubicación");
+          try {
+            // Fallback to free OpenStreetMap Nominatim API
+            const osmResponse = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${userLocation.latitude}&lon=${userLocation.longitude}`,
+              { signal: controller.signal }
+            );
+            const osmData = await osmResponse.json();
+            const address = osmData.address || {};
+            const city = address.city || address.town || address.village || address.municipality || address.county || fallbackCity;
+            setDetectedCity(city);
+            setLocationQuery(city || "Mi ubicación");
+          } catch (osmError) {
+            setDetectedCity(fallbackCity);
+            setLocationQuery(fallbackCity || "Mi ubicación");
+          }
         }
       }
     };
