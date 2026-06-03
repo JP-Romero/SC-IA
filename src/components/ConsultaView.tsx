@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { UserProfile, ChatMessage } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
-import { Siren } from "lucide-react";
+import { Siren, Mic, MicOff } from "lucide-react";
 
 interface ConsultaViewProps {
   user: UserProfile;
@@ -115,7 +115,7 @@ const SYMPTOM_CHIPS = [
 ];
 
 export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: ConsultaViewProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeChip, setActiveChip] = useState("fiebre");
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -124,6 +124,46 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // --- SPEECH RECOGNITION ---
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+
+      recognitionRef.current.onstart = () => setIsRecording(true);
+      recognitionRef.current.onend = () => setIsRecording(false);
+      recognitionRef.current.onerror = () => setIsRecording(false);
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInputValue(prev => (prev ? `${prev} ${transcript}` : transcript));
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.lang = language === "es" ? "es-NI" : "en-US";
+    }
+  }, [language]);
+
+  const toggleRecording = () => {
+    if (!recognitionRef.current) return;
+    if (isRecording) {
+      recognitionRef.current.stop();
+    } else {
+      try {
+        recognitionRef.current.start();
+      } catch (e) {
+        console.error("Error al iniciar reconocimiento de voz:", e);
+      }
+    }
+  };
 
   // Carousel scroll ref and state
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -523,8 +563,13 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
             {/* Right side: Mic + Send */}
             <div className="flex items-center gap-2">
-              <motion.button whileTap={{ scale: 0.9 }} className="flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" style={{ width: "42px", height: "42px", borderRadius: "50%", color: "#64748b" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" x2="12" y1="19" y2="22" /></svg>
+              <motion.button 
+                whileTap={{ scale: 0.9 }} 
+                onClick={toggleRecording}
+                className={`flex items-center justify-center transition-colors ${isRecording ? "text-rose-500 bg-rose-50 dark:bg-rose-900/20" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"}`} 
+                style={{ width: "42px", height: "42px", borderRadius: "50%" }}
+              >
+                {isRecording ? <MicOff className="w-5 h-5 animate-pulse" /> : <Mic className="w-5 h-5" />}
               </motion.button>
               <motion.button 
                 whileTap={{ scale: 0.9 }} 
