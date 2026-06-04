@@ -506,13 +506,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 icon: Activity,
                 color: "text-teal-600 bg-teal-50 border border-teal-100",
               },
-              {
-                id: "preferencias",
-                title: t('healthPrefs'),
-                subtitle: t('healthSubtitle'),
-                icon: Heart,
-                color: "text-rose-600 bg-rose-50 border border-rose-100",
-              },
             ].map((item) => {
               const Icon = item.icon;
               const isOpen = activeMenuSection === item.id;
@@ -821,95 +814,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </form>
                           )}
 
-                          {/* Nested Health Preferences Editor */}
-                          {item.id === "preferencias" && (
-                            <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
-                              {/* Conditions Tags */}
-                              <div className="space-y-2">
-                                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
-                                  <Heart className="w-3 h-3" /> {t('recordedConditions')}
-                                </span>
 
-                                {/* Existing conditions as removable tags */}
-                                <div className="flex flex-wrap gap-2">
-                                  {editConditions.map((cond, i) => (
-                                    <span
-                                      key={i}
-                                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full font-bold text-[10px] border border-blue-100 dark:border-blue-900/50 group hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                                    >
-                                      <span>{cond}</span>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleRemoveCondition(i)}
-                                        className="w-4 h-4 rounded-full bg-blue-200/60 dark:bg-blue-800/60 hover:bg-red-200 dark:hover:bg-red-800/60 text-blue-600 hover:text-red-600 dark:text-blue-400 dark:hover:text-red-400 flex items-center justify-center transition-colors"
-                                      >
-                                        <X className="w-2.5 h-2.5" />
-                                      </button>
-                                    </span>
-                                  ))}
-                                  {editConditions.length === 0 && (
-                                    <span className="text-[11px] text-slate-400 italic py-1">Sin condiciones registradas</span>
-                                  )}
-                                </div>
-
-                                {/* Add new condition */}
-                                <div className="flex gap-2">
-                                  <input
-                                    type="text"
-                                    value={newCondition}
-                                    onChange={(e) => setNewCondition(e.target.value)}
-                                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddCondition(); } }}
-                                    placeholder="Ej: Alergia al polen"
-                                    className="flex-1 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={handleAddCondition}
-                                    disabled={!newCondition.trim()}
-                                    className="px-3 py-2 bg-blue-100 dark:bg-blue-900/40 hover:bg-blue-200 dark:hover:bg-blue-800/60 text-blue-600 dark:text-blue-400 rounded-xl transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-xs font-bold"
-                                  >
-                                    <Plus className="w-3.5 h-3.5" />
-                                    <span className="hidden sm:inline">Agregar</span>
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Blood Type Select */}
-                              <div className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                                <div className="flex items-center gap-2.5">
-                                  <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center shrink-0">
-                                    <Droplets className="w-4 h-4" />
-                                  </div>
-                                  <div>
-                                    <span className="font-bold text-slate-800 dark:text-white text-xs">{t('bloodType')}</span>
-                                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{t('bloodDesc')}</p>
-                                  </div>
-                                </div>
-                                <select
-                                  value={editBloodType}
-                                  onChange={(e) => setEditBloodType(e.target.value)}
-                                  className="text-sm font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-xl font-mono border border-rose-100 dark:border-rose-900/50 outline-none cursor-pointer transition-all focus:ring-2 focus:ring-rose-500/30"
-                                >
-                                  <option value="A+">A+</option>
-                                  <option value="A-">A-</option>
-                                  <option value="B+">B+</option>
-                                  <option value="B-">B-</option>
-                                  <option value="AB+">AB+</option>
-                                  <option value="AB-">AB-</option>
-                                  <option value="O+">O+</option>
-                                  <option value="O-">O-</option>
-                                </select>
-                              </div>
-                              
-                              <button
-                                type="submit"
-                                className="w-full bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
-                              >
-                                <Save className="w-3.5 h-3.5" />
-                                {t('saveChanges')}
-                              </button>
-                            </form>
-                          )}
 
                         </div>
                       </motion.div>
