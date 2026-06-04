@@ -177,29 +177,104 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     import("jspdf").then(({ default: jsPDF }) => {
       const doc = new jsPDF();
       
+      // Colores de la app
+      const primaryColor = [37, 99, 235]; // text-blue-600 #2563eb
+      const secondaryColor = [13, 148, 136]; // text-teal-600 #0d9488
+      const slateDark = [15, 23, 42]; // text-slate-900 #0f172a
+      const slateLight = [100, 116, 139]; // text-slate-500 #64748b
+      const bgHeader = [239, 246, 255]; // bg-blue-50 #eff6ff
+
+      // --- Header Decorativo ---
+      doc.setFillColor(bgHeader[0], bgHeader[1], bgHeader[2]);
+      doc.rect(0, 0, 210, 40, 'F'); // Ancho A4 es 210mm
+      
       // Título
-      doc.setFontSize(22);
-      doc.setTextColor(30, 58, 138); // Azul
-      doc.text("Tarjeta de Emergencia Médica", 20, 20);
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text("Tarjeta de Emergencia Médica", 20, 25);
+      
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
+      doc.text("Salud-Conecta IA", 20, 32);
 
-      // Info del usuario
-      doc.setFontSize(14);
-      doc.setTextColor(51, 65, 85); // Slate
-      doc.text(`Nombre: ${user.name}`, 20, 40);
-      doc.text(`Tipo de Sangre: ${user.bloodType || "No especificado"}`, 20, 50);
-      doc.text(`Contacto de Emergencia: ${user.emergencyPhone || "+505 8888-9999"}`, 20, 60);
+      // --- Info del paciente (General) ---
+      let yPos = 55;
+      
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
+      doc.text("Información Personal", 20, yPos);
+      yPos += 10;
 
-      // Condiciones médicas
-      doc.text("Condiciones Médicas:", 20, 75);
-      doc.setFontSize(12);
-      doc.setTextColor(100, 116, 139);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
+      doc.text(`Nombre: ${user.name}`, 20, yPos);
+      doc.text(`Cédula: ${localMedicalData.cedula || "No registrada"}`, 120, yPos);
+      yPos += 7;
+      
+      doc.text(`Tipo de Sangre: ${localMedicalData.tipoSangre || editBloodType || user.bloodType || "No especificado"}`, 20, yPos);
+      doc.text(`Contacto Emergencia: ${localMedicalData.contactoEmergencia || user.emergencyPhone || "+505 8888-9999"}`, 120, yPos);
+      yPos += 7;
+
+      doc.text(`Peso: ${localMedicalData.peso ? localMedicalData.peso + ' kg' : 'No reg.'}`, 20, yPos);
+      doc.text(`Altura: ${localMedicalData.altura ? localMedicalData.altura + ' cm' : 'No reg.'}`, 120, yPos);
+      yPos += 15;
+
+      // Línea divisoria
+      doc.setDrawColor(226, 232, 240); // slate-200
+      doc.line(20, yPos - 5, 190, yPos - 5);
+
+      // --- Datos Médicos Especializados ---
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.text("Datos Médicos Especializados", 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(11);
+      
+      const renderMedicalItem = (label: string, value: string) => {
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
+        doc.text(`${label}:`, 20, yPos);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
+        
+        // Manejar texto largo
+        const splitText = doc.splitTextToSize(value || "Ninguno registrado", 140);
+        doc.text(splitText, 55, yPos);
+        yPos += (splitText.length * 6) + 3;
+      };
+
+      renderMedicalItem("Enfermedades", localMedicalData.enfermedades);
+      renderMedicalItem("Alergias", localMedicalData.alergias);
+      renderMedicalItem("Tratamientos", localMedicalData.tratamientos);
+      renderMedicalItem("Pastillas", localMedicalData.pastillas);
+      renderMedicalItem("Vacunas", localMedicalData.vacunas);
+
+      // Condiciones de salud
       if (user.healthConditions && user.healthConditions.length > 0) {
-        user.healthConditions.forEach((cond, idx) => {
-          doc.text(`• ${cond}`, 25, 85 + (idx * 8));
-        });
-      } else {
-        doc.text("Ninguna registrada.", 25, 85);
+        renderMedicalItem("Otras cond.", user.healthConditions.join(", "));
       }
+
+      // --- QR Code ---
+      yPos += 10;
+      if (yPos > 220) {
+        doc.addPage();
+        yPos = 30;
+      }
+
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text("Código QR de Emergencia", 20, yPos);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
+      doc.text("Escanea para ver el perfil online (Solo personal autorizado)", 20, yPos + 6);
 
       const svg = qrRef.current?.querySelector("svg");
       if (svg) {
@@ -218,8 +293,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           }
           const pngData = canvas.toDataURL("image/png");
           // Añadir la imagen al PDF (x, y, width, height)
-          doc.addImage(pngData, 'PNG', 130, 30, 60, 60);
+          doc.addImage(pngData, 'PNG', 20, yPos + 10, 50, 50);
           
+          // Pie de página
+          doc.setFontSize(8);
+          doc.setTextColor(148, 163, 184); // slate-400
+          doc.text("Documento generado por Salud-Conecta IA", 105, 290, { align: "center" });
+
           doc.save(`Info-Emergencia-${user.name}.pdf`);
         };
         img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
