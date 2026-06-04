@@ -115,6 +115,13 @@ export default function App() {
       if (currentView === "login" || currentView === "register") {
         setCurrentView("home");
       }
+      
+      // Request notification permissions and show daily message
+      requestNotificationPermission().then((granted) => {
+        if (granted) {
+          showDailyNotification(user.id);
+        }
+      });
     } else {
       // No session — force login screen
       if (currentView !== "login" && currentView !== "register") {
