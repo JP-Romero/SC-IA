@@ -1,85 +1,78 @@
-const CACHE_NAME = "salud-conecta-v7";
+/*
+ * Service Worker para Salud-Conecta IA
+ * Proporciona soporte offline y cumple con los requisitos de PWA.
+ */
+
+const CACHE_NAME = "salud-conecta-v8";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
-  "/manifest.json?v=7",
+  "/manifest.json?v=8",
   "/app-logo-v1.jpg"
 ];
 
-// Install Event
+// Evento de Instalación: Cachea los recursos esenciales
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("[PWA SW] Pre-caching offline support resources");
-      return cache.addAll(ASSETS_TO_CACHE).catch((err) => {
-        console.warn("[PWA SW] Pre-cache warning: Some resources could not be cached on install", err);
-      });
+      console.log("[SW] Pre-cacheando recursos iniciales");
+      return cache.addAll(ASSETS_TO_CACHE);
     })
   );
+  // Fuerza al SW a activarse inmediatamente
   self.skipWaiting();
 });
 
-// Activate Event
+// Evento de Activación: Limpia caches antiguas
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log("[PWA SW] Removing old cache:", key);
+            console.log("[SW] Eliminando cache antigua:", key);
             return caches.delete(key);
           }
         })
       );
     })
   );
+  // Toma control de todas las pestañas abiertas inmediatamente
   self.clients.claim();
 });
 
-// Fetch Event (Offline Fallback)
+// Evento Fetch: Estrategia Network-First con Fallback a Cache
 self.addEventListener("fetch", (event) => {
-  // Only handle GET requests and skip API requests
-  if (event.request.method !== "GET" || event.request.url.includes("/api/")) {
-    return;
-  }
+  // Solo manejar peticiones GET de nuestro propio origen (evita problemas con APIs externas)
+  if (event.request.method !== "GET") return;
 
-  const isNavigation = event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html');
-
-  if (isNavigation) {
-    // NETWORK-FIRST: Para el HTML (Evita cargar un HTML viejo con hashes JS/CSS muertos)
-    event.respondWith(
-      fetch(event.request).then((networkResponse) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, networkResponse.clone());
-          return networkResponse;
-        });
-      }).catch(() => {
-        // Fallback offline si no hay internet
-        return caches.match(event.request).then((cachedResponse) => {
-          return cachedResponse || caches.match("/");
-        });
-      })
-    );
-  } else {
-    // CACHE-FIRST: Para assets estáticos (JS, CSS, Imágenes)
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
+  event.respondWith(
+    fetch(event.request)
+      .then((networkResponse) => {
+        // Si la respuesta es válida, clonarla y guardarla en cache
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        return fetch(event.request).then((networkResponse) => {
-          const isSafeToCache = event.request.url.startsWith(self.location.origin);
-          if (isSafeToCache && networkResponse.status === 200) {
-            return caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse.clone());
-              return networkResponse;
-            });
+        return networkResponse;
+      })
+      .catch(() => {
+        // Si falla la red, intentar buscar en cache
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
           }
-          return networkResponse;
-        }).catch(() => {
-          return new Response('', { status: 404, statusText: 'Not Found' });
+          // Si es una navegación, devolver la raíz para que el router de React maneje el offline
+          if (event.request.mode === 'navigate') {
+            return caches.match("/");
+          }
+          return new Response("No conectado a Internet", {
+            status: 503,
+            statusText: "Service Unavailable",
+          });
         });
       })
-    );
-  }
+  );
 });
