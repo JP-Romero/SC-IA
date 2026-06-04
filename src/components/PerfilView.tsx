@@ -182,25 +182,39 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       const secondaryColor = [13, 148, 136]; // text-teal-600 #0d9488
       const slateDark = [15, 23, 42]; // text-slate-900 #0f172a
       const slateLight = [100, 116, 139]; // text-slate-500 #64748b
-      const bgHeader = [239, 246, 255]; // bg-blue-50 #eff6ff
+      const bgPage = [243, 248, 255]; // #f3f8ff
+      const bgHeader = [255, 255, 255]; // white header on top of the bg
 
-      // --- Header Decorativo ---
+      // --- Fondo de la página ---
+      doc.setFillColor(bgPage[0], bgPage[1], bgPage[2]);
+      doc.rect(0, 0, 210, 297, 'F'); // Fondo completo A4
+
+      // --- Elementos decorativos (Círculos) ---
+      // Círculo superior izquierdo
+      doc.setFillColor(219, 234, 254); // blue-100 #dbeafe
+      doc.circle(0, 0, 40, 'F');
+      // Círculo inferior derecho
+      doc.setFillColor(224, 231, 255); // blue-100 (más claro) #e0e7ff
+      doc.circle(210, 250, 50, 'F');
+
+      // --- Header Container ---
       doc.setFillColor(bgHeader[0], bgHeader[1], bgHeader[2]);
-      doc.rect(0, 0, 210, 40, 'F'); // Ancho A4 es 210mm
+      // rounded rect for header
+      doc.roundedRect(10, 10, 190, 30, 5, 5, 'F');
       
       // Título
-      doc.setFontSize(24);
+      doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text("Tarjeta de Emergencia Médica", 20, 25);
+      doc.text("Tarjeta de Emergencia Médica", 20, 24);
       
-      doc.setFontSize(10);
+      doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
       doc.text("Salud-Conecta IA", 20, 32);
 
       // --- Info del paciente (General) ---
-      let yPos = 55;
+      let yPos = 60;
       
       doc.setFontSize(16);
       doc.setFont("helvetica", "bold");
@@ -224,7 +238,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       yPos += 15;
 
       // Línea divisoria
-      doc.setDrawColor(226, 232, 240); // slate-200
+      doc.setDrawColor(203, 213, 225); // slate-300
+      doc.setLineWidth(0.5);
       doc.line(20, yPos - 5, 190, yPos - 5);
 
       // --- Datos Médicos Especializados ---
@@ -244,7 +259,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
         
         // Manejar texto largo
-        const splitText = doc.splitTextToSize(value || "Ninguno registrado", 140);
+        const splitText = doc.splitTextToSize(value || "Ninguno registrado", 130);
         doc.text(splitText, 55, yPos);
         yPos += (splitText.length * 6) + 3;
       };
@@ -264,17 +279,25 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       yPos += 10;
       if (yPos > 220) {
         doc.addPage();
+        // Aplicar fondo también a la nueva página
+        doc.setFillColor(bgPage[0], bgPage[1], bgPage[2]);
+        doc.rect(0, 0, 210, 297, 'F');
         yPos = 30;
       }
+
+      // Contenedor blanco para el QR
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(15, yPos - 5, 60, 60, 3, 3, 'F');
 
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text("Código QR de Emergencia", 20, yPos);
+      doc.text("Código QR de Emergencia", 85, yPos + 10);
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
-      doc.text("Escanea para ver el perfil online (Solo personal autorizado)", 20, yPos + 6);
+      doc.text("Escanea para ver el perfil online.", 85, yPos + 16);
+      doc.text("(Solo para personal autorizado)", 85, yPos + 22);
 
       const svg = qrRef.current?.querySelector("svg");
       if (svg) {
@@ -292,8 +315,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             ctx.drawImage(img, 0, 0, 512, 512);
           }
           const pngData = canvas.toDataURL("image/png");
-          // Añadir la imagen al PDF (x, y, width, height)
-          doc.addImage(pngData, 'PNG', 20, yPos + 10, 50, 50);
+          // Añadir la imagen al PDF (x, y, width, height) centrado en su contenedor blanco
+          doc.addImage(pngData, 'PNG', 20, yPos, 50, 50);
           
           // Pie de página
           doc.setFontSize(8);
