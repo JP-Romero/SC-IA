@@ -147,30 +147,61 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   const downloadQRCode = () => {
-    const svg = qrRef.current?.querySelector("svg");
-    if (!svg) return;
+    import("jspdf").then(({ default: jsPDF }) => {
+      const doc = new jsPDF();
+      
+      // Título
+      doc.setFontSize(22);
+      doc.setTextColor(30, 58, 138); // Azul
+      doc.text("Tarjeta de Emergencia Médica", 20, 20);
 
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
+      // Info del usuario
+      doc.setFontSize(14);
+      doc.setTextColor(51, 65, 85); // Slate
+      doc.text(`Nombre: ${user.name}`, 20, 40);
+      doc.text(`Tipo de Sangre: ${user.bloodType || "No especificado"}`, 20, 50);
+      doc.text(`Contacto de Emergencia: ${user.emergencyPhone || "+505 8888-9999"}`, 20, 60);
 
-    img.onload = () => {
-      canvas.width = 512;
-      canvas.height = 512;
-      if (ctx) {
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, 512, 512);
-        ctx.drawImage(img, 0, 0, 512, 512);
-        const pngFile = canvas.toDataURL("image/png");
-        const downloadLink = document.createElement("a");
-        downloadLink.download = `QR-Emergencia-${user.name}.png`;
-        downloadLink.href = pngFile;
-        downloadLink.click();
+      // Condiciones médicas
+      doc.text("Condiciones Médicas:", 20, 75);
+      doc.setFontSize(12);
+      doc.setTextColor(100, 116, 139);
+      if (user.healthConditions && user.healthConditions.length > 0) {
+        user.healthConditions.forEach((cond, idx) => {
+          doc.text(`• ${cond}`, 25, 85 + (idx * 8));
+        });
+      } else {
+        doc.text("Ninguna registrada.", 25, 85);
       }
-    };
 
-    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+      const svg = qrRef.current?.querySelector("svg");
+      if (svg) {
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        
+        img.onload = () => {
+          canvas.width = 512;
+          canvas.height = 512;
+          if (ctx) {
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.drawImage(img, 0, 0, 512, 512);
+          }
+          const pngData = canvas.toDataURL("image/png");
+          // Añadir la imagen al PDF (x, y, width, height)
+          doc.addImage(pngData, 'PNG', 130, 30, 60, 60);
+          
+          doc.save(`Info-Emergencia-${user.name}.pdf`);
+        };
+        img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+      } else {
+        doc.save(`Info-Emergencia-${user.name}.pdf`);
+      }
+    }).catch(err => {
+      console.error("Error cargando jsPDF", err);
+    });
   };
 
   return (
