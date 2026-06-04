@@ -244,20 +244,24 @@ export default function App() {
     
     if (deferredPrompt) {
       try {
-        deferredPrompt.prompt();
+        // Show the install prompt
+        await deferredPrompt.prompt();
         console.log("[PWA] prompt() called");
         
-        deferredPrompt.userChoice.then((choiceResult: any) => {
-          console.log("[PWA] User choice:", choiceResult.outcome);
-          if (choiceResult.outcome === "accepted") {
-            addToast(createToast(t("pwaSuccessToast"), "success"));
-            setShowPwaBanner(false);
-            try {
-              localStorage.setItem("dismissedPwaBanner", "true");
-            } catch (e) {}
-          }
-          setDeferredPrompt(null);
-        });
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`[PWA] User response to the install prompt: ${outcome}`);
+
+        if (outcome === "accepted") {
+          addToast(createToast(t("pwaSuccessToast"), "success"));
+          setShowPwaBanner(false);
+          try {
+            localStorage.setItem("dismissedPwaBanner", "true");
+          } catch (e) {}
+        }
+
+        // We've used the prompt, and can't use it again, so clear it
+        setDeferredPrompt(null);
       } catch (error) {
         console.error("[PWA] Error calling prompt():", error);
         addToast(createToast("Error al intentar instalar. Por favor intenta de nuevo.", "error"));
