@@ -13,7 +13,7 @@ import { updateUserProfile } from "./lib/authService";
 import { useLanguage } from "./contexts/LanguageContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
-import { requestNotificationPermission, checkAndShowNotifications } from "./lib/notificationService";
+import { requestNotificationPermission, showDailyNotification } from "./lib/notificationService";
 import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -116,34 +116,19 @@ export default function App() {
       if (currentView === "login" || currentView === "register") {
         setCurrentView("home");
       }
+
+      // Request notification permissions and show daily message
+      requestNotificationPermission().then((granted) => {
+        if (granted) {
+          showDailyNotification(user.id);
+        }
+      });
     } else {
       // No session — force login screen
       if (currentView !== "login" && currentView !== "register") {
         setCurrentView("login");
       }
     }
-  }, [session, user, initialized, currentView]);
-
-  // ─── Daily Notifications Scheduler ──────────────────────────
-  useEffect(() => {
-    if (!initialized) return;
-    let intervalId: any;
-
-    if (session && user && user.id !== "guest") {
-      requestNotificationPermission().then((granted) => {
-        if (granted) {
-          checkAndShowNotifications(user.id);
-          // Verificar cada minuto por si el usuario deja la aplicación abierta
-          intervalId = setInterval(() => {
-            checkAndShowNotifications(user.id);
-          }, 60000);
-        }
-      });
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
   }, [session, user, initialized]);
 
   // Carga inicial del perfil desde caché local para evitar parpadeos visuales en móviles
@@ -223,20 +208,28 @@ export default function App() {
 
   /**
    * LÓGICA DE INSTALACIÓN PWA
-   * 1. Escuchar el evento 'beforeinstallprompt'
-   * 2. Capturar el evento para usarlo más tarde
-   * 3. Mostrar un banner personalizado si la app es instalable
+   * 1. Registrar el Service Worker.
+   * 2. Escuchar y capturar el evento 'beforeinstallprompt'.
+   * 3. Enlazar ese evento al botón con el ID 'btn-instalar'.
    */
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      // Prevenir que el navegador muestre su banner automático por defecto
-      e.preventDefault();
-      console.log("[PWA] Evento 'beforeinstallprompt' capturado y guardado.");
+    // 1. Registro del Service Worker (también en index.html, pero reforzado aquí)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
+          .catch(err => console.error('[PWA] Error al registrar SW:', err));
+      });
+    }
 
-      // Guardar el evento para dispararlo manualmente luego
+    // 2. Capturar el evento de instalación
+    const handleBeforeInstallPrompt = (e: any) => {
+      // Evitar que Chrome muestre el prompt automático
+      e.preventDefault();
+      // Guardar el evento para dispararlo manualmente
       setDeferredPrompt(e);
 
-      // Verificar si el usuario ya descartó el banner anteriormente
+      // Mostrar nuestro propio banner si no ha sido descartado
       try {
         const dismissed = localStorage.getItem("dismissedPwaBanner");
         if (dismissed !== "true") {
@@ -249,8 +242,9 @@ export default function App() {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
+    // Escuchar cuando la app se instala con éxito
     const handleAppInstalled = () => {
-      console.log("[PWA] Aplicación instalada exitosamente.");
+      console.log("[PWA] Aplicación instalada correctamente.");
       setShowPwaBanner(false);
       setDeferredPrompt(null);
       addToast(createToast(t("pwaSuccessToast"), "success"));
@@ -268,41 +262,39 @@ export default function App() {
   }, [t, addToast]);
 
   /**
-   * Función para lanzar el prompt de instalación manualmente
-   * Enlazada al botón con ID 'btn-instalar'
+   * 3. Función vinculada al botón con ID 'btn-instalar'
    */
   const handleInstallPwa = async () => {
     if (deferredPrompt) {
       try {
-        // Lanzar el banner de instalación nativo
+        // Lanzar el banner de instalación guardado
         await deferredPrompt.prompt();
         
-        // Esperar la respuesta del usuario
+        // Verificar la elección del usuario
         const { outcome } = await deferredPrompt.userChoice;
-        console.log(`[PWA] Respuesta del usuario: ${outcome}`);
+        console.log(`[PWA] El usuario eligió: ${outcome}`);
 
         if (outcome === "accepted") {
-          addToast(createToast(t("pwaSuccessToast"), "success"));
           setShowPwaBanner(false);
           try {
             localStorage.setItem("dismissedPwaBanner", "true");
           } catch (e) {}
         }
 
-        // Limpiar el evento guardado (solo se puede usar una vez)
+        // Resetear el evento
         setDeferredPrompt(null);
       } catch (error) {
-        console.error("[PWA] Error al intentar instalar:", error);
+        console.error("[PWA] Error en el proceso de instalación:", error);
       }
     } else {
-      // Soporte para iOS o navegadores donde el evento no se dispara
+      // Fallback para iOS o navegadores que no soportan el evento
       const userAgent = window.navigator.userAgent.toLowerCase();
       const isIos = /iphone|ipad|ipod/.test(userAgent);
       
       if (isIos) {
         setShowIosGuideModal(true);
       } else {
-        addToast(createToast("Para instalar, usa la opción del navegador.", "info"));
+        addToast(createToast("Usa el menú del navegador para 'Instalar' o 'Añadir a pantalla de inicio'.", "info"));
       }
     }
   };
