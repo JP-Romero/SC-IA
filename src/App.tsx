@@ -22,7 +22,7 @@ export default function App() {
   const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
-  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil" | "admin">("login");
+  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil">("login");
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
@@ -201,32 +201,15 @@ export default function App() {
 
   // ─── Session-based navigation ─────────────────────────────
   // Redirect to home if user is authenticated, or to login if not
-  // Also protect admin route: only admins can access /admin
   useEffect(() => {
     if (!initialized) return;
 
     if (session && user) {
-      // User is authenticated
-      if (profile) {
-        // Check if user is trying to access admin without permission
-        if (currentView === "admin" && profile.role !== "admin") {
-          // Redirect non-admins away from admin page
-          setCurrentView("home");
-          return;
-        }
-        // If admin is on login/register, redirect to home (or maybe admin?)
-        if (currentView === "login" || currentView === "register") {
-          // Admins go to admin panel, regular users go to home
-          setCurrentView(profile.role === "admin" ? "admin" : "home");
-          return;
-        }
-      } else {
-        // Profile not loaded yet, default to home for safety
-        if (currentView === "login" || currentView === "register") {
-          setCurrentView("home");
-        }
+      // User is authenticated — if on login/register, redirect to home
+      if (currentView === "login" || currentView === "register") {
+        setCurrentView("home");
       }
-      
+
       // Request notification permissions and show daily message
       requestNotificationPermission().then((granted) => {
         if (granted) {
@@ -235,11 +218,11 @@ export default function App() {
       });
     } else {
       // No session — force login screen
-      if (currentView !== "login" && currentView !== "register" && currentView !== "admin") {
+      if (currentView !== "login" && currentView !== "register") {
         setCurrentView("login");
       }
     }
-  }, [session, user, initialized, profile, currentView]);
+  }, [session, user, initialized]);
 
   // Carga inicial del perfil desde caché local para evitar parpadeos visuales en móviles
   useEffect(() => {
@@ -316,6 +299,7 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+<<<<<<< HEAD
   const dismissAnnouncement = (id: string) => {
     const updated = [...dismissedAnnouncements, id];
     setDismissedAnnouncements(updated);
@@ -323,30 +307,47 @@ export default function App() {
   };
 
   // Listen for PWA beforeinstallprompt
+=======
+  /**
+   * LÓGICA DE INSTALACIÓN PWA
+   * 1. Registrar el Service Worker.
+   * 2. Escuchar y capturar el evento 'beforeinstallprompt'.
+   * 3. Enlazar ese evento al botón con el ID 'btn-instalar'.
+   */
+>>>>>>> b32d21f742c083d5f22327810c4df4bf68cbb5c6
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
+    // 1. Registro del Service Worker (también en index.html, pero reforzado aquí)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
+          .catch(err => console.error('[PWA] Error al registrar SW:', err));
+      });
+    }
+
+    // 2. Capturar el evento de instalación
+    const handleBeforeInstallPrompt = (e: any) => {
+      // Evitar que Chrome muestre el prompt automático
       e.preventDefault();
-      console.log("[PWA] beforeinstallprompt event captured, saved for later");
+      // Guardar el evento para dispararlo manualmente
       setDeferredPrompt(e);
+
+      // Mostrar nuestro propio banner si no ha sido descartado
       try {
         const dismissed = localStorage.getItem("dismissedPwaBanner");
         if (dismissed !== "true") {
           setShowPwaBanner(true);
-          console.log("[PWA] Banner will be shown");
-        } else {
-          console.log("[PWA] Banner hidden (previously dismissed)");
         }
       } catch (err) {
-        console.log("[PWA] localStorage error, showing banner anyway");
         setShowPwaBanner(true);
       }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    console.log("[PWA] beforeinstallprompt listener registered");
 
+    // Escuchar cuando la app se instala con éxito
     const handleAppInstalled = () => {
-      console.log("[PWA] App installed successfully");
+      console.log("[PWA] Aplicación instalada correctamente.");
       setShowPwaBanner(false);
       setDeferredPrompt(null);
       addToast(createToast(t("pwaSuccessToast"), "success"));
@@ -363,42 +364,40 @@ export default function App() {
     };
   }, [t, addToast]);
 
+  /**
+   * 3. Función vinculada al botón con ID 'btn-instalar'
+   */
   const handleInstallPwa = async () => {
-    console.log("[PWA] Install button clicked, deferredPrompt is:", deferredPrompt ? "available" : "null");
-    
     if (deferredPrompt) {
       try {
-        // Show the install prompt
+        // Lanzar el banner de instalación guardado
         await deferredPrompt.prompt();
-        console.log("[PWA] prompt() called");
         
-        // Wait for the user to respond to the prompt
+        // Verificar la elección del usuario
         const { outcome } = await deferredPrompt.userChoice;
-        console.log(`[PWA] User response to the install prompt: ${outcome}`);
+        console.log(`[PWA] El usuario eligió: ${outcome}`);
 
         if (outcome === "accepted") {
-          addToast(createToast(t("pwaSuccessToast"), "success"));
           setShowPwaBanner(false);
           try {
             localStorage.setItem("dismissedPwaBanner", "true");
           } catch (e) {}
         }
 
-        // We've used the prompt, and can't use it again, so clear it
+        // Resetear el evento
         setDeferredPrompt(null);
       } catch (error) {
-        console.error("[PWA] Error calling prompt():", error);
-        addToast(createToast("Error al intentar instalar. Por favor intenta de nuevo.", "error"));
+        console.error("[PWA] Error en el proceso de instalación:", error);
       }
     } else {
+      // Fallback para iOS o navegadores que no soportan el evento
       const userAgent = window.navigator.userAgent.toLowerCase();
       const isIos = /iphone|ipad|ipod/.test(userAgent);
-      console.log("[PWA] No deferredPrompt available. iOS:", isIos);
       
       if (isIos) {
         setShowIosGuideModal(true);
       } else {
-        addToast(createToast("Usa el botón de instalación en la barra de direcciones del navegador.", "info"));
+        addToast(createToast("Usa el menú del navegador para 'Instalar' o 'Añadir a pantalla de inicio'.", "info"));
       }
     }
   };
@@ -620,6 +619,7 @@ export default function App() {
 
               <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
                 <button
+                  id="btn-instalar"
                   onClick={handleInstallPwa}
                   className="bg-white text-blue-600 hover:bg-blue-50 active:scale-95 px-3.5 py-1.5 rounded-xl font-bold text-[11px] shadow-sm transition-all flex items-center gap-1.5 w-full sm:w-auto justify-center cursor-pointer font-sans"
                 >
@@ -792,19 +792,6 @@ export default function App() {
                 onUnlockPremium={handleUnlockPremium}
                 onNavigate={(tab) => setCurrentView(tab)}
               />
-            </motion.div>
-          )}
-
-          {currentView === "admin" && (
-            <motion.div
-              key="admin"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1"
-            >
-              <AdminView />
             </motion.div>
           )}
 

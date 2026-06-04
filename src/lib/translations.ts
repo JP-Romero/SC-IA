@@ -236,6 +236,7 @@ export const translations = {
     confirmPassRequired: "Confirma tu contraseña.",
     passMismatch: "Las contraseñas no coinciden.",
     termsRequired: "Debes aceptar los Términos y Condiciones.",
+<<<<<<< HEAD
 
     // Admin Panel
     adminPanel: "Panel de Administración",
@@ -364,6 +365,8 @@ export const translations = {
       voiceInput: "Entrada por Voz",
       videoConsultation: "Consulta por Video"
     }
+=======
+>>>>>>> b32d21f742c083d5f22327810c4df4bf68cbb5c6
   },
   en: {
     // Navigation
@@ -602,6 +605,7 @@ export const translations = {
     confirmPassRequired: "Confirm your password.",
     passMismatch: "Passwords do not match.",
     termsRequired: "You must accept the Terms and Conditions.",
+<<<<<<< HEAD
 
     // Admin Panel
     adminPanel: "Admin Panel",
@@ -789,6 +793,8 @@ export const translations = {
       voiceInput: "Voice Input",
       videoConsultation: "Video Consultation"
     }
+=======
+>>>>>>> b32d21f742c083d5f22327810c4df4bf68cbb5c6
   }
 };
 
