@@ -10,6 +10,8 @@ import UserManagement from "./admin/UserManagement";
 import HealthUnitManagement from "./admin/HealthUnitManagement";
 import SettingsManagement from "./admin/SettingsManagement";
 import AnalyticsView from "./admin/AnalyticsView";
+import LocationManagement from "./admin/LocationManagement";
+import AnnouncementManagement from "./admin/AnnouncementManagement";
 
 const AdminView: React.FC = () => {
   const { user, profile, logout } = useAuth();
@@ -71,6 +73,18 @@ const AdminView: React.FC = () => {
             >
               {t('analytics')}
             </button>
+            <button
+              onClick={() => setActiveSection("location")}
+              className={`px-3 py-2 text-sm font-medium ${activeSection === "location" ? "border-b-2 border-blue-500 text-blue-600" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+            >
+              {t('locationManagement')}
+            </button>
+            <button
+              onClick={() => setActiveSection("announcements")}
+              className={`px-3 py-2 text-sm font-medium ${activeSection === "announcements" ? "border-b-2 border-blue-500 text-blue-600" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"}`}
+            >
+              {t('announcementManagement')}
+            </button>
           </nav>
         </div>
         <div className="flex justify-end w-full max-w-6xl px-6 pt-4">
@@ -96,6 +110,8 @@ const AdminView: React.FC = () => {
             {activeSection === "health" && <HealthUnitManagement />}
             {activeSection === "settings" && <SettingsManagement />}
             {activeSection === "analytics" && <AnalyticsView />}
+            {activeSection === "location" && <LocationManagement />}
+            {activeSection === "announcements" && <AnnouncementManagement />}
           </div>
         )}
       </main>
