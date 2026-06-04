@@ -221,31 +221,36 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Listen for PWA beforeinstallprompt
+  /**
+   * LÓGICA DE INSTALACIÓN PWA
+   * 1. Escuchar el evento 'beforeinstallprompt'
+   * 2. Capturar el evento para usarlo más tarde
+   * 3. Mostrar un banner personalizado si la app es instalable
+   */
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
+      // Prevenir que el navegador muestre su banner automático por defecto
       e.preventDefault();
-      console.log("[PWA] beforeinstallprompt event captured, saved for later");
+      console.log("[PWA] Evento 'beforeinstallprompt' capturado y guardado.");
+
+      // Guardar el evento para dispararlo manualmente luego
       setDeferredPrompt(e);
+
+      // Verificar si el usuario ya descartó el banner anteriormente
       try {
         const dismissed = localStorage.getItem("dismissedPwaBanner");
         if (dismissed !== "true") {
           setShowPwaBanner(true);
-          console.log("[PWA] Banner will be shown");
-        } else {
-          console.log("[PWA] Banner hidden (previously dismissed)");
         }
       } catch (err) {
-        console.log("[PWA] localStorage error, showing banner anyway");
         setShowPwaBanner(true);
       }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    console.log("[PWA] beforeinstallprompt listener registered");
 
     const handleAppInstalled = () => {
-      console.log("[PWA] App installed successfully");
+      console.log("[PWA] Aplicación instalada exitosamente.");
       setShowPwaBanner(false);
       setDeferredPrompt(null);
       addToast(createToast(t("pwaSuccessToast"), "success"));
@@ -262,18 +267,19 @@ export default function App() {
     };
   }, [t, addToast]);
 
+  /**
+   * Función para lanzar el prompt de instalación manualmente
+   * Enlazada al botón con ID 'btn-instalar'
+   */
   const handleInstallPwa = async () => {
-    console.log("[PWA] Install button clicked, deferredPrompt is:", deferredPrompt ? "available" : "null");
-    
     if (deferredPrompt) {
       try {
-        // Show the install prompt
+        // Lanzar el banner de instalación nativo
         await deferredPrompt.prompt();
-        console.log("[PWA] prompt() called");
         
-        // Wait for the user to respond to the prompt
+        // Esperar la respuesta del usuario
         const { outcome } = await deferredPrompt.userChoice;
-        console.log(`[PWA] User response to the install prompt: ${outcome}`);
+        console.log(`[PWA] Respuesta del usuario: ${outcome}`);
 
         if (outcome === "accepted") {
           addToast(createToast(t("pwaSuccessToast"), "success"));
@@ -283,21 +289,20 @@ export default function App() {
           } catch (e) {}
         }
 
-        // We've used the prompt, and can't use it again, so clear it
+        // Limpiar el evento guardado (solo se puede usar una vez)
         setDeferredPrompt(null);
       } catch (error) {
-        console.error("[PWA] Error calling prompt():", error);
-        addToast(createToast("Error al intentar instalar. Por favor intenta de nuevo.", "error"));
+        console.error("[PWA] Error al intentar instalar:", error);
       }
     } else {
+      // Soporte para iOS o navegadores donde el evento no se dispara
       const userAgent = window.navigator.userAgent.toLowerCase();
       const isIos = /iphone|ipad|ipod/.test(userAgent);
-      console.log("[PWA] No deferredPrompt available. iOS:", isIos);
       
       if (isIos) {
         setShowIosGuideModal(true);
       } else {
-        addToast(createToast("Usa el botón de instalación en la barra de direcciones del navegador.", "info"));
+        addToast(createToast("Para instalar, usa la opción del navegador.", "info"));
       }
     }
   };
@@ -501,6 +506,7 @@ export default function App() {
 
               <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
                 <button
+                  id="btn-instalar"
                   onClick={handleInstallPwa}
                   className="bg-white text-blue-600 hover:bg-blue-50 active:scale-95 px-3.5 py-1.5 rounded-xl font-bold text-[11px] shadow-sm transition-all flex items-center gap-1.5 w-full sm:w-auto justify-center cursor-pointer font-sans"
                 >
