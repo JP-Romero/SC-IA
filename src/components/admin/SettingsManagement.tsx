@@ -69,8 +69,9 @@ const SettingsManagement: React.FC = () => {
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
-    setEditValue(type === "checkbox" ? checked : value);
+    const { value } = e.target;
+    const isCheckbox = e.target instanceof HTMLInputElement && e.target.type === "checkbox";
+    setEditValue(isCheckbox ? (e.target as HTMLInputElement).checked : value);
   };
 
   // Handle saving a setting
@@ -286,7 +287,7 @@ const SettingsManagement: React.FC = () => {
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             {Object.entries(settings.featureFlags).map(([flag, enabled]: [string, any]) => (
               <div key={flag} className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{t(`featureFlag.${flag}`) || flag.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{(t as any)(`featureFlag.${flag}`) || flag.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
                 <button onClick={() => handleToggleFeatureFlag(flag)} className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${enabled ? "bg-indigo-600" : "bg-slate-300 dark:bg-slate-600"}`}>
                   <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-300 ${enabled ? "translate-x-[22px]" : "translate-x-1"}`} />
                 </button>

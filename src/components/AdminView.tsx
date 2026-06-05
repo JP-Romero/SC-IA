@@ -104,7 +104,7 @@ const AdminView: React.FC = () => {
               transition={{ duration: 0.2 }}
               className="max-w-5xl mx-auto"
             >
-              {activeSection === "users" && profile && <UserManagement user={profile as UserProfile} />}
+              {activeSection === "users" && profile && <UserManagement user={profile as unknown as UserProfile} />}
               {activeSection === "health" && <HealthUnitManagement />}
               {activeSection === "settings" && <SettingsManagement />}
               {activeSection === "analytics" && <AnalyticsView />}

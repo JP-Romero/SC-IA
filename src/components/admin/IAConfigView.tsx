@@ -32,8 +32,8 @@ const IAConfigView: React.FC = () => {
   const [testMessages, setTestMessages] = useState<{sender: 'user'|'bot', text: string}[]>([]);
   const [isTesting, setIsTesting] = useState(false);
 
-  // Check if user is admin
-  const isAdmin = profile?.role === "admin";
+  // Check if user is admin (profile type may not include 'role' in its definition)
+  const isAdmin = (profile as any)?.role === "admin";
 
   useEffect(() => {
     if (!isAdmin) {
@@ -80,7 +80,7 @@ const IAConfigView: React.FC = () => {
         return;
       }
 
-      const newAIConfig: Omit<AIConfiguration, 'id' | 'updated_at' | 'updated_by'> = {
+      const newAIConfig: Omit<AIConfiguration, 'id' | 'updated_at'> = {
         config_key: formData.config_key!,
         config_value: formData.config_value!,
         description: formData.description || null,
@@ -265,7 +265,7 @@ const IAConfigView: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('iaConfiguration')}</h2>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('admin')}</h2>
         <div className="flex items-center gap-3">
           <button
             onClick={() => {
@@ -279,13 +279,13 @@ const IAConfigView: React.FC = () => {
             }}
             className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <UserPlus className="w-4 h-4" /> {t('addAIConfig')}
+            <Plus className="w-4 h-4" /> Agregar
           </button>
           <button
             onClick={loadAIConfigs}
             className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
-            <Clock className="w-4 h-4" /> {t('refresh')}
+            <Clock className="w-4 h-4" /> {t('loading')}
           </button>
         </div>
       </div>
@@ -293,12 +293,12 @@ const IAConfigView: React.FC = () => {
       {/* AI Configurations List */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('aiConfigurationsList')} ({aiConfigs.length})</h3>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('admin')} ({aiConfigs.length})</h3>
         </div>
         <div className="px-6 py-4 overflow-y-auto max-h-[400px]">
           {aiConfigs.length === 0 ? (
             <div className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
-              <p>{t('noAIConfigsFound')}</p>
+              <p>No AI configurations found</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -308,10 +308,10 @@ const IAConfigView: React.FC = () => {
                     <div>
                       <h4 className="font-medium text-slate-900 dark:text-white">{config.config_key}</h4>
                       <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
-                        {config.description || t('noDescription')}
+                        {config.description || 'No description'}
                       </p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {t('updatedAt')} {new Date(config.updated_at).toLocaleString()}
+                        Updated: {new Date(config.updated_at).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -351,14 +351,14 @@ const IAConfigView: React.FC = () => {
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
-              {formMode === 'add' ? t('addAIConfig') : t('editAIConfig')}
+              {formMode === 'add' ? 'Agregar Configuración IA' : 'Editar Configuración IA'}
             </h3>
           </div>
           <div className="px-6 py-4 space-y-4">
             <form onSubmit={(e) => e.preventDefault()}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('configKey')}</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('configKey' as any)}</label>
                   <input
                     type="text"
                     name="config_key"
@@ -369,7 +369,7 @@ const IAConfigView: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('configValue')}</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('configValue' as any)}</label>
                   <textarea
                     name="config_value"
                     value={formData.config_value || ''}
@@ -382,7 +382,7 @@ const IAConfigView: React.FC = () => {
               </div>
 
               <div className="mt-4">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('description')}</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('description' as any)}</label>
                 <textarea
                   name="description"
                   value={formData.description || ''}
@@ -414,7 +414,7 @@ const IAConfigView: React.FC = () => {
                   className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   disabled={!(formData.config_key && formData.config_value)}
                 >
-                  {formMode === 'add' ? t('createAIConfig') : t('saveChanges')}
+                  {formMode === 'add' ? t('createAIConfig' as any) : t('saveChanges')}
                 </button>
               </div>
             </form>
