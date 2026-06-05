@@ -103,40 +103,40 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
       {/* Main content grids */}
       <main className="px-6 flex-1 space-y-6 max-w-5xl mx-auto w-full">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 items-center max-w-5xl mx-auto">
           {/* PREMIUM BÁSICO CARD */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col gap-6 justify-between transform hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-            <div className="absolute top-0 right-0 w-28 h-28 bg-slate-100 dark:bg-slate-800 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 shadow-lg relative overflow-hidden flex flex-col gap-6 justify-between transform hover:-translate-y-2 hover:shadow-xl transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-100 dark:bg-slate-800 rounded-full blur-3xl pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
 
             <div className="flex-1 text-left relative z-10">
-              <div className="flex items-center space-x-2.5 mb-2.5">
-                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold">
-                  <Star className="w-5 h-5 fill-slate-300 stroke-slate-500 dark:fill-slate-600 dark:stroke-slate-400" />
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold shadow-sm">
+                  <Star className="w-6 h-6 fill-slate-300 stroke-slate-500 dark:fill-slate-600 dark:stroke-slate-400" />
                 </div>
-                <h4 className="font-display font-bold text-xl text-slate-900 dark:text-white">{t('basicPlan')}</h4>
+                <h4 className="font-display font-bold text-2xl text-slate-900 dark:text-white">{t('basicPlan')}</h4>
               </div>
 
-              <div className="mb-4 mt-2">
-                <span className="text-3xl font-display font-bold text-slate-900 dark:text-white">$4.99</span>
-                <span className="text-slate-500 text-sm">/mes</span>
+              <div className="mb-6 mt-2 flex items-baseline gap-1">
+                <span className="text-4xl font-display font-bold text-slate-900 dark:text-white">$4.99</span>
+                <span className="text-slate-500 text-sm font-medium">/mes</span>
               </div>
 
-              <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-sm mb-4">
+              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-sm mb-6">
                 {t('basicDesc')}
               </p>
 
               <button
                 id="btn-choose-plan-basic"
                 onClick={() => setCheckoutPlan({ name: t('basicPlan'), price: "$4.99/mes" })}
-                className="block w-full sm:max-w-xs bg-slate-800 hover:bg-slate-900 dark:bg-slate-100 dark:hover:bg-white dark:text-slate-900 text-white font-bold py-3 px-6 rounded-2xl text-xs tracking-wider transition-all active:scale-95 text-center shadow-md mb-4"
+                className="block w-full sm:max-w-xs bg-slate-800 hover:bg-slate-900 dark:bg-slate-100 dark:hover:bg-white dark:text-slate-900 text-white font-bold py-3.5 px-6 rounded-2xl text-sm tracking-wide transition-all active:scale-95 text-center shadow-md mb-2"
               >
                 {t('selectPlan')}
               </button>
             </div>
 
             {/* Checklist list */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-4.5 rounded-2xl border border-slate-100 dark:border-slate-800 shrink-0 select-none md:w-64 relative z-10">
-              <ul className="space-y-3">
+            <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shrink-0 select-none md:w-72 relative z-10">
+              <ul className="space-y-3.5">
                 {[
                   t('basicBenefit1'),
                   t('basicBenefit2'),
@@ -144,54 +144,59 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
                   t('basicBenefit4'),
                   t('basicBenefit5')
                 ].map((benefit, i) => (
-                  <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    <Check className="w-4 h-4 text-slate-500 shrink-0" />
-                    <span>{benefit}</span>
+                  <li key={i} className="flex items-start space-x-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <Check className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                    <span className="leading-snug">{benefit}</span>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
 
-          {/* PREMIUM INSTITUCIÓN CARD (BLUE) */}
-          <div className="bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-700 dark:to-blue-900 rounded-3xl p-6 shadow-xl shadow-blue-500/30 relative overflow-hidden flex flex-col gap-6 justify-between transform hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 ring-4 ring-blue-500/30 dark:ring-blue-600/30 ring-offset-2 dark:ring-offset-slate-950 scale-100 md:scale-[1.03] z-10">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-400/20 rounded-full blur-xl pointer-events-none"></div>
-            
-            <div className="absolute top-4 right-4 text-[10px] font-bold text-blue-700 bg-white px-3 py-1 rounded-full shadow-sm flex items-center space-x-1">
-              <Sparkles className="w-3 h-3 text-blue-600" />
-              <span>PRO</span>
+          {/* PREMIUM INSTITUCIÓN CARD (VIP GOLD/BLUE) */}
+          <div className="bg-gradient-to-br from-slate-900 via-[#0a192f] to-slate-900 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950 rounded-[2rem] p-8 shadow-2xl relative overflow-hidden flex flex-col gap-6 justify-between transform hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(251,191,36,0.15)] transition-all duration-500 border border-amber-500/30 ring-1 ring-amber-400/20 scale-100 md:scale-[1.05] z-10 group">
+            {/* Background Glows & Reflections */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/20 transition-colors duration-700"></div>
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/20 rounded-full blur-2xl pointer-events-none group-hover:bg-blue-400/20 transition-colors duration-700"></div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+
+            {/* VIP Badge */}
+            <div className="absolute top-6 right-6 text-[11px] font-extrabold text-amber-900 bg-gradient-to-r from-amber-200 to-yellow-400 px-3.5 py-1.5 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.3)] flex items-center space-x-1 uppercase tracking-widest border border-amber-300">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>VIP PRO</span>
             </div>
 
-            <div className="flex-1 text-left relative z-10">
-              <div className="flex items-center space-x-2.5 mb-2.5">
-                <div className="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center font-bold backdrop-blur-sm border border-white/10 shadow-inner">
-                  <Building className="w-5 h-5 text-white" />
+            <div className="flex-1 text-left relative z-10 mt-1">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-200 to-amber-500 p-[1px] shadow-lg">
+                  <div className="w-full h-full bg-slate-900 rounded-2xl flex items-center justify-center">
+                     <Building className="w-6 h-6 text-amber-400" />
+                  </div>
                 </div>
-                <h4 className="font-display font-bold text-xl text-white">{t('institutionPlan')}</h4>
+                <h4 className="font-display font-bold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-amber-400">{t('institutionPlan')}</h4>
               </div>
 
-              <div className="mb-4 mt-2">
-                <span className="text-3xl font-display font-bold text-white">$9.99</span>
-                <span className="text-blue-200 text-sm">/mes</span>
+              <div className="mb-6 mt-2 flex items-baseline gap-1">
+                <span className="text-4xl font-display font-bold text-white drop-shadow-sm">$9.99</span>
+                <span className="text-amber-200/70 text-sm font-medium">/mes</span>
               </div>
 
-              <p className="text-blue-100 text-xs leading-relaxed max-w-sm mb-4">
+              <p className="text-blue-100/80 text-sm leading-relaxed max-w-sm mb-6 font-light">
                 {t('institutionDesc')}
               </p>
 
               <button
                 id="btn-choose-plan-institution"
                 onClick={() => setCheckoutPlan({ name: t('institutionPlan'), price: "$9.99/mes" })}
-                className="block w-full sm:max-w-xs bg-white text-blue-700 hover:bg-blue-50 font-bold py-3 px-6 rounded-2xl text-xs tracking-wider transition-all active:scale-95 text-center shadow-lg mb-4"
+                className="block w-full sm:max-w-xs bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-amber-950 font-bold py-3.5 px-6 rounded-2xl text-sm tracking-wide transition-all active:scale-95 text-center shadow-[0_0_20px_rgba(251,191,36,0.25)] border border-amber-300/50 mb-2"
               >
                 {t('selectPlan')}
               </button>
             </div>
 
             {/* Checklist list */}
-            <div className="bg-white/10 backdrop-blur-md p-4.5 rounded-2xl border border-white/10 shrink-0 select-none md:w-64 relative z-10">
-              <ul className="space-y-3">
+            <div className="bg-slate-900/40 backdrop-blur-xl p-5 rounded-2xl border border-amber-500/20 shrink-0 select-none md:w-72 relative z-10 shadow-inner">
+              <ul className="space-y-3.5">
                 {[
                   t('institutionBenefit1'),
                   t('institutionBenefit2'),
@@ -200,9 +205,9 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
                   t('institutionBenefit5'),
                   t('institutionBenefit6')
                 ].map((benefit, i) => (
-                  <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-white/95">
-                    <Check className="w-4 h-4 text-blue-200 shrink-0" />
-                    <span>{benefit}</span>
+                  <li key={i} className="flex items-start space-x-3 text-sm font-medium text-amber-50/90">
+                    <Check className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                    <span className="leading-snug">{benefit}</span>
                   </li>
                 ))}
               </ul>
