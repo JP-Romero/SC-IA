@@ -13,9 +13,10 @@ interface PerfilViewProps {
   onGoBack: () => void;
   onUpdateUser: (updated: UserProfile) => void;
   onLogout?: () => void;
+  onGoToAdmin?: () => void;
 }
 
-export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, onLogout }: PerfilViewProps) {
+export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, onLogout, onGoToAdmin }: PerfilViewProps) {
   const { t } = useLanguage();
   const { refreshProfile } = useAuth();
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
@@ -986,6 +987,17 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             </p>
           </div>
         </div>
+
+        {/* Admin Panel Button */}
+        {onGoToAdmin && (
+          <button
+            onClick={onGoToAdmin}
+            className="w-full mt-4 bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200/85 dark:border-blue-900/30 rounded-2xl py-3.5 px-5 font-bold text-xs flex items-center justify-center space-x-2 transition-all active:scale-[0.98] cursor-pointer"
+          >
+            <Shield className="w-4.5 h-4.5 text-blue-500 shrink-0" />
+            <span>{t('adminPanel')}</span>
+          </button>
+        )}
 
         {/* Logout Button */}
         {onLogout && (

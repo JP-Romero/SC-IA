@@ -7,6 +7,7 @@ import PremiumView from "./components/PremiumView";
 import PerfilView from "./components/PerfilView";
 import LoginView from "./components/LoginView";
 import RegisterView from "./components/RegisterView";
+import AdminView from "./components/AdminView";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
 import { updateUserProfile } from "./lib/authService";
@@ -22,7 +23,7 @@ export default function App() {
   const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
-  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil">("login");
+  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil" | "admin">("login");
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
@@ -534,7 +535,7 @@ export default function App() {
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* DESKTOP SIDEBAR NAVIGATION (Solo visible en Laptop/PC) */}
-      {currentView !== "login" && currentView !== "register" && (
+      {currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
         <aside className="hidden md:flex flex-col w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
           <div className="p-6 flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView("home")}>
             <img
@@ -556,6 +557,7 @@ export default function App() {
               ...(featureFlags.healthUnitSearch ? [{ id: "centros", label: t('centros'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg> }] : []),
               ...(featureFlags.appointmentBooking ? [{ id: "buscar", label: t('buscar'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> }] : []),
               ...(featureFlags.premiumFeatures ? [{ id: "premium", label: t('premium'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 12l10 10 10-10z" /></svg> }] : []),
+              ...(profileRole === "admin" ? [{ id: "admin", label: t('adminPanel'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="9" y1="21" x2="9" y2="9" /><line x1="3" y1="9" x2="21" y2="9" /></svg> }] : []),
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -593,7 +595,7 @@ export default function App() {
       )}
 
       {/* Dynamic Content Views based on Router State (Con padding lateral en Laptop para centrado perfecto) */}
-      <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "centros" ? "h-[100dvh] overflow-hidden pb-0" : "min-h-screen pb-20"} md:pb-0 ${currentView !== "login" && currentView !== "register" ? "md:pl-[260px]" : ""}`}>
+      <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "centros" ? "h-[100dvh] overflow-hidden pb-0" : "min-h-screen pb-20"} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
 
         {/* PWA Download/Install Banner */}
         <AnimatePresence>
@@ -807,13 +809,27 @@ export default function App() {
                 onGoBack={() => setCurrentView("home")}
                 onUpdateUser={handleUpdateUser}
                 onLogout={handleLogout}
+                onGoToAdmin={profileRole === "admin" ? () => setCurrentView("admin") : undefined}
               />
+            </motion.div>
+          )}
+
+          {currentView === "admin" && (
+            <motion.div
+              key="admin"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex-1 flex flex-col h-screen"
+            >
+              <AdminView />
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* PERSISTENT 4-TAB NAVIGATION BAR IN PAGE FOOTERS */}
-        {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && (
+        {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
           <nav className="fixed bottom-0 inset-x-0 bg-white dark:bg-slate-900 z-40 w-full border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:hidden">
             <div className={`grid ${gridColsClass} p-2.5 pt-3 pb-5 relative font-sans`}>
 
