@@ -247,7 +247,7 @@ export default function LocationManagement() {
       <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
         
         {/* Left Side: Search and List */}
-        <div className="w-full lg:w-1/4 h-[240px] lg:h-auto shrink-0 flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="w-full lg:w-1/4 h-[300px] lg:h-auto shrink-0 flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
             <div className="relative">
               <input 
@@ -283,7 +283,7 @@ export default function LocationManagement() {
         </div>
  
         {/* Right Side: Map & Adjustment Area */}
-        <div className="w-full lg:flex-1 h-[600px] lg:h-auto bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden relative">
+        <div className="w-full lg:flex-1 h-[850px] lg:h-auto bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden relative">
           {selectedCenter ? (
             <>
               {/* Interactive Map Area */}
