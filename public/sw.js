@@ -1,33 +1,32 @@
-const CACHE_NAME = "salud-conecta-v7";
+const CACHE_NAME = 'salud-conecta-cache-v9';
 const ASSETS_TO_CACHE = [
-  "/",
-  "/index.html",
-  "/manifest.json?v=7",
-  "/app-logo-v1.jpg"
+  '/',
+  '/index.html',
+  '/manifest.json?v=8',
+  '/app-logo-v1.jpg'
 ];
 
-// Install Event
-self.addEventListener("install", (event) => {
+// Install: Cache resources
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("[PWA SW] Pre-caching offline support resources");
-      return cache.addAll(ASSETS_TO_CACHE).catch((err) => {
-        console.warn("[PWA SW] Pre-cache warning: Some resources could not be cached on install", err);
-      });
-    })
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('[SW] Caching assets');
+        return cache.addAll(ASSETS_TO_CACHE);
+      })
   );
   self.skipWaiting();
 });
 
-// Activate Event
-self.addEventListener("activate", (event) => {
+// Activate: Cleanup old caches
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log("[PWA SW] Removing old cache:", key);
-            return caches.delete(key);
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('[SW] Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
           }
         })
       );
@@ -36,50 +35,37 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch Event (Offline Fallback)
-self.addEventListener("fetch", (event) => {
-  // Only handle GET requests and skip API requests
-  if (event.request.method !== "GET" || event.request.url.includes("/api/")) {
-    return;
-  }
+// Fetch: Network first with cache fallback
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
 
-  const isNavigation = event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html');
-
-  if (isNavigation) {
-    // NETWORK-FIRST: Para el HTML (Evita cargar un HTML viejo con hashes JS/CSS muertos)
-    event.respondWith(
-      fetch(event.request).then((networkResponse) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, networkResponse.clone());
-          return networkResponse;
-        });
-      }).catch(() => {
-        // Fallback offline si no hay internet
-        return caches.match(event.request).then((cachedResponse) => {
-          return cachedResponse || caches.match("/");
-        });
-      })
-    );
-  } else {
-    // CACHE-FIRST: Para assets estáticos (JS, CSS, Imágenes)
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // If successful, clone and store in cache
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        return fetch(event.request).then((networkResponse) => {
-          const isSafeToCache = event.request.url.startsWith(self.location.origin);
-          if (isSafeToCache && networkResponse.status === 200) {
-            return caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse.clone());
-              return networkResponse;
-            });
+        return response;
+      })
+      .catch(() => {
+        // Fallback to cache
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+
+          // If navigation, return root
+          if (event.request.mode === 'navigate') {
+            return caches.match('/');
           }
-          return networkResponse;
-        }).catch(() => {
-          return new Response('', { status: 404, statusText: 'Not Found' });
+
+          return new Response('Offline content not available', {
+            status: 503,
+            statusText: 'Service Unavailable'
+          });
         });
       })
-    );
-  }
+  );
 });
