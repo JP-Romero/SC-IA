@@ -761,7 +761,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
                               >
                                 <Save className="w-3.5 h-3.5" />
-                                {t('saveChanges')}
+                                {t('saveProfileChanges' as any)}
                               </button>
                             </form>
                           )}
