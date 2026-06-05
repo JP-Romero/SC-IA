@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import HomeView from "./components/HomeView";
 import ConsultaView from "./components/ConsultaView";
 import CentrosView from "./components/CentrosView";
-import BuscarView from "./components/BuscarView";
 import PremiumView from "./components/PremiumView";
 import PerfilView from "./components/PerfilView";
 import LoginView from "./components/LoginView";
@@ -23,7 +22,7 @@ export default function App() {
   const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
-  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil" | "admin">("login");
+  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "buscar" | "premium" | "perfil" | "admin">("login");
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
@@ -134,8 +133,7 @@ export default function App() {
   // Auto-redirect if feature is disabled
   useEffect(() => {
     if (globalSettings) {
-      if (currentView === "centros" && !featureFlags.healthUnitSearch) setCurrentView("home");
-      if (currentView === "buscar" && !featureFlags.appointmentBooking) setCurrentView("home");
+      if (currentView === "buscar" && !featureFlags.healthUnitSearch) setCurrentView("home");
       if (currentView === "premium" && !featureFlags.premiumFeatures) setCurrentView("home");
     }
   }, [currentView, featureFlags, globalSettings]);
@@ -552,11 +550,10 @@ export default function App() {
             <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 pl-3">{t('mainMenu')}</div>
 
             {[
-              { id: "home", label: t('home'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
-              { id: "consulta", label: t('consulta'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg> },
-              ...(featureFlags.healthUnitSearch ? [{ id: "centros", label: t('centros'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg> }] : []),
-              ...(featureFlags.appointmentBooking ? [{ id: "buscar", label: t('buscar'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> }] : []),
-              ...(featureFlags.premiumFeatures ? [{ id: "premium", label: t('premium'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 12l10 10 10-10z" /></svg> }] : []),
+              { id: "home", label: "Inicio", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
+              { id: "consulta", label: "Consulta IA", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M12 7l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" /><path d="M16 10l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5.5-1z" /></svg> },
+              ...(featureFlags.healthUnitSearch ? [{ id: "buscar", label: "Buscador", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> }] : []),
+              ...(featureFlags.premiumFeatures ? [{ id: "premium", label: "Premium", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" /></svg> }] : []),
               ...(profileRole === "admin" ? [{ id: "admin", label: t('adminPanel'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="9" y1="21" x2="9" y2="9" /><line x1="3" y1="9" x2="21" y2="9" /></svg> }] : []),
             ].map((tab) => (
               <button
@@ -595,7 +592,7 @@ export default function App() {
       )}
 
       {/* Dynamic Content Views based on Router State (Con padding lateral en Laptop para centrado perfecto) */}
-      <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "centros" ? "h-[100dvh] overflow-hidden pb-0" : "min-h-screen pb-20"} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
+      <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : "min-h-screen pb-20"} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
 
         {/* PWA Download/Install Banner */}
         <AnimatePresence>
@@ -746,20 +743,7 @@ export default function App() {
             </motion.div>
           )}
 
-          {currentView === "centros" && featureFlags.healthUnitSearch && (
-            <motion.div
-              key="centros"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1"
-            >
-              <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
-            </motion.div>
-          )}
-
-          {currentView === "buscar" && featureFlags.appointmentBooking && (
+          {currentView === "buscar" && featureFlags.healthUnitSearch && (
             <motion.div
               key="buscar"
               initial={{ opacity: 0 }}
@@ -768,11 +752,7 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1"
             >
-              <BuscarView
-                appointments={appointments}
-                onAddAppointment={handleAddAppointment}
-                onNavigate={(tab) => setCurrentView(tab)}
-              />
+              <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
             </motion.div>
           )}
 
@@ -833,7 +813,28 @@ export default function App() {
           <nav className="fixed bottom-0 inset-x-0 bg-white dark:bg-slate-900 z-40 w-full border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:hidden">
             <div className={`grid ${gridColsClass} p-2.5 pt-3 pb-5 relative font-sans`}>
 
-              {/* Tab 1: Consulta */}
+              {/* Tab 1: Inicio */}
+              <button
+                id="btn-nav-home"
+                onClick={() => setCurrentView("home")}
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "home" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                  }`}
+              >
+                <div className="p-1 mb-0.5">
+                  <svg className={`w-[25px] h-[25px] ${currentView === "home" ? "fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "home" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                </div>
+                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "home" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                  Inicio
+                </span>
+                {currentView === "home" && (
+                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                )}
+              </button>
+
+              {/* Tab 2: Consulta IA */}
               <button
                 id="btn-nav-consulta"
                 onClick={() => setCurrentView("consulta")}
@@ -843,42 +844,20 @@ export default function App() {
                 <div className="p-1 mb-0.5">
                   <svg className={`w-[25px] h-[25px] ${currentView === "consulta" ? "fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "consulta" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    <path d="M12 7l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" />
+                    <path d="M16 10l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5.5-1z" />
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  {t('consulta')}
+                  Consulta IA
                 </span>
-                {/* Active indicator dot/lines */}
                 {currentView === "consulta" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
 
-              {/* Tab 2: Centros */}
+              {/* Tab 3: Buscador (Centros) */}
               {featureFlags.healthUnitSearch && (
-               <button
-                id="btn-nav-centros"
-                onClick={() => setCurrentView("centros")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "centros" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
-                  }`}
-              >
-                <div className="p-1 mb-0.5">
-                  <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "centros" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  {t('centros')}
-                </span>
-                {currentView === "centros" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
-                )}
-              </button>
-              )}
-
-              {/* Tab 3: Buscar */}
-              {featureFlags.appointmentBooking && (
                <button
                 id="btn-nav-buscar"
                 onClick={() => setCurrentView("buscar")}
@@ -892,7 +871,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  {t('buscar')}
+                  Buscador
                 </span>
                 {currentView === "buscar" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -910,11 +889,11 @@ export default function App() {
               >
                 <div className="p-1 mb-0.5">
                   <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2L2 12l10 10 10-10z" />
+                    <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  {t('premium')}
+                  Premium
                 </span>
                 {currentView === "premium" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
