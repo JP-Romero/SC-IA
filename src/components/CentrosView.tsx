@@ -309,6 +309,27 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         setGeoError("");
         setLocationMode("nearby");
 
+        // Debounce location updates to prevent map flickering
+        // Only update if location has changed significantly (> 10 meters)
+        if (userLocation) {
+          const distanceMeters = getDistanceKm(userLoc, {
+            latitude: userLocation.latitude,
+            longitude: userLocation.longitude,
+            type: "",
+            municipality: "",
+            locality: "",
+            department: "",
+            zone: "",
+            phone: "",
+            hasCoordinates: true
+          }) * 1000;
+
+          // Skip update if movement is insignificant (< 10m)
+          if (distanceMeters < 10) {
+            return;
+          }
+        }
+
         // Always find and select the nearest health center when location is obtained
         // Both search icon and centros button should show nearest center
         const nearestCenter = mergedCenters
@@ -334,7 +355,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [mergedCenters, activeFilter, selectedCenter]);
+  }, [mergedCenters, activeFilter, selectedCenter, userLocation]);
 
   useEffect(() => {
     if (!userLocation) return;
