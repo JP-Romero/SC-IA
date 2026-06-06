@@ -70,16 +70,16 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
       <main className="flex-1 px-6 pt-5 pb-10 max-w-6xl mx-auto w-full z-10 relative">
 
         {/* Welcome Section / Profile Header Area */}
-        <div className="flex justify-between items-start md:items-center mb-8 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/50 dark:border-slate-800/50 p-6 md:p-10 rounded-[32px] md:rounded-[36px] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.1)] relative overflow-hidden group">
+        <div className="flex justify-between items-start md:items-center mb-8 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/50 dark:border-slate-800/50 p-5 sm:p-6 md:p-10 rounded-[28px] md:rounded-[36px] shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.1)] relative overflow-hidden group">
           {/* Inner Glow Decor */}
           <div className="absolute top-0 right-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-blue-500/10 dark:bg-blue-400/5 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/4 group-hover:bg-blue-500/15 transition-colors duration-700"></div>
 
-          <div className="flex-1 pr-4 relative z-10">
-            <span className="text-slate-500 dark:text-slate-400 text-[17px] md:text-lg font-medium leading-[1.3] block">{t('welcome')},</span>
-            <h2 className="text-blue-600 dark:text-blue-400 text-[40px] md:text-[48px] font-bold tracking-[-0.03em] leading-[1.1] mt-1 md:mt-2 drop-shadow-sm">
+          <div className="flex-1 pr-2 sm:pr-4 relative z-10 min-w-0">
+            <span className="text-slate-500 dark:text-slate-400 text-[16px] md:text-lg font-medium leading-[1.3] block truncate">{t('welcome')},</span>
+            <h2 className="text-blue-600 dark:text-blue-400 text-[32px] sm:text-[40px] md:text-[48px] font-bold tracking-[-0.03em] leading-[1.1] mt-1 md:mt-2 drop-shadow-sm break-words">
               {firstName}.
             </h2>
-            <p className="text-slate-600 dark:text-slate-300 text-[14px] md:text-[15.5px] font-normal leading-relaxed mt-4 max-w-[240px] md:max-w-sm">
+            <p className="text-slate-600 dark:text-slate-300 text-[13px] md:text-[15.5px] font-normal leading-relaxed mt-3 md:mt-4 max-w-[200px] sm:max-w-[240px] md:max-w-sm">
               {t('healthConnected')}<br className="md:hidden" />
               <span className="hidden md:inline"> </span>{t('clearAnswers')}<br className="md:hidden" />
               <span className="hidden md:inline"> </span>{t('safeDecisions')}
@@ -87,9 +87,9 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
           </div>
 
           {/* Avatar side */}
-          <div className="flex flex-col items-center shrink-0 relative z-10">
+          <div className="flex flex-col items-center shrink-0 relative z-10 ml-2">
             {/* Glossy ring avatar */}
-            <div className="w-[104px] h-[104px] md:w-[120px] md:h-[120px] rounded-full p-[4px] bg-gradient-to-tr from-blue-600 via-cyan-400 to-blue-600 shadow-[0_8px_30px_rgba(29,78,216,0.25)] flex items-center justify-center relative transform md:hover:scale-105 transition-transform duration-300">
+            <div className="w-[84px] h-[84px] sm:w-[104px] sm:h-[104px] md:w-[120px] md:h-[120px] rounded-full p-[3px] sm:p-[4px] bg-gradient-to-tr from-blue-600 via-cyan-400 to-blue-600 shadow-[0_8px_30px_rgba(29,78,216,0.25)] flex items-center justify-center relative transform md:hover:scale-105 transition-transform duration-300">
               {user.avatarUrl ? (
                 <img
                   src={user.avatarUrl}

@@ -540,7 +540,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
 
           <div className="text-center md:text-left space-y-3 sm:space-y-5">
-            <h3 className="font-display font-bold text-4xl sm:text-7xl text-slate-950 dark:text-white tracking-tight leading-[0.95]">
+            <h3 className="font-display font-bold text-4xl sm:text-7xl text-slate-950 dark:text-white tracking-tight leading-[0.95] break-words">
               {displayName}<span className="text-blue-600">.</span>
             </h3>
             <div className="space-y-2.5 sm:space-y-3.5">
