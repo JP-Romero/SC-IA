@@ -896,8 +896,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                         <div
                           className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0 border ${
                             isHospital 
-                              ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-blue-400" 
-                              : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400"
+                              ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-white" 
+                              : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-white"
                           }`}
                         >
                           {isHospital ? (
@@ -1094,19 +1094,16 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             <div className="flex items-start justify-between gap-3 min-w-0">
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className="w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0"
-                  style={{
-                    background: selectedCenter.type.toLowerCase().includes("hospital") ? "#eff6ff" : "#f0fdf4",
-                    border: selectedCenter.type.toLowerCase().includes("hospital") ? "1px solid #dbeafe" : "1px solid #dcfce7",
-                  }}
+                  className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0 border ${
+                    selectedCenter.type.toLowerCase().includes("hospital")
+                      ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-white"
+                      : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-white"
+                  }`}
                 >
                   {selectedCenter.type.toLowerCase().includes("hospital") ? (
-                    <span className="text-xs font-bold text-[#2563eb]">H</span>
+                    <Hospital className="w-4 h-4" />
                   ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[14px] h-[14px]">
-                      <line x1="12" y1="5" x2="12" y2="19" />
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
+                    <Building2 className="w-4 h-4" />
                   )}
                 </div>
 

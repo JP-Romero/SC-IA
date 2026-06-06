@@ -64,7 +64,7 @@ export default function MedicalCategoryCarousel({
               {/* Icon container */}
               <span
                 className={`flex items-center justify-center w-5 h-5 shrink-0 transition-colors duration-200 ${
-                  isSelected ? "text-blue-600 dark:text-blue-450" : "text-slate-400 dark:text-slate-500"
+                  isSelected ? "text-blue-600 dark:text-white" : "text-slate-400 dark:text-white"
                 }`}
               >
                 {cat.icon}
@@ -73,7 +73,7 @@ export default function MedicalCategoryCarousel({
               {/* Label */}
               <span
                 className={`text-[13.5px] font-semibold tracking-tight whitespace-nowrap font-sans transition-colors duration-200 ${
-                  isSelected ? "text-blue-700 dark:text-blue-400" : "text-slate-700 dark:text-slate-350"
+                  isSelected ? "text-blue-700 dark:text-white" : "text-slate-700 dark:text-white"
                 }`}
               >
                 {cat.label}
