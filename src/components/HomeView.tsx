@@ -17,6 +17,12 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
 
   return (
     <div className="flex flex-col min-h-dvh relative overflow-x-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-blue-200/55 dark:border-blue-900/30"></div>
+        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-blue-200/45 dark:border-blue-900/30"></div>
+        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-blue-100/45 dark:bg-blue-950/30 blur-3xl"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
+      </div>
 
       {/* Background Decorators - Organic shapes */}
       <div
