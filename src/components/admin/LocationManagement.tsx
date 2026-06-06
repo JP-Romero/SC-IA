@@ -287,12 +287,12 @@ export default function LocationManagement() {
           )}
         </div>
  
-        {/* Right Side: Map Only */}
+        {/* Right Side: Map + Controls */}
         <div className="w-full lg:flex-1 h-[90vh] lg:h-auto bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden relative">
           {selectedCenter ? (
             <>
               {/* Interactive Map Area */}
-              <div className="flex-1 relative flex items-center justify-center border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950">
+              <div className="flex-[3] relative flex items-center justify-center border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 min-h-[300px]">
                 <iframe
                   ref={iframeRef}
                   srcDoc={leafletHtml}
@@ -307,6 +307,97 @@ export default function LocationManagement() {
                   <div className={hasChanges ? "text-blue-600 dark:text-blue-400 font-bold" : "text-slate-800 dark:text-slate-300"}>
                     Lat: {adjustedLat?.toFixed(6) || "---"}<br/>
                     Lng: {adjustedLng?.toFixed(6) || "---"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Panel de edición de coordenadas */}
+              <div className="flex-[2] p-4 md:p-5 overflow-y-auto bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+                <div className="max-w-2xl mx-auto space-y-4">
+                  {/* Título */}
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-blue-500" />
+                      Ajustar coordenadas
+                    </h3>
+                    <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-1 rounded-full border border-slate-200 dark:border-slate-700">
+                      {selectedCenter.name}
+                    </span>
+                  </div>
+
+                  {/* Inputs de Latitud y Longitud */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Latitud</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={adjustedLat ?? ""}
+                        onChange={(e) => setAdjustedLat(parseFloat(e.target.value) || 0)}
+                        className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all"
+                        placeholder="12.1364"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Longitud</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={adjustedLng ?? ""}
+                        onChange={(e) => setAdjustedLng(parseFloat(e.target.value) || 0)}
+                        className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all"
+                        placeholder="-86.2514"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Razón de ajuste */}
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Razón de ajuste</label>
+                    <textarea
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                      placeholder="Ej: Coordenadas corregidas según ubicación real del centro de salud."
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-700 dark:text-slate-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 transition-all resize-none h-[60px]"
+                    />
+                  </div>
+
+                  {/* Botones de acción */}
+                  <div className="flex items-center gap-3 pt-1">
+                    <button
+                      onClick={handleRevert}
+                      disabled={!hasChanges}
+                      className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[11px] font-bold transition-all ${
+                        hasChanges
+                          ? "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300"
+                          : "bg-slate-50 dark:bg-slate-800/40 text-slate-300 dark:text-slate-600 cursor-not-allowed"
+                      }`}
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Revertir
+                    </button>
+
+                    <button
+                      onClick={handleSave}
+                      disabled={!hasChanges || isSaving || !adjustedLat || !adjustedLng}
+                      className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[11px] font-bold transition-all flex-1 justify-center ${
+                        hasChanges && !isSaving
+                          ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 active:scale-[0.98]"
+                          : "bg-blue-100 dark:bg-blue-900/30 text-blue-300 dark:text-blue-600 cursor-not-allowed"
+                      }`}
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Guardando...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-3.5 h-3.5" />
+                          {hasChanges ? "Guardar cambios" : "Sin cambios"}
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>

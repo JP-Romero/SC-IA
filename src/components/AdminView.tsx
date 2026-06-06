@@ -57,7 +57,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans antialiased relative">
       
-      {/* Mobile Drawer Backdrop */}
+      {/* Drawer Backdrop for ALL sizes */}
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.div
@@ -65,15 +65,15 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30 md:hidden"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30"
           />
         )}
       </AnimatePresence>
 
-      {/* Sidebar Administrativo (Responsive drawer on mobile, static on desktop) */}
+      {/* Sidebar Administrativo - Hamburguesa para TODOS los tamaños */}
       <aside 
-        className={`fixed md:relative inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-40 transition-transform duration-300 ease-in-out transform md:transform-none ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        className={`fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-40 transition-transform duration-300 ease-in-out shadow-2xl ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
@@ -85,7 +85,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
           </div>
           <button 
             onClick={() => setIsSidebarOpen(false)}
-            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 md:hidden rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -137,28 +137,31 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
         
-        {/* Mobile Header Bar */}
-        <header className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 md:hidden shrink-0 z-10 shadow-sm">
+        {/* Header Bar - visible en todos los tamaños con hamburguesa para el sidebar */}
+        <header className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0 z-10 shadow-sm">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="p-2 -ml-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title="Abrir menú de administración"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5 md:w-6 md:h-6" />
             </button>
-            <span className="font-bold text-sm text-slate-800 dark:text-white truncate">
+            <span className="font-bold text-sm md:text-base text-slate-800 dark:text-white truncate">
               {sections.find(s => s.id === activeSection)?.label}
             </span>
           </div>
-          {onGoBack && (
-            <button
-              onClick={onGoBack}
-              className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/35 rounded-lg transition-colors"
-              title="Volver a la App"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {onGoBack && (
+              <button
+                onClick={onGoBack}
+                className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/35 rounded-lg transition-colors"
+                title="Volver a la App"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </header>
 
         {/* Inner Content Grid */}
