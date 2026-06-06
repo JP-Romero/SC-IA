@@ -304,42 +304,36 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           longitude: position.coords.longitude,
           accuracy: position.coords.accuracy,
         };
-        setUserLocation(userLoc);
-        setGeoStatus("ready");
-        setGeoError("");
-        setLocationMode("nearby");
 
         // Debounce location updates to prevent map flickering
         // Only update if location has changed significantly (> 10 meters)
+        let shouldUpdate = true;
         if (userLocation) {
-          const distanceMeters = getDistanceKm(userLoc, {
-            latitude: userLocation.latitude,
-            longitude: userLocation.longitude,
-            type: "",
-            municipality: "",
-            locality: "",
-            department: "",
-            zone: "",
-            phone: "",
-            hasCoordinates: true
-          }) * 1000;
+          const distanceMeters = getDistanceKm(userLoc, userLocation) * 1000;
 
           // Skip update if movement is insignificant (< 10m)
           if (distanceMeters < 10) {
-            return;
+            shouldUpdate = false;
           }
         }
 
-        // Always find and select the nearest health center when location is obtained
-        // Both search icon and centros button should show nearest center
-        const nearestCenter = mergedCenters
-          .filter((center) => center.latitude && center.longitude)
-          .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-          .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+        if (shouldUpdate) {
+          setUserLocation(userLoc);
+          setGeoStatus("ready");
+          setGeoError("");
+          setLocationMode("nearby");
 
-        if (nearestCenter) {
-          setSelectedCenter(nearestCenter);
-          setActiveFilter("centro");
+          // Always find and select the nearest health center when location is obtained
+          // Both search icon and centros button should show nearest center
+          const nearestCenter = mergedCenters
+            .filter((center) => center.latitude && center.longitude)
+            .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
+            .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+
+          if (nearestCenter) {
+            setSelectedCenter(nearestCenter);
+            setActiveFilter("centro");
+          }
         }
       },
       (error) => {
@@ -355,7 +349,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [mergedCenters, activeFilter, selectedCenter, userLocation]);
+  }, [mergedCenters, activeFilter, selectedCenter]);
 
   useEffect(() => {
     if (!userLocation) return;
