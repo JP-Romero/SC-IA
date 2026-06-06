@@ -318,7 +318,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [mergedCenters]);
+  }, [mergedCenters, activeFilter, selectedCenter]);
 
   useEffect(() => {
     if (!userLocation) return;
