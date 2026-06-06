@@ -99,7 +99,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Cargar overrides y custom centers desde Supabase
   useEffect(() => {
@@ -588,15 +587,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
 
-      {/* ═══════════════ SIDEBAR PANEL - HAMBURGUESA (Collapsible on desktop) ═══════════════ */}
-      {/* Desktop: sidebar absolutamente posicionada con slide; Mobile: se comporta igual que antes */}
-      <div className={`
-        fixed md:absolute top-0 left-0 h-full z-30 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-xl
-        transition-all duration-300 ease-in-out
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        w-full md:w-[380px] lg:w-[420px]
-        ${mobileView === "list" ? "flex" : "hidden md:flex"}
-      `}>
+      {/* ═══════════════ SIDEBAR PANEL (Left side on desktop) ═══════════════ */}
+      <div className={`w-full md:w-[380px] lg:w-[420px] flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20 transition-all duration-300 ${mobileView === "list" ? "h-full flex" : "hidden md:flex md:h-full"}`}>
         
         {/* Header inside Sidebar */}
         <header className="flex justify-between items-center px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800/60 shrink-0">
@@ -914,36 +906,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         </div>
       </div>
 
-      {/* Overlay backdrop when sidebar is open on desktop */}
-      {isSidebarOpen && (
-        <div
-          onClick={() => setIsSidebarOpen(false)}
-          className="fixed md:absolute inset-0 z-20 bg-slate-900/40 backdrop-blur-[2px] md:block hidden"
-        />
-      )}
-
-      {/* ═══════════════ MAP PANEL (takes full width) ═══════════════ */}
+      {/* ═══════════════ MAP PANEL (Right side on desktop) ═══════════════ */}
       <div className={`flex-1 relative z-10 shrink-0 ${mobileView === "map" ? "h-full flex flex-col" : "hidden md:flex md:flex-col md:h-full"}`}>
-        
-        {/* Hamburger toggle button - always visible on desktop over map */}
-        <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="hidden md:flex absolute top-4 left-4 z-30 items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800/80 hover:scale-105 active:scale-95 transition-all"
-          title={isSidebarOpen ? "Cerrar panel" : "Abrir panel de búsqueda"}
-        >
-          {isSidebarOpen ? (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          )}
-        </button>
         <iframe
           ref={iframeRef}
           title={`Mapa de Centros Médicos`}
