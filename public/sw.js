@@ -35,6 +35,51 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Push: Escuchar eventos de push del servidor para background notifications
+self.addEventListener('push', (event) => {
+  let data = { title: 'Salud-Conecta IA', body: 'Tienes una nueva notificación' };
+  
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: '/app-logo-v1.jpg',
+    badge: '/app-logo-v1.jpg',
+    vibrate: [200, 100, 200],
+    data: {
+      url: data.url || '/'
+    }
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+// Notification click: Abrir la app
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clientList) => {
+      const url = event.notification.data.url;
+      for (const client of clientList) {
+        if (client.url === url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(url);
+      }
+    })
+  );
+});
+
 // Fetch: Network first with cache fallback
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
