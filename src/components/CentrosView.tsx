@@ -96,7 +96,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [locationMode, setLocationMode] = useState<"nearby" | "manual">("nearby");
   const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [geoError, setGeoError] = useState("");
-  const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
+  const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia" | "medico">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
@@ -162,7 +162,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         setActiveFilter("farmacia");
         break;
       case "medicos":
-        setActiveFilter("todos");
+        setActiveFilter("medico");
         break;
       default:
         setActiveFilter("todos");
@@ -279,42 +279,36 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           longitude: position.coords.longitude,
           accuracy: position.coords.accuracy,
         };
-        setUserLocation(userLoc);
-        setGeoStatus("ready");
-        setGeoError("");
-        setLocationMode("nearby");
 
         // Debounce location updates to prevent map flickering
         // Only update if location has changed significantly (> 10 meters)
+        let shouldUpdate = true;
         if (userLocation) {
-          const distanceMeters = getDistanceKm(userLoc, {
-            latitude: userLocation.latitude,
-            longitude: userLocation.longitude,
-            type: "",
-            municipality: "",
-            locality: "",
-            department: "",
-            zone: "",
-            phone: "",
-            hasCoordinates: true
-          }) * 1000;
+          const distanceMeters = getDistanceKm(userLoc, userLocation) * 1000;
 
           // Skip update if movement is insignificant (< 10m)
           if (distanceMeters < 10) {
-            return;
+            shouldUpdate = false;
           }
         }
 
-        // Always find and select the nearest health center when location is obtained
-        // Both search icon and centros button should show nearest center
-        const nearestCenter = mergedCenters
-          .filter((center) => center.latitude && center.longitude)
-          .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-          .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+        if (shouldUpdate) {
+          setUserLocation(userLoc);
+          setGeoStatus("ready");
+          setGeoError("");
+          setLocationMode("nearby");
 
-        if (nearestCenter) {
-          setSelectedCenter(nearestCenter);
-          setActiveFilter("centro");
+          // Always find and select the nearest health center when location is obtained
+          // Both search icon and centros button should show nearest center
+          const nearestCenter = mergedCenters
+            .filter((center) => center.latitude && center.longitude)
+            .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
+            .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+
+          if (nearestCenter) {
+            setSelectedCenter(nearestCenter);
+            setActiveFilter("centro");
+          }
         }
       },
       (error) => {
@@ -330,7 +324,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [mergedCenters, activeFilter, selectedCenter, userLocation]);
+  }, [mergedCenters, activeFilter, selectedCenter]);
 
   useEffect(() => {
     if (!userLocation) return;
@@ -405,7 +399,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           ? typeText.includes("centro") || typeText.includes("clinica") || typeText.includes("puesto")
           : activeFilter === "farmacia"
             ? typeText.includes("farmacia") || typeText.includes("botica")
-            : true;
+            : activeFilter === "medico"
+              ? typeText.includes("medico") || typeText.includes("doctor")
+              : true;
 
       return matchesType;
     });
@@ -827,6 +823,26 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 }`}
               >
                 Centros
+              </button>
+              <button
+                onClick={() => setActiveFilter(activeFilter === "farmacia" ? "todos" : "farmacia")}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                  activeFilter === "farmacia"
+                    ? "bg-emerald-600 text-white"
+                    : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                }`}
+              >
+                Farmacias
+              </button>
+              <button
+                onClick={() => setActiveFilter(activeFilter === "medico" ? "todos" : "medico")}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                  activeFilter === "medico"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                }`}
+              >
+                Médicos
               </button>
             </div>
 
