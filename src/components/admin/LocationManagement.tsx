@@ -201,31 +201,6 @@ export default function LocationManagement() {
       {/* ═══ PANEL IZQUIERDO ═══ */}
       <div className="w-full lg:w-[420px] xl:w-[480px] flex flex-col gap-3 shrink-0 lg:h-full">
         
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-2 shrink-0">
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-3 py-2.5 flex items-center justify-between">
-            <div>
-              <p className="text-[9px] font-bold text-slate-400 uppercase">{t('totalCenters')}</p>
-              <p className="text-lg font-black text-slate-800 dark:text-white mt-0">{totalCenters}</p>
-            </div>
-            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><MapPin className="w-3.5 h-3.5" /></div>
-          </div>
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-3 py-2.5 flex items-center justify-between">
-            <div>
-              <p className="text-[9px] font-bold text-emerald-500 uppercase">Con coord.</p>
-              <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-0">{withCoords}</p>
-            </div>
-            <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600"><MapPin className="w-3.5 h-3.5" /></div>
-          </div>
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-3 py-2.5 flex items-center justify-between">
-            <div>
-              <p className="text-[9px] font-bold text-blue-500 uppercase">Ajustados</p>
-              <p className="text-lg font-black text-blue-600 dark:text-blue-400 mt-0">{adjustedCount}</p>
-            </div>
-            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><RotateCcw className="w-3.5 h-3.5" /></div>
-          </div>
-        </div>
-
         {/* Buscador */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
           <div className="p-3">
