@@ -75,12 +75,16 @@ export const subscribeToPushNotifications = async (userId: string) => {
       });
     }
 
+    // Retrieve preference from localStorage
+    const currentPref = localStorage.getItem("notifPreference") || "consejo";
+
     // Save to Supabase
     const { error } = await supabase
       .from('push_subscriptions')
       .upsert({ 
         user_id: userId, 
         subscription: subscription.toJSON(),
+        preferences: currentPref,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' });
 
