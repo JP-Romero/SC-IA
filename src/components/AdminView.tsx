@@ -213,7 +213,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
         </header>
 
         {/* Inner Content Grid */}
-        <main className={`flex-1 bg-slate-50/50 dark:bg-[#0b0f19] ${activeSection === "location" ? "p-0 overflow-hidden h-full" : "p-4 md:p-8 overflow-y-auto"}`}>
+        <main className={`flex-1 flex flex-col min-h-0 bg-slate-50/50 dark:bg-[#0b0f19] ${activeSection === "location" ? "p-0 overflow-hidden" : "p-4 md:p-8 overflow-y-auto"}`}>
           {isLoading ? (
             <div className="flex flex-col items-center py-12">
               <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
