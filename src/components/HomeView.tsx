@@ -181,30 +181,32 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
             </div>
           </motion.button>
 
-          {/* Card 3: Security Shield Badge */}
-          <div className="w-full bg-gradient-to-br from-slate-100 to-slate-200/50 dark:from-slate-900 dark:to-slate-800/90 rounded-[28px] p-5 lg:p-6 border border-slate-200/80 dark:border-slate-700/60 flex flex-row lg:flex-col items-center lg:items-start justify-between lg:justify-start shadow-sm hover:shadow-lg transition-all text-left relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-400/5 dark:bg-slate-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700"></div>
+          {/* Card 3: Tarjeta de Emergencia */}
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => window.location.href = 'tel:128'}
+            className="w-full bg-gradient-to-br from-white to-rose-50/50 dark:from-slate-900 dark:to-slate-800/80 rounded-[28px] p-5 lg:p-6 border border-rose-200/80 dark:border-rose-900/40 flex flex-row lg:flex-col items-center lg:items-start justify-between lg:justify-start shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all text-left group relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 dark:bg-rose-400/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700"></div>
             <div className="flex flex-row lg:flex-col items-center lg:items-start gap-4 lg:gap-5 w-full relative z-10">
-              {/* Shield Icon Box */}
-              <div className="w-[50px] h-[50px] lg:w-[64px] lg:h-[64px] rounded-full lg:rounded-[20px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 text-slate-700 dark:text-slate-300 group-hover:scale-110 transition-transform duration-300 shadow-sm">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px] lg:w-[28px] lg:h-[28px]">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="currentColor" className="fill-slate-600/10 dark:fill-slate-400/10" />
-                  <polyline points="9 11 12 14 22 4" strokeWidth="2.5" />
+              {/* Icon box light rose */}
+              <div className="w-[56px] h-[56px] lg:w-[64px] lg:h-[64px] rounded-[20px] bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/40 dark:to-rose-800/40 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform duration-300 shadow-sm border border-rose-100 dark:border-rose-800/50">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-[26px] h-[26px] lg:w-[30px] lg:h-[30px]">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                 </svg>
               </div>
               <div className="flex-1 lg:w-full">
-                <h4 className="font-bold text-slate-900 dark:text-white text-[14px] lg:text-[17px] leading-tight">{t('infoProtected')}</h4>
-                <p className="text-slate-500 dark:text-slate-400 text-[12.5px] lg:text-[14px] font-normal mt-1 lg:mt-2 lg:min-h-[44px] leading-relaxed">{t('privacyFirst')}</p>
+                <h3 className="font-bold text-slate-900 dark:text-white text-[16px] lg:text-[18px] tracking-tight">{t('emergencyCard')}</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-[13px] lg:text-[14px] font-normal mt-1 lg:mt-2 lg:min-h-[44px] leading-relaxed">Llama rápidamente a los servicios de emergencia (128).</p>
               </div>
             </div>
-            {/* Padlock indicator */}
-            <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center text-slate-500 dark:text-slate-400 shrink-0 lg:absolute lg:bottom-6 lg:right-6 lg:opacity-30 group-hover:opacity-100 transition-opacity duration-300">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-[16px] h-[16px]">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            {/* Arrow key box */}
+            <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-800/60 flex items-center justify-center text-rose-700 dark:text-rose-300 shrink-0 lg:absolute lg:bottom-6 lg:right-6 lg:opacity-0 lg:-translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 shadow-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[16px] h-[16px]">
+                <polyline points="9 18 15 12 9 6" />
               </svg>
             </div>
-          </div>
+          </motion.button>
 
         </div>
 
