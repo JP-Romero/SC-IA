@@ -128,10 +128,6 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
       </div>
 
       <div className="flex flex-col items-center gap-2 text-center">
-        <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider">
-          <ShieldCheck className="w-4 h-4" />
-          <span>{t("authorizedOnly")}</span>
-        </div>
         <p className="text-[10px] text-slate-400 max-w-[200px] leading-tight">
           {t("qrDisclaimer")}
         </p>
