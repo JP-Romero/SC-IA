@@ -1472,13 +1472,3 @@ export default function App() {
     </div>
   );
 }
-do
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
