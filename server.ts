@@ -4,6 +4,9 @@ import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
+import helmet from "helmet";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 
@@ -26,12 +29,32 @@ function getGeminiClient() {
   return aiClient;
 }
 
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit each IP to 50 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: { error: "Demasiadas solicitudes desde esta IP, por favor intente nuevamente después de 15 minutos." }
+});
+
 async function startServer() {
   const app = express();
-  app.use(express.json());
+  
+  // Security middlewares
+  app.use(helmet({
+    contentSecurityPolicy: false, // Disabling CSP for Vite dev server compatibility if needed, or configure properly
+    crossOriginEmbedderPolicy: false
+  }));
+  app.use(cors({
+    origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL || "*" : "*",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  }));
+  
+  app.use(express.json({ limit: "500kb" })); // Limit payload size to prevent DOS
 
   // API router setup - Triage / Chat IA endpoint
-  app.post("/api/chat", async (req: Request, res: Response) => {
+  app.post("/api/chat", apiLimiter, async (req: Request, res: Response) => {
     try {
       const { message, history, userProfile } = req.body;
       if (!message) {

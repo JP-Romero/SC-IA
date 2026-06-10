@@ -1,13 +1,13 @@
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
 
-  // Allow CORS just in case
+  const allowedOrigin = process.env.FRONTEND_URL || "*"; // En producción debe configurarse FRONTEND_URL
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
   );
 
   if (req.method === "OPTIONS") {

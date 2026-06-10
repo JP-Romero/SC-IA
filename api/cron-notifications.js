@@ -33,6 +33,12 @@ const RECORDATORIOS = [
 ];
 
 export default async function handler(req, res) {
+  // Verificación de seguridad para evitar ejecuciones no autorizadas
+  const authHeader = req.headers.authorization;
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   if (!supabase || !publicKey || !privateKey) {
     return res.status(500).json({ error: 'Configuración de base de datos o Web Push faltante.' });
   }
