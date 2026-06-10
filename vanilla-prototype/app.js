@@ -321,4 +321,30 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Redirigiendo a la pantalla de Inicio de Sesión...');
         });
     });
+
+    // ==========================================================================
+    // 4. ANIMACIÓN DE REBOTE (BOUNCING) AL HACER SCROLL EN DETALLES ESTÉTICOS
+    // ==========================================================================
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+        // Seleccionamos solo elementos estéticos: blobs del fondo, el badge y los iconos de las características
+        const aestheticElements = document.querySelectorAll('.blob-bounce-container, .badge, .feature-icon');
+        
+        aestheticElements.forEach(el => {
+            // Añadir clase de animación de rebote si no la tiene
+            if (!el.classList.contains('scroll-bounce')) {
+                el.classList.add('scroll-bounce');
+            }
+        });
+
+        // Limpiar el temporizador para retrasar la remoción de la clase hasta que se detenga el scroll
+        clearTimeout(scrollTimeout);
+        
+        // Espera a que termine la animación (800ms) después de detener el scroll para retirar la clase
+        scrollTimeout = setTimeout(() => {
+            aestheticElements.forEach(el => {
+                el.classList.remove('scroll-bounce');
+            });
+        }, 800);
+    });
 });

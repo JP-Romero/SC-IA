@@ -220,6 +220,42 @@ body {
     }
 }
 
+/* Contenedor del Bounce para los Blobs en Scroll */
+.blob-bounce-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Animación de rebote (bounce) reactiva al scroll, aplicada a los detalles estéticos */
+.scroll-bounce {
+    animation: bounce-effect 0.8s cubic-bezier(0.28, 0.84, 0.42, 1.1) both;
+}
+
+@keyframes bounce-effect {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    15% {
+        transform: translateY(-16px) scale(1.02); /* Salto vertical inicial */
+    }
+    35% {
+        transform: translateY(10px) scale(0.98); /* Rebote hacia abajo */
+    }
+    55% {
+        transform: translateY(-6px) scale(1.01); /* Rebote medio hacia arriba */
+    }
+    75% {
+        transform: translateY(3px) scale(0.995); /* Rebote corto hacia abajo */
+    }
+    90% {
+        transform: translateY(-1px) scale(1);
+    }
+}
+
 /* Blobs Decorativos del Fondo */
 .decorative-blob {
     position: absolute;
