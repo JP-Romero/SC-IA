@@ -261,7 +261,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         const offlineResponse = getOfflineTriageResponse(userText, user);
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
-          text: `(Modo Sin Conexión) 📴\n\n${offlineResponse}`,
+          text: offlineResponse,
           sender: "bot",
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
@@ -293,7 +293,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         const offlineResponse = getOfflineTriageResponse(userText, user);
         const errorMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
-          text: `⚠️ Fallo de conexión con el servidor. Usando base de datos local:\n\n${offlineResponse}`,
+          text: offlineResponse,
           sender: "bot",
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
@@ -326,7 +326,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       const offlineResponse = getOfflineTriageResponse(userText, user);
       const errorMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: `⚠️ Error de red. Usando base de datos local:\n\n${offlineResponse}`,
+        text: offlineResponse,
         sender: "bot",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
