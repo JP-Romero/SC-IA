@@ -1,9 +1,9 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// MOTOR DE TRIAJE EN IDIOMA MISKITO
+// MOTOR DE TRIAJE EN IDIOMA MISKITO (OPTIMIZADO)
 // ═══════════════════════════════════════════════════════════════════════════════
 // Este motor se activa EXCLUSIVAMENTE cuando language === 'mi' (Miskito).
-// Cuando está activo, la app NO llama a la API de IA — usa la base de datos
-// local miskitoTriageDatabase.ts para generar respuestas completamente en Miskito.
+// Ha sido optimizado con pre-cálculo y caché de palabras normalizadas para
+// que la búsqueda sea O(n) y responda instantáneamente en la app.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { MISKITO_TRIAGE_DATABASE, MiskitoTriageRecord } from "../data/miskitoTriageDatabase";
@@ -11,86 +11,103 @@ import { UserProfile } from "../types";
 
 /**
  * Normaliza un string removiendo acentos y convirtiendo a minúsculas.
- * Miskito usa caracteres especiales como î, pero la normalización
- * permite matching más flexible.
  */
 function normalize(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
 /**
- * Stop words en Miskito — palabras muy comunes que no aportan
- * significado clínico para el matching de síntomas.
+ * Stop words extendidas en Miskito y español/inglés mezclado.
  */
 const MISKITO_STOP_WORDS = new Set([
-  // Pronombres y artículos
+  // Miskito
   "yang", "man", "witin", "yawan", "nani", "ba", "ra", "wal",
   "wina", "kata", "sa", "kan", "kum", "kumi", "baha", "naha",
-  // Verbos auxiliares comunes
   "brisna", "brisa", "brisma", "brin", "daukisna", "daukisa",
   "lukisna", "lukisa", "takisa", "sna", "sma",
-  // Adverbios y preposiciones comunes
   "pali", "tara", "sampi", "pain", "saura", "ailal",
-  // Palabras de conexión
   "bara", "kaka", "dukiara", "baku", "sin", "kli",
-  // Español mezclado común en conversación
+  // Español
   "tengo", "me", "duele", "siento", "estoy", "muy", "mucho",
-  "que", "con", "por", "para", "una", "los", "las",
-  // Inglés común
-  "have", "feel", "lot", "very", "the", "and"
+  "que", "con", "por", "para", "una", "los", "las", "el", "la",
+  // Inglés
+  "have", "feel", "lot", "very", "the", "and", "with"
 ]);
 
+// ─── CACHÉ DE PRE-PROCESAMIENTO PARA OPTIMIZACIÓN O(n) ───
+interface PreProcessedRecord extends MiskitoTriageRecord {
+  normSymptoms: string[];
+  normKeywords: string[];
+  symptomWordsList: string[];
+}
+
+let cachedDatabase: PreProcessedRecord[] | null = null;
+
+function getOptimizedDatabase(): PreProcessedRecord[] {
+  if (!cachedDatabase) {
+    cachedDatabase = MISKITO_TRIAGE_DATABASE.map(record => ({
+      ...record,
+      normSymptoms: record.symptoms.map(normalize),
+      normKeywords: record.keywords.map(normalize),
+      symptomWordsList: record.symptoms.flatMap(s => 
+        normalize(s).split(/\W+/).filter(w => w.length > 2)
+      )
+    }));
+  }
+  return cachedDatabase;
+}
+
 /**
- * Motor principal de triaje en Miskito.
- * Analiza el texto del usuario, busca coincidencias en la base de datos
- * de triaje Miskito, y genera una respuesta completa en idioma Miskito.
+ * Motor principal de triaje en Miskito (Ultra rápido)
  */
 export function getMiskitoTriageResponse(query: string, userProfile: UserProfile): string {
   const normalizedQuery = normalize(query);
-  const words = normalizedQuery
+  let words = normalizedQuery
     .split(/\W+/)
     .filter(w => w.length > 2 && !MISKITO_STOP_WORDS.has(w));
 
-  // Si después de filtrar stop words no quedan palabras, usar palabras más largas
+  // Fallback si todas las palabras eran stop-words
   if (words.length === 0) {
-    words.push(...normalizedQuery.split(/\W+/).filter(w => w.length > 3));
+    words = normalizedQuery.split(/\W+/).filter(w => w.length > 3);
   }
 
-  let bestMatch: MiskitoTriageRecord | null = null;
+  const database = getOptimizedDatabase();
+  let bestMatch: PreProcessedRecord | null = null;
   let maxScore = 0;
 
-  for (const record of MISKITO_TRIAGE_DATABASE) {
+  // Búsqueda lineal O(n) sobre base pre-calculada
+  for (let i = 0; i < database.length; i++) {
+    const record = database[i];
     let score = 0;
 
-    // Match por síntomas completos (peso alto)
-    for (const symptom of record.symptoms) {
-      if (normalizedQuery.includes(normalize(symptom))) {
-        score += 12;
+    // 1. Match Exacto de Síntoma (15 pts)
+    for (let j = 0; j < record.normSymptoms.length; j++) {
+      if (normalizedQuery.includes(record.normSymptoms[j])) {
+        score += 15;
       }
     }
 
-    // Match por palabras clave individuales
-    for (const word of words) {
-      for (const keyword of record.keywords) {
-        const normKey = normalize(keyword);
+    // 2. Match de Palabras Clave
+    for (let w = 0; w < words.length; w++) {
+      const word = words[w];
+      
+      // Keywords directos
+      for (let k = 0; k < record.normKeywords.length; k++) {
+        const normKey = record.normKeywords[k];
         if (normKey === word) {
-          score += 6; // Match exacto
+          score += 8; // Match exacto de keyword
         } else if (normKey.includes(word) || word.includes(normKey)) {
-          score += 3; // Match parcial
+          score += 3; // Substring
         }
       }
-    }
 
-    // Match por síntomas parciales (palabras individuales del síntoma)
-    for (const symptom of record.symptoms) {
-      const symptomWords = normalize(symptom).split(/\W+/).filter(w => w.length > 2);
-      for (const word of words) {
-        for (const sw of symptomWords) {
-          if (sw === word) {
-            score += 4;
-          } else if (sw.includes(word) || word.includes(sw)) {
-            score += 1;
-          }
+      // Palabras sueltas dentro de los síntomas
+      for (let sw = 0; sw < record.symptomWordsList.length; sw++) {
+        const symptomWord = record.symptomWordsList[sw];
+        if (symptomWord === word) {
+          score += 5; // Palabra clave dentro del síntoma
+        } else if (symptomWord.includes(word) || word.includes(symptomWord)) {
+          score += 2;
         }
       }
     }
@@ -101,8 +118,8 @@ export function getMiskitoTriageResponse(query: string, userProfile: UserProfile
     }
   }
 
-  // Si no hay coincidencia suficiente, dar respuesta genérica en Miskito
-  if (!bestMatch || maxScore < 2) {
+  // Threshold: mínimo 4 puntos para considerarse un match real
+  if (!bestMatch || maxScore < 4) {
     return formatNoMatchResponse(query);
   }
 
@@ -110,10 +127,9 @@ export function getMiskitoTriageResponse(query: string, userProfile: UserProfile
 }
 
 /**
- * Formatea la respuesta cuando se encontró una coincidencia en la base de datos.
+ * Formateo de respuesta positiva
  */
 function formatMatchedResponse(record: MiskitoTriageRecord): string {
-  // Determinar emoji y texto de severidad en Miskito
   let severityEmoji = "🟢 Sampi";
   let severityText = "Rutina — duktur ra waia sip sa taim brisma kaka";
   if (record.severity === "emergencia") {
@@ -127,27 +143,20 @@ function formatMatchedResponse(record: MiskitoTriageRecord): string {
   let response = `Prioridad nivel: ${severityEmoji}\n`;
   response += `${severityText}\n\n`;
 
-  // Evaluación inicial
   response += `🔍 EVALUACIÓN PAS (Kaikanka Pas)\n`;
   response += `Siknis kaikanka ba **${record.symptoms[0]}** wal prukisa. `;
   response += `Naha siknis nani lakara sip sa: ${record.possibleCauses.join(", ")}.\n\n`;
 
-  // Recomendaciones
   response += `✅ REKOMENDASHON NANI (Nahki daukaia)\n`;
   response += record.recommendations.map(r => `🔹 ${r}`).join("\n") + "\n";
 
-  // Señales de alarma
   if (record.warningSigns.length > 0) {
     response += `\n⚠️ ALART SEÑAL NANI (Kaiki kaia sa)\n`;
     response += record.warningSigns.map(w => `🚨 ${w}`).join("\n") + "\n";
   }
 
-  response += "\n";
+  response += `\n⚠️ Naha ba informeshan baman sa — duktur evaluación ba remplais munras.\n\n`;
 
-  // Disclaimer en Miskito
-  response += `⚠️ Naha ba informeshan baman sa — duktur evaluación ba remplais munras.\n\n`;
-
-  // Centros de referencia
   response += `SIKNIS WATLA NANI GRANADA RA:\n`;
   response += `🏥 Hospital Bautista (hospital general — 24h kan)\n`;
   response += `🏥 Centro de Salud Sócrates Flores (siknis sampi nani dukiara — 8:00 p.m. kat)\n`;
@@ -158,7 +167,7 @@ function formatMatchedResponse(record: MiskitoTriageRecord): string {
 }
 
 /**
- * Respuesta genérica cuando no se encuentra coincidencia — en Miskito.
+ * Formateo de respuesta sin resultados
  */
 function formatNoMatchResponse(query: string): string {
   return `Prioridad nivel: 🟡 Urgencia sampi\n\n` +
