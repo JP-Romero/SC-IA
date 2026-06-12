@@ -84,7 +84,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     setNotifPreference(newPrefs);
     const prefString = newPrefs.join(",");
     localStorage.setItem("notifPreference", prefString);
-    
+
     // Actualizar en la base de datos si el usuario está logueado
     if (user.id && user.id !== "guest") {
       try {
@@ -119,7 +119,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
   const handleAvatarClick = () => {
     if (user.id === "guest" || !user.id) {
-      alert("Los usuarios invitados no pueden cambiar su foto de perfil.");
+      alert(t('guestAvatarAlert'));
       return;
     }
     fileInputRef.current?.click();
@@ -140,11 +140,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         });
         await refreshProfile();
       } else {
-        alert(result.error || "Error al subir la imagen.");
+        alert(result.error || t('avatarUploadError'));
       }
     } catch (err) {
       console.error("Error upload avatar:", err);
-      alert("Ocurrió un error inesperado al subir el avatar.");
+      alert(t('avatarUnexpectedError'));
     } finally {
       setIsUploading(false);
     }
@@ -204,7 +204,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const downloadQRCode = () => {
     import("jspdf").then(({ default: jsPDF }) => {
       const doc = new jsPDF();
-      
+
       // Colores de la app (Paleta Profesional)
       const primaryColor = [30, 58, 138]; // slate-blue darker
       const secondaryColor = [13, 148, 136]; // text-teal-600
@@ -219,11 +219,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         // Fondo blanco
         pageDoc.setFillColor(bgPage[0], bgPage[1], bgPage[2]);
         pageDoc.rect(0, 0, 210, 297, 'F');
-        
+
         // Header (Banner principal azul oscuro)
         pageDoc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         pageDoc.rect(0, 0, 210, 35, 'F');
-        
+
         // Línea acento teal
         pageDoc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
         pageDoc.rect(0, 35, 210, 2, 'F');
@@ -242,21 +242,21 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       };
 
       drawBackground(doc);
-      
+
       // Título en el Header
       doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(255, 255, 255);
-      doc.text("Tarjeta de Emergencia Médica", 15, 20);
-      
+      doc.text(t('pdfMedicalCard'), 15, 20);
+
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(200, 215, 255);
-      doc.text("Resumen Clínico Confidencial", 15, 28);
+      doc.text(t('pdfConfidential'), 15, 28);
 
       // --- Info del paciente (General) ---
       let yPos = 55;
-      
+
       // Rectángulo contenedor para Información Personal
       doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
       doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'F');
@@ -272,36 +272,36 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(10);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
-      doc.text("Paciente:", 20, yPos);
+      doc.text(t('pdfPatient'), 20, yPos);
       doc.setFont("helvetica", "normal");
       doc.text(`${user.name}`, 40, yPos);
 
       doc.setFont("helvetica", "bold");
-      doc.text("Cédula:", 110, yPos);
+      doc.text(t('idCard').replace(" de Identidad", "") + ":", 110, yPos);
       doc.setFont("helvetica", "normal");
       doc.text(`${localMedicalData.cedula || "No registrada"}`, 130, yPos);
       yPos += 7;
-      
+
       doc.setFont("helvetica", "bold");
-      doc.text("Sangre:", 20, yPos);
+      doc.text(t('pdfBlood'), 20, yPos);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(225, 29, 72); // rose-600 para sangre
       doc.text(`${localMedicalData.tipoSangre || editBloodType || user.bloodType || "No espec."}`, 40, yPos);
-      
+
       doc.setFont("helvetica", "bold");
       doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
-      doc.text("Contacto Emer.:", 110, yPos);
+      doc.text(t('pdfEmergContact'), 110, yPos);
       doc.setFont("helvetica", "normal");
       doc.text(`${localMedicalData.contactoEmergencia || user.emergencyPhone || "+505 8888-9999"}`, 140, yPos);
       yPos += 7;
 
       doc.setFont("helvetica", "bold");
-      doc.text("Peso:", 20, yPos);
+      doc.text(t('pdfWeight'), 20, yPos);
       doc.setFont("helvetica", "normal");
       doc.text(`${localMedicalData.peso ? localMedicalData.peso + ' kg' : 'No reg.'}`, 40, yPos);
-      
+
       doc.setFont("helvetica", "bold");
-      doc.text("Altura:", 110, yPos);
+      doc.text(t('pdfHeight'), 110, yPos);
       doc.setFont("helvetica", "normal");
       doc.text(`${localMedicalData.altura ? localMedicalData.altura + ' cm' : 'No reg.'}`, 130, yPos);
       yPos += 18;
@@ -310,11 +310,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-      doc.text("Datos Médicos Especializados", 15, yPos);
+      doc.text(t('pdfSpecializedData'), 15, yPos);
       yPos += 8;
 
       doc.setFontSize(10);
-      
+
       const renderMedicalItem = (label: string, value: string) => {
         // Cuadro para el item
         doc.setFillColor(255, 255, 255);
@@ -325,25 +325,25 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.setFont("helvetica", "bold");
         doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
         doc.text(`${label}:`, 20, yPos + 2);
-        
+
         doc.setFont("helvetica", "normal");
         doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
-        
+
         // Manejar texto largo
         const splitText = doc.splitTextToSize(value || "Ninguno registrado", 120);
         doc.text(splitText, 60, yPos + 2);
         yPos += (splitText.length * 5) + 8;
       };
 
-      renderMedicalItem("Enfermedades", localMedicalData.enfermedades);
-      renderMedicalItem("Alergias", localMedicalData.alergias);
-      renderMedicalItem("Tratamientos", localMedicalData.tratamientos);
-      renderMedicalItem("Pastillas", localMedicalData.pastillas);
-      renderMedicalItem("Vacunas", localMedicalData.vacunas);
+      renderMedicalItem(t('pdfDiseases'), localMedicalData.enfermedades);
+      renderMedicalItem(t('pdfAllergies'), localMedicalData.alergias);
+      renderMedicalItem(t('pdfTreatments'), localMedicalData.tratamientos);
+      renderMedicalItem(t('pdfPills'), localMedicalData.pastillas);
+      renderMedicalItem(t('pdfVaccines'), localMedicalData.vacunas);
 
       // Condiciones de salud
       if (user.healthConditions && user.healthConditions.length > 0) {
-        renderMedicalItem("Otras cond.", user.healthConditions.join(", "));
+        renderMedicalItem(t('pdfOtherCond'), user.healthConditions.join(", "));
       }
 
       // --- QR Code ---
@@ -363,16 +363,16 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text("Código QR de Emergencia", 85, yPos + 15);
-      
+      doc.text(t('pdfQrTitle'), 85, yPos + 15);
+
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
-      doc.text("Escanea este código para ver el perfil completo.", 85, yPos + 22);
-      
+      doc.text(t('pdfQrDesc'), 85, yPos + 22);
+
       doc.setFontSize(8);
       doc.setTextColor(225, 29, 72); // rose
-      doc.text("En caso de emergencia, contactar inmediatamente a los familiares.", 85, yPos + 38);
+      doc.text(t('pdfQrFooter'), 85, yPos + 38);
 
       const svg = qrRef.current?.querySelector("svg");
       if (svg) {
@@ -380,7 +380,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         const img = new Image();
-        
+
         img.onload = () => {
           canvas.width = 512;
           canvas.height = 512;
@@ -392,7 +392,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           const pngData = canvas.toDataURL("image/png");
           // QR dentro de su caja
           doc.addImage(pngData, 'PNG', 25, yPos + 5, 40, 40);
-          
+
           doc.save(`Info-Emergencia-${user.name}.pdf`);
         };
         img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
@@ -468,10 +468,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               <div className="absolute inset-[-1.75rem] sm:inset-[-3rem] rounded-full border border-blue-200/60 dark:border-blue-900/40"></div>
               <div className="absolute inset-[-1.1rem] sm:inset-[-2rem] rounded-full border border-blue-200/60 dark:border-blue-900/40"></div>
               <div className="absolute inset-[-0.55rem] sm:inset-[-1rem] rounded-full border border-blue-200/70 dark:border-blue-900/40"></div>
-              <div 
+              <div
                 onClick={handleAvatarClick}
                 className={`w-32 h-32 sm:w-56 sm:h-56 rounded-full p-1.5 sm:p-2.5 bg-gradient-to-tr from-blue-700 via-blue-500 to-cyan-300 shadow-[0_18px_36px_rgba(37,99,235,0.22)] sm:shadow-[0_26px_50px_rgba(37,99,235,0.28)] relative cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-95 active:opacity-85 ${user.id === "guest" ? "cursor-not-allowed opacity-90 hover:scale-100 active:scale-100 active:opacity-90" : ""}`}
-                title={user.id === "guest" ? "No disponible para invitados" : t('changePhoto')}
+                title={user.id === "guest" ? t('guestAvatarTitle') : t('changePhoto')}
               >
                 {user.avatarUrl ? (
                   <img
@@ -513,7 +513,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   className="hidden"
                 />
               )}
-              
+
               <span className="absolute bottom-2.5 right-2 sm:bottom-6 sm:right-4 w-7 h-7 sm:w-11 sm:h-11 bg-emerald-400 border-[5px] sm:border-[7px] border-white dark:border-slate-950 rounded-full shadow-lg"></span>
 
               {/* Small floating Camera/Pencil Button in bottom-right corner */}
@@ -664,8 +664,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               },
               {
                 id: "datos_medicos",
-                title: "Datos Médicos",
-                subtitle: "Información clínica especializada",
+                title: t('medicalData'),
+                subtitle: t('medicalDataSubtitle'),
                 icon: Activity,
                 color: "text-teal-600 bg-teal-50 border border-teal-100",
               },
@@ -748,7 +748,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
-                                    <Globe className="w-3 h-3" /> País
+                                    <Globe className="w-3 h-3" /> {t('country')}
                                   </label>
                                   <input
                                     type="text"
@@ -778,7 +778,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
                               >
                                 <Save className="w-3.5 h-3.5" />
-                                {t('saveProfileChanges' as any)}
+                                {t('saveProfileChanges')}
                               </button>
                             </form>
                           )}
@@ -787,21 +787,21 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                           {item.id === "seguridad" && (
                             <div className="space-y-3 text-left">
                               <p className="text-slate-500 dark:text-slate-400 leading-normal text-[13px]">
-                                Configuración de seguridad y acceso a la cuenta.
+                                {t('securityConfigDesc')}
                               </p>
                               <div className="flex flex-col gap-3 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
                                 <div className="flex items-center gap-3">
                                   <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center p-2">
                                     <svg viewBox="0 0 24 24" className="w-full h-full">
-                                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                                     </svg>
                                   </div>
                                   <div className="flex-1">
-                                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">Cuenta de Google</h4>
-                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Has iniciado sesión con tu cuenta de Google</p>
+                                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">{t('googleAccount')}</h4>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{t('googleAccountDesc')}</p>
                                   </div>
                                 </div>
                               </div>
@@ -811,21 +811,20 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                           {/* Nested alert notifications checker options */}
                           {item.id === "notificaciones" && (
                             <div className="space-y-2.5 text-left">
-                              <p className="text-[11px] text-slate-500 mb-2">Selecciona qué tipo de notificaciones deseas recibir:</p>
+                              <p className="text-[11px] text-slate-500 mb-2">{t('notifSelectDesc')}</p>
                               {[
-                                { value: "consejo", label: "Consejo del día", desc: "Tips diarios para mejorar tu salud" },
-                                { value: "recordatorio", label: "Recordatorios", desc: "Avisos sobre tu estado de salud y citas" },
-                                { value: "ninguna", label: "Silenciar ambas", desc: "No recibir notificaciones push" },
+                                { value: "consejo", label: t('notifTip'), desc: t('notifTipDesc') },
+                                { value: "recordatorio", label: t('notifReminder'), desc: t('notifReminderDesc') },
+                                { value: "ninguna", label: t('notifMute'), desc: t('notifMuteDesc') },
                               ].map((opt) => {
                                 const isSelected = notifPreference.includes(opt.value);
                                 return (
                                   <div
                                     key={opt.value}
-                                    className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-colors ${
-                                      isSelected 
-                                        ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' 
+                                    className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-colors ${isSelected
+                                        ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
                                         : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50'
-                                    }`}
+                                      }`}
                                     onClick={() => handleNotifChange(opt.value)}
                                   >
                                     <div className="flex-1 min-w-0 mr-3">
@@ -834,9 +833,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                       </span>
                                       <span className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">{opt.desc}</span>
                                     </div>
-                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                                      isSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-300 dark:border-slate-600'
-                                    }`}>
+                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-300 dark:border-slate-600'
+                                      }`}>
                                       {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
                                     </div>
                                   </div>
@@ -851,38 +849,38 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Enfermedades que padece
+                                    {t('diseases')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.enfermedades}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, enfermedades: e.target.value})}
-                                    placeholder="Ej: Diabetes, Hipertensión"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, enfermedades: e.target.value })}
+                                    placeholder={t('diseasesPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Alergias
+                                    {t('allergies')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.alergias}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, alergias: e.target.value})}
-                                    placeholder="Ej: Penicilina, Nueces"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, alergias: e.target.value })}
+                                    placeholder={t('allergiesPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Tipo de Sangre
+                                    {t('bloodType')}
                                   </label>
                                   <select
                                     value={localMedicalData.tipoSangre}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, tipoSangre: e.target.value})}
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, tipoSangre: e.target.value })}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   >
-                                    <option value="">Seleccione...</option>
+                                    <option value="">{t('selectOption')}</option>
                                     <option value="A+">A+</option>
                                     <option value="A-">A-</option>
                                     <option value="B+">B+</option>
@@ -895,84 +893,84 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Tratamientos actuales
+                                    {t('currentTreatments')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.tratamientos}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, tratamientos: e.target.value})}
-                                    placeholder="Ej: Fisioterapia"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, tratamientos: e.target.value })}
+                                    placeholder={t('treatmentsPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Pastillas que toma
+                                    {t('pills')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.pastillas}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, pastillas: e.target.value})}
-                                    placeholder="Ej: Losartán 50mg"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, pastillas: e.target.value })}
+                                    placeholder={t('pillsPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Vacunas aplicadas
+                                    {t('vaccines')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.vacunas}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, vacunas: e.target.value})}
-                                    placeholder="Ej: COVID-19, Tétanos"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, vacunas: e.target.value })}
+                                    placeholder={t('vaccinesPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Peso (kg)
+                                    {t('weight')}
                                   </label>
                                   <input
                                     type="number"
                                     value={localMedicalData.peso}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, peso: e.target.value})}
-                                    placeholder="Ej: 70"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, peso: e.target.value })}
+                                    placeholder={t('weightPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Altura (cm)
+                                    {t('height')}
                                   </label>
                                   <input
                                     type="number"
                                     value={localMedicalData.altura}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, altura: e.target.value})}
-                                    placeholder="Ej: 175"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, altura: e.target.value })}
+                                    placeholder={t('heightPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Cédula de Identidad
+                                    {t('idCard')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.cedula}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, cedula: e.target.value})}
-                                    placeholder="000-000000-0000A"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, cedula: e.target.value })}
+                                    placeholder={t('idCardPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Contacto de Emergencia
+                                    {t('emergencyPhone')}
                                   </label>
                                   <input
                                     type="tel"
                                     value={localMedicalData.contactoEmergencia}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, contactoEmergencia: e.target.value})}
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, contactoEmergencia: e.target.value })}
                                     placeholder="+505 0000-0000"
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
@@ -984,7 +982,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 className="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
                               >
                                 <Save className="w-3.5 h-3.5" />
-                                Guardar Datos Médicos
+                                {t('saveMedicalData')}
                               </button>
                             </form>
                           )}
