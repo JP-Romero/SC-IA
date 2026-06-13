@@ -62,7 +62,7 @@
   animation: spin-slow 8s linear infinite;
 }
 
-/* Custom scrollbar representing premium aesthetics */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -78,7 +78,7 @@
   background: rgba(148, 163, 184, 0.5);
 }
 
-/* Additional utility for background glassmorphism */
+
 .glassmorphism {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
@@ -90,7 +90,7 @@
   -webkit-backdrop-filter: blur(12px);
 }
 
-/* Hide scrollbar for horizontal scroll areas */
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

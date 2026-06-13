@@ -1,6 +1,6 @@
-// @ts-ignore: Falta @types/react en este entorno
+
 import React, { useState } from "react";
-// @ts-ignore: Falta @types/react en este entorno
+
 import type { ReactNode } from "react";
 import { Search, Pill, Stethoscope, Star, Calendar, Clock, MapPin, ChevronRight, CheckCircle, Navigation, BadgeAlert, Sparkles, Filter, X, MessageCircle } from "lucide-react";
 import { Doctor, Pharmacy, Appointment } from "../types";
@@ -18,22 +18,22 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"farmacias" | "medicos">("medicos");
 
-  // Search state for Doctors
+  
   const [specQuery, setSpecQuery] = useState("");
   const [docCityQuery, setDocCityQuery] = useState("Granada");
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>("Cardiología");
 
-  // Search state for Pharmacies
+  
   const [drugQuery, setDrugQuery] = useState("Paracetamol 500 mg");
   const [pharmCityQuery, setPharmCityQuery] = useState("Granada");
 
-  // Booking system state
+  
   const [bookingDoctor, setBookingDoctor] = useState<Doctor | null>(null);
   const [bookingDate, setBookingDate] = useState("2026-06-05");
   const [bookingTime, setBookingTime] = useState("09:00 AM");
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
-  // Popular specialties list
+  
   const POPULAR_SPECIALTIES = [
     { id: "Cardiología", label: "Cardiología", icon: "💙" },
     { id: "Dermatología", label: "Dermatología", icon: "🧴" },
@@ -42,7 +42,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
     { id: "Traumatología", label: "Traumatología", icon: "🦴" },
   ];
 
-  // Filtering doctors
+  
   const filteredDoctors = DOCTORS.filter((doc) => {
     const matchesSpec = specQuery
       ? doc.specialty.toLowerCase().includes(specQuery.toLowerCase())
@@ -50,7 +50,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
     return matchesSpec;
   });
 
-  // Filtering pharmacies
+  
   const filteredPharmacies = PHARMACIES.filter((pharm) => {
     const matchesDrug = drugQuery
       ? pharm.medsAvailable.some((med) => med.toLowerCase().includes(drugQuery.toLowerCase()))
@@ -78,7 +78,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
 
   return (
     <div className="flex flex-col min-h-dvh bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-      {/* Header */}
+      {}
       <header className="flex flex-col px-6 py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50 dark:border-slate-800">
         <div className="flex justify-between items-center w-full max-w-6xl mx-auto">
           <div
@@ -97,7 +97,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
           <span className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold px-3 py-1 rounded-full border border-blue-100 dark:border-blue-900/50">{t('searchTitle')}</span>
         </div>
 
-        {/* Dynamic Dual Tab PWA switch */}
+        {}
         <div className="mt-4 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center relative gap-1 md:max-w-md md:mx-auto md:w-full">
           <button
             id="tab-search-pharmacies"
@@ -120,9 +120,9 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
         </div>
       </header>
 
-      {/* Main Container */}
+      {}
       <main className="flex-1 px-6 pt-5 max-w-6xl mx-auto w-full">
-        {/* DOCTORS SCREEN VIEW */}
+        {}
         <AnimatePresence mode="wait">
           {activeTab === "medicos" && (
             <motion.div
@@ -132,11 +132,11 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               transition={{ duration: 0.2 }}
               className="space-y-6"
             >
-              {/* Card Finder Form */}
+              {}
               <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
                 <h3 className="font-display font-semibold text-slate-800 dark:text-slate-200 text-sm">{t('searchDoctors')}</h3>
 
-                {/* Specialties picker input field */}
+                {}
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('specialty')}</label>
                   <div className="relative">
@@ -152,7 +152,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   </div>
                 </div>
 
-                {/* Locality Input */}
+                {}
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('location')}</label>
                   <div className="relative">
@@ -168,7 +168,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   </div>
                 </div>
 
-                {/* Submit trigger button */}
+                {}
                 <button
                   id="btn-doctor-run-search"
                   className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 py-3.5 px-4 rounded-2xl text-white font-bold text-xs tracking-wide shadow-md shadow-blue-500/10 flex items-center justify-center space-x-2 transition-all mt-2"
@@ -178,7 +178,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                 </button>
               </div>
 
-              {/* Horizontal sliding popular categories */}
+              {}
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('popularSpecialties')}</h4>
                 <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 no-scrollbar">
@@ -415,7 +415,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                               const message = drugQuery && drugQuery.trim() !== ""
                                 ? `Hola ${pharm.name}, ¿tienen disponible ${drugQuery}?`
                                 : `Hola ${pharm.name}, quisiera hacer una consulta sobre disponibilidad de medicamentos.`;
-                              window.open(`https://wa.me/${pharm.phone}?text=${encodeURIComponent(message)}`, "_blank");
+                              window.open(`https:
                             }}
                             className="w-full h-11 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
                           >
@@ -440,7 +440,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                 )}
               </div>
 
-              {/* Informative disclaimer footer */}
+              {}
               <div className="text-center font-mono text-[10px] text-slate-400/80 py-4 border-t border-slate-100">
                 {t('pharmaciesDisclaimer')}
               </div>
@@ -449,7 +449,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
         </AnimatePresence>
       </main>
 
-      {/* APPOINTMENT BOOKING DIALOG MODAL */}
+      {}
       <AnimatePresence>
         {bookingDoctor && (
           <motion.div
@@ -464,7 +464,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               exit={{ scale: 0.95, y: 15 }}
               className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-sm p-6 shadow-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden"
             >
-              {/* Top border decor */}
+              {}
               <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-blue-600 to-cyan-500"></div>
 
               {bookingSuccess ? (
@@ -493,7 +493,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     </button>
                   </div>
 
-                  {/* Doctor Profile mini badge */}
+                  {}
                   <div className="p-3 bg-blue-50/40 dark:bg-blue-900/10 rounded-2xl border border-blue-100/50 dark:border-blue-900/30 flex items-center space-x-3 mt-1">
                     <img
                       src={bookingDoctor.photoUrl}
@@ -507,7 +507,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     </div>
                   </div>
 
-                  {/* Date Picker select option */}
+                  {}
                   <div className="space-y-1.5 text-left">
                     <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('chooseDate')}</label>
                     <div className="relative">
@@ -521,7 +521,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     </div>
                   </div>
 
-                  {/* Time Selector */}
+                  {}
                   <div className="space-y-1.5 text-left">
                     <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('chooseTime')}</label>
                     <select
@@ -538,7 +538,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     </select>
                   </div>
 
-                  {/* CTA Checkout Trigger */}
+                  {}
                   <button
                     id="btn-confirm-doctor-booking"
                     onClick={handleBookAppointment}

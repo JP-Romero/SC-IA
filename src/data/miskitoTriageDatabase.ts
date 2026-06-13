@@ -1,11 +1,11 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// BASE DE DATOS MASIVA DE TRIAJE MÉDICO EN IDIOMA MISKITO
-// ═══════════════════════════════════════════════════════════════════════════════
-// Esta base de datos se usa EXCLUSIVAMENTE cuando la app detecta que el idioma
-// seleccionado es Miskito ("mi"). Contiene más de 50 condiciones médicas
-// tropicales, comunes, crónicas, de salud mental y emergencias traumáticas,
-// con palabras clave optimizadas para el motor de búsqueda.
-// ═══════════════════════════════════════════════════════════════════════════════
+
+
+
+
+
+
+
+
 
 export interface MiskitoTriageRecord {
   id: string;
@@ -18,7 +18,7 @@ export interface MiskitoTriageRecord {
 }
 
 export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
-  // ─── 1. ENFERMEDADES INFECCIOSAS Y TROPICALES ───
+  
   {
     id: "wina_urwanka_tara",
     symptoms: ["Wina urwanka tara", "Temperatura pura manas", "Kupia kli prukanka", "Kupia puski tara", "Wina laihwan"],
@@ -74,7 +74,7 @@ export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
     warningSigns: ["Diarrea tara pali yu kumi ra 10 pyua purara.", "Chistata sampi pali kaka chistras kaka.", "Nakra laya apia, wina taya tahwan pali."]
   },
 
-  // ─── 2. PROBLEMAS RESPIRATORIOS Y CARDIACOS ───
+  
   {
     id: "kupia_siknis_pasa",
     symptoms: ["Pasa sakaia trabil", "Pasa sip apia", "Kupia siknis tara", "Kupia tara krukisa", "Pasa ba whistle baku aisisa"],
@@ -112,7 +112,7 @@ export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
     warningSigns: ["Kuhpanka tala pauni wal.", "Wina pesa tara sakaia (bajar de peso).", "Wina urwanka tara tihmia taim."]
   },
 
-  // ─── 3. PROBLEMAS GASTROINTESTINALES ───
+  
   {
     id: "byara_prukanka",
     symptoms: ["Byara prukanka", "Tanira prukanka", "Koliko tara", "Byara ra prukanka tara tara"],
@@ -150,7 +150,7 @@ export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
     warningSigns: ["Diarrea tala wal.", "Wina swahwanka tara pali.", "Lombriz tara sakaia plun sakaia taim."]
   },
 
-  // ─── 4. TRAUMA, QUEMADURAS Y ACCIDENTES ───
+  
   {
     id: "tala_takisa",
     symptoms: ["Klaki daukan tara", "Tala takisa", "Tala ailal takisa", "Taya ra klaki"],
@@ -188,7 +188,7 @@ export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
     warningSigns: ["Pasa sakaia trabil li wina takan ningkara.", "Kuhpanka pus pihni kaka pauni wal.", "Pawi lakara lukisa kaka kaka luki trabil."]
   },
 
-  // ─── 5. PICADURAS Y MORDEDURAS ───
+  
   {
     id: "pyuta_ikan",
     symptoms: ["Pyuta ikan", "Limi pyuta ikan", "Prukanka tara pali mihta kaka mina ra", "Napa marka wal"],
@@ -217,7 +217,7 @@ export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
     warningSigns: ["Byara prukanka tara araña ikan ningkara (viuda negra sip sa).", "Klaki ba tihmia takisa bara taya saura takisa (araña violonista sip sa).", "Pasa sakaia trabil."]
   },
 
-  // ─── 6. PROBLEMAS NEUROLÓGICOS Y MENTALES ───
+  
   {
     id: "lel_prukanka",
     symptoms: ["Lel prukanka", "Migraña", "Lel ra prukanka tara", "Lel ra pik pik prukisa", "Lel tara prukanka"],
@@ -255,7 +255,7 @@ export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
     warningSigns: ["Pasa sakaia sampi pali kaka pawi lakara lukisa kaka.", "Kupia kriwan tala wal.", "Wina implik kyama prais takan (delirium tremens)."]
   },
 
-  // ─── 7. PROBLEMAS DE LA PIEL Y ALERGIAS ───
+  
   {
     id: "alergia_reakshan",
     symptoms: ["Alergia", "Taya ra manka pauni nani", "Taya rih tara", "Taya puhban implik"],
@@ -284,7 +284,7 @@ export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
     warningSigns: ["Grano ba tara pali takisa bara prukanka tara brisma.", "Wina urwanka tara.", "Pus pauni kaka tihmia saura takisa kaka."]
   },
 
-  // ─── 8. PROBLEMAS OTORRINOLARINGOLÓGICOS (CABEZA Y CUELLO) ───
+  
   {
     id: "karmak_prukanka",
     symptoms: ["Karmak prukanka", "Dimaia angki", "Karmak tahwan", "Karmak ra iriteshan", "Anginas tara"],
@@ -322,7 +322,7 @@ export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
     warningSigns: ["Nakra kaikaia implik trabil.", "Nakra prukanka tara tara wal, lait kaikaia sip apia.", "Nakra ra dukia kum dimi bara sakaia sip apia."]
   },
 
-  // ─── 9. PROBLEMAS MUSCULOESQUELÉTICOS ───
+  
   {
     id: "kyama_prukanka",
     symptoms: ["Kyama prukanka", "Wina prukanka tara", "Kyama tara tara", "Wina pri apia", "Kyama puhban"],
@@ -342,7 +342,7 @@ export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
     warningSigns: ["Mina nani pri apia kaka swahwan kaka taukaia trabil.", "Chistata kaka kwih kontrolaia sip apia.", "Prukanka tara tara 2 wiki purara klahwras."]
   },
 
-  // ─── 10. METABOLISMO, NUTRICIÓN Y OTROS ───
+  
   {
     id: "diabetes_azucar",
     symptoms: ["Li dimi ailal", "Chistata ailal waia", "Nakra kaikaia saura takisa", "Wina swahwan", "Klaki klin takras"],
@@ -398,7 +398,7 @@ export const MISKITO_TRIAGE_DATABASE: MiskitoTriageRecord[] = [
     warningSigns: ["Limi dimi sut ba EMERGENCIA sa.", "Bilam kaka bila ra angkan kaikisa.", "Pasa sakaia trabil, wina prukanka tara, kaka pawi."]
   },
 
-  // ─── 11. PROBLEMAS FEMENINOS, MATERNOS E INFANTILES ───
+  
   {
     id: "mairin_tukta",
     symptoms: ["Mairin tukta brih trabil", "Tala takisa tukta brih taim", "Byara prukanka tara tukta brih taim", "Lel prukanka tara preeclampsia"],

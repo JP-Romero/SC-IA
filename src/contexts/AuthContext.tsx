@@ -10,16 +10,16 @@ import {
   type UserProfile,
 } from '../lib/authService';
 
-// ─── Types ────────────────────────────────────────────────────
+
 interface AuthContextType {
-  // State
+  
   user: User | null;
   session: Session | null;
   profile: UserProfile | null;
   loading: boolean;
   initialized: boolean;
 
-  // Actions
+  
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (email: string, password: string, nombre: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
@@ -29,7 +29,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ─── Provider ─────────────────────────────────────────────────
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
-  // Load profile data from profiles table
+  
   const loadProfile = useCallback(async (userId: string) => {
     const { profile: fetchedProfile } = await getUserProfile(userId);
     if (fetchedProfile) {
@@ -45,14 +45,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Listen for auth state changes
+  
   useEffect(() => {
     const subscription = onAuthStateChange(async (event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
 
       if (newSession?.user) {
-        // Small delay to allow trigger to create profile on SIGNED_UP
+        
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
           setTimeout(() => loadProfile(newSession.user.id), 300);
         }
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [loadProfile]);
 
-  // ─── Auth Actions ──────────────────────────────────────────
+  
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     try {
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const result = await signUpWithEmail(email, password, nombre);
       if (result.success && result.user) {
-        // Give trigger time to create the profile
+        
         await new Promise((resolve) => setTimeout(resolve, 500));
         await loadProfile(result.user.id);
       }
@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Hook ─────────────────────────────────────────────────────
+
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {

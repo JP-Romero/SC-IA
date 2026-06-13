@@ -127,7 +127,7 @@ export default function AnnouncementManagement() {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       
-      {/* Header */}
+      {}
       <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
         <div>
           <h2 className="text-xl font-bold text-slate-800 dark:text-white">{t('announcementManagement')}</h2>
@@ -145,7 +145,7 @@ export default function AnnouncementManagement() {
         </button>
       </div>
 
-      {/* Create/Edit Form */}
+      {}
       {showForm && (
         <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -221,7 +221,7 @@ export default function AnnouncementManagement() {
         </div>
       )}
 
-      {/* Announcements List */}
+      {}
       <div className="p-6">
         <div className="space-y-3">
           {isLoading ? (

@@ -39,14 +39,14 @@ function getDistanceKm(from: UserLocation, to: HealthCenter): number {
 
 function getCenterOperatingStatus(type: string): { isOpen: boolean; text: string; is24h: boolean } {
   const lowerType = type.toLowerCase();
-  // Los hospitales y centros maternos atienden emergencias 24/7
+  
   if (lowerType.includes("hospital") || lowerType.includes("materna") || lowerType.includes("emergencia")) {
     return { isOpen: true, text: "Abierto 24h", is24h: true };
   }
 
-  // Horario típico de Puestos y Centros de Salud MINSA: Lunes a Viernes 8:00 AM - 4:00 PM
+  
   const now = new Date();
-  const day = now.getDay(); // 0: Dom, 1: Lun...
+  const day = now.getDay(); 
   const hour = now.getHours();
 
   const isWeekday = day >= 1 && day <= 5;
@@ -111,7 +111,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return () => observer.disconnect();
   }, []);
 
-  // Medical categories for the floating carousel
+  
   const MEDICAL_CATEGORIES: MedicalCategory[] = useMemo(() => [
     {
       id: "centros",
@@ -135,7 +135,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     },
   ], [t]);
 
-  /** Find the nearest health center to the user's location */
+  
   const findNearestCenter = useCallback(() => {
     if (!userLocation) return null;
 
@@ -145,12 +145,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center ?? null;
   }, [mergedCenters, userLocation]);
 
-  /** Handle category selection from carousel – syncs with map filters */
+  
   const handleCategorySelected = useCallback((category: string) => {
     setSelectedCarouselCategory(category);
 
     if (category === "centros" && userLocation) {
-      // When "centros" is selected and user location is available, show the nearest center
+      
       const nearestCenter = findNearestCenter();
       if (nearestCenter) {
         setActiveFilter("centro");
@@ -159,7 +159,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       }
     }
 
-    // Fallback to original behavior for other cases or when location is not available
+    
     switch (category) {
       case "centros":
         setActiveFilter("centro");
@@ -178,7 +178,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     }
   }, [findNearestCenter, userLocation]);
 
-  // Cargar overrides y custom centers desde Supabase
+  
   useEffect(() => {
     const fetchOverrides = async () => {
       try {
@@ -247,8 +247,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         setGeoError("");
         setLocationMode("nearby");
 
-        // Always find and select the nearest health center when location is obtained
-        // Both search icon and centros button should show nearest center
+        
+        
         const nearestCenter = mergedCenters
           .filter((center) => center.latitude && center.longitude)
           .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
@@ -289,13 +289,13 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           accuracy: position.coords.accuracy,
         };
 
-        // Debounce location updates to prevent map flickering
-        // Only update if location has changed significantly (> 10 meters)
+        
+        
         let shouldUpdate = true;
         if (userLocation) {
           const distanceMeters = getDistanceKm(userLoc, userLocation as unknown as HealthCenter) * 1000;
 
-          // Skip update if movement is insignificant (< 10m)
+          
           if (distanceMeters < 10) {
             shouldUpdate = false;
           }
@@ -307,8 +307,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           setGeoError("");
           setLocationMode("nearby");
 
-          // Always find and select the nearest health center when location is obtained
-          // Both search icon and centros button should show nearest center
+          
+          
           const nearestCenter = mergedCenters
             .filter((center) => center.latitude && center.longitude)
             .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
@@ -375,7 +375,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       } catch (error) {
         if (!controller.signal.aborted) {
           try {
-            // Fallback to our serverless geocode proxy to avoid CORS and User-Agent blocks
+            
             const osmResponse = await fetch(
               `/api/geocode?lat=${userLocation.latitude}&lng=${userLocation.longitude}`,
               { signal: controller.signal }
@@ -415,7 +415,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       return matchesType;
     });
 
-    // 1. Añadir estatus de operación y distancia a todos los centros filtrados por tipo
+    
     const centersWithStatus = typeFilteredCenters.map(center => {
       const status = getCenterOperatingStatus(center.type);
       return {
@@ -430,7 +430,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     if (locationMode === "nearby" && userLocation) {
       const normalizedCity = normalizeQuery(detectedCity);
 
-      // 2. Filtrar por radio y ORDENAR PRIORIZANDO LOS ABIERTOS
+      
       const centersByDistance = centersWithStatus
         .filter((center) => center.latitude && center.longitude && center.distanceKm! <= NEARBY_RADIUS_KM)
         .sort((a, b) => {
@@ -537,7 +537,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     }
   };
 
-  // Message listener for Leaflet marker clicks
+  
   useEffect(() => {
     const handleMapMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === "SELECT_CENTER") {
@@ -551,7 +551,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return () => window.removeEventListener("message", handleMapMessage);
   }, [mergedCenters]);
 
-  // Post updates to the map iframe
+  
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -775,7 +775,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       `;
     }
 
-    // Leaflet Fallback
+    
     return `
       <!DOCTYPE html>
       <html>
@@ -895,10 +895,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
 
-      {/* ═══════════════ SIDEBAR PANEL (Left side on desktop) ═══════════════ */}
+      {}
       <div className={`w-full md:w-[380px] lg:w-[420px] flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20 transition-all duration-300 ${mobileView === "list" ? "h-full flex" : "hidden md:flex md:h-full"}`}>
         
-        {/* Header inside Sidebar */}
+        {}
         <header className="flex justify-between items-center px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800/60 shrink-0">
           <div
             onClick={() => onNavigate && onNavigate("home")}
@@ -947,7 +947,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </div>
         </header>
 
-        {/* Title, Search Pill and Filters */}
+        {}
         <div className="px-4 py-4 border-b border-slate-100 dark:border-slate-800/60 shrink-0 bg-slate-50/50 dark:bg-slate-900/50 space-y-3">
           <div>
             <h1 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-[-0.03em] leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -960,7 +960,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             </p>
           </div>
 
-          {/* Location search pill */}
+          {}
           <div className="flex flex-col gap-2">
             <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full px-3.5 py-2 shadow-[0_2px_6px_rgba(0,0,0,0.03)]">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0 text-slate-500">
@@ -997,7 +997,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 {geoStatus === "loading" ? "Ubicando..." : t('nearYou')}
               </button>
               
-              {/* Type Filter Chips */}
+              {}
               <button
                 onClick={() => setActiveFilter(activeFilter === "hospital" ? "todos" : "hospital")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
@@ -1056,7 +1056,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </div>
         </div>
 
-        {/* Scrollable Centers List */}
+        {}
         <div className={`flex-1 overflow-y-auto px-4 py-3 space-y-3 no-scrollbar pb-24 ${mobileView === "list" ? "block" : "hidden md:block"}`}>
           <div className="flex justify-between items-center mb-1.5">
             <h3 className="text-[12.5px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">
@@ -1102,7 +1102,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                       className="flex items-center justify-between cursor-pointer gap-3 min-w-0"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        {/* Icon circle */}
+                        {}
                         <div
                           className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0 border ${
                             isHospital 
@@ -1117,7 +1117,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                           )}
                         </div>
 
-                        {/* Title & Type */}
+                        {}
                         <div className="min-w-0 text-left">
                           <h4 className="text-[13px] font-bold text-slate-900 dark:text-white leading-tight truncate">{hc.name}</h4>
                           <p className="text-[10.5px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">{hc.type}</p>
@@ -1128,7 +1128,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                         </div>
                       </div>
 
-                      {/* Distance */}
+                      {}
                       <div className="shrink-0 text-right ml-2 flex flex-col items-end">
                         <span className="text-[12.5px] font-semibold text-slate-700 dark:text-slate-300">
                           {hc.distanceKm !== undefined ? `${hc.distanceKm.toFixed(1)} km` : hc.municipality}
@@ -1139,7 +1139,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                       </div>
                     </div>
 
-                    {/* EXPANDED SECTION FOR ACTIONS (Same concept as Burger King Locator) */}
+                    {}
                     <AnimatePresence>
                       {isSelected && (
                         <motion.div
@@ -1150,7 +1150,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                           className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 overflow-hidden"
                         >
                           <div className="space-y-2">
-                            {/* Schedule Badge */}
+                            {}
                             <div className="flex items-center gap-2">
                               <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${
                                 operatingStatus.isOpen
@@ -1163,7 +1163,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">ID: {hc.sourceNumber}</span>
                             </div>
 
-                            {/* Closed hospital warning recommendation */}
+                            {}
                             {!operatingStatus.isOpen && (() => {
                               const referenceLoc = (hc.latitude && hc.longitude)
                                 ? { latitude: hc.latitude, longitude: hc.longitude }
@@ -1180,13 +1180,13 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                               ) : null;
                             })()}
 
-                            {/* Location description */}
+                            {}
                             <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100/50 dark:border-slate-800/40">
                               <span className="font-bold block text-slate-700 dark:text-slate-300 mb-0.5">Dirección:</span>
                               {hc.locality}
                             </p>
 
-                            {/* CTA Action buttons inside the card */}
+                            {}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1.5">
                               <a
                                 href={googleMapsSearchUrl}
@@ -1231,7 +1231,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         </div>
       </div>
 
-      {/* ═══════════════ MAP PANEL (Right side on desktop) ═══════════════ */}
+      {}
       <div className={`flex-1 relative z-10 shrink-0 ${mobileView === "map" ? "h-full flex flex-col" : "hidden md:flex md:flex-col md:h-full"}`}>
         <iframe
           ref={iframeRef}
@@ -1241,7 +1241,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           loading="lazy"
         />
 
-        {/* ═══════════════ FLOATING MEDICAL CATEGORY CAROUSEL ═══════════════ */}
+        {}
         <div
           className="absolute top-0 left-0 right-0 z-20"
           style={{
@@ -1260,7 +1260,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </div>
         </div>
 
-        {/* Floating Toggle Button on Mobile Map View */}
+        {}
         {mobileView === "map" && (
           <button
             onClick={() => setMobileView("list")}
@@ -1277,7 +1277,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </button>
         )}
 
-        {/* Floating Recenter Button */}
+        {}
         <button
           onClick={handleRecenter}
           className={`absolute ${mobileView === "map" ? "top-[136px]" : "top-[80px]"} right-4 z-30 flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800/80 hover:scale-105 active:scale-95 transition-all`}
@@ -1293,7 +1293,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </svg>
         </button>
 
-        {/* Floating selected center card on mobile when map is active */}
+        {}
         {selectedCenter && mobileView === "map" && (
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -1389,7 +1389,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         )}
       </div>
 
-      {/* ═══════════════ EMERGENCY CONFIRMATION MODAL ═══════════════ */}
+      {}
       <AnimatePresence>
         {isEmergencyModalOpen && (
           <motion.div

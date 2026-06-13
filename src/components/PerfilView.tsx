@@ -21,7 +21,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const { refreshProfile } = useAuth();
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
 
-  // Forms state for updates
+  
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
   const [editCity, setEditCity] = useState(user.city);
@@ -85,7 +85,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     const prefString = newPrefs.join(",");
     localStorage.setItem("notifPreference", prefString);
 
-    // Actualizar en la base de datos si el usuario está logueado
+    
     if (user.id && user.id !== "guest") {
       try {
         const { supabase } = await import('../lib/supabaseClient');
@@ -99,7 +99,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     }
   };
 
-  // Condition management
+  
   const handleAddCondition = useCallback(() => {
     const trimmed = newCondition.trim();
     if (trimmed && !editConditions.includes(trimmed)) {
@@ -205,35 +205,35 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     import("jspdf").then(({ default: jsPDF }) => {
       const doc = new jsPDF();
 
-      // Colores de la app (Paleta Profesional)
-      const primaryColor = [30, 58, 138]; // slate-blue darker
-      const secondaryColor = [13, 148, 136]; // text-teal-600
-      const accentColor = [56, 189, 248]; // sky-400
-      const slateDark = [15, 23, 42]; // text-slate-900
-      const slateLight = [100, 116, 139]; // text-slate-500
-      const bgPage = [255, 255, 255]; // Fondo blanco limpio
-      const sectionBg = [248, 250, 252]; // Fondo muy tenue para secciones (slate-50)
+      
+      const primaryColor = [30, 58, 138]; 
+      const secondaryColor = [13, 148, 136]; 
+      const accentColor = [56, 189, 248]; 
+      const slateDark = [15, 23, 42]; 
+      const slateLight = [100, 116, 139]; 
+      const bgPage = [255, 255, 255]; 
+      const sectionBg = [248, 250, 252]; 
 
-      // Función para pintar el diseño base en cada página
+      
       const drawBackground = (pageDoc: any) => {
-        // Fondo blanco
+        
         pageDoc.setFillColor(bgPage[0], bgPage[1], bgPage[2]);
         pageDoc.rect(0, 0, 210, 297, 'F');
 
-        // Header (Banner principal azul oscuro)
+        
         pageDoc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         pageDoc.rect(0, 0, 210, 35, 'F');
 
-        // Línea acento teal
+        
         pageDoc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
         pageDoc.rect(0, 35, 210, 2, 'F');
 
-        // Línea decorativa lateral izquierda
+        
         pageDoc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
         pageDoc.rect(10, 45, 1.5, 240, 'F');
 
-        // Footer
-        pageDoc.setFillColor(241, 245, 249); // slate-100
+        
+        pageDoc.setFillColor(241, 245, 249); 
         pageDoc.rect(0, 285, 210, 12, 'F');
         pageDoc.setFontSize(8);
         pageDoc.setFont("helvetica", "italic");
@@ -243,7 +243,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
       drawBackground(doc);
 
-      // Título en el Header
+      
       doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(255, 255, 255);
@@ -254,13 +254,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setTextColor(200, 215, 255);
       doc.text(t('pdfConfidential'), 15, 28);
 
-      // --- Info del paciente (General) ---
+      
       let yPos = 55;
 
-      // Rectángulo contenedor para Información Personal
+      
       doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
       doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'F');
-      doc.setDrawColor(226, 232, 240); // slate-200
+      doc.setDrawColor(226, 232, 240); 
       doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'S');
 
       doc.setFontSize(14);
@@ -285,7 +285,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFont("helvetica", "bold");
       doc.text(t('pdfBlood'), 20, yPos);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(225, 29, 72); // rose-600 para sangre
+      doc.setTextColor(225, 29, 72); 
       doc.text(`${localMedicalData.tipoSangre || editBloodType || user.bloodType || t('pdfNotSpecified')}`, 40, yPos);
 
       doc.setFont("helvetica", "bold");
@@ -306,7 +306,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.text(`${localMedicalData.altura ? localMedicalData.altura + ' cm' : t('pdfNotRegistered')}`, 130, yPos);
       yPos += 18;
 
-      // --- Datos Médicos Especializados ---
+      
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
@@ -316,7 +316,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(10);
 
       const renderMedicalItem = (label: string, value: string) => {
-        // Cuadro para el item
+        
         doc.setFillColor(255, 255, 255);
         doc.roundedRect(15, yPos - 5, 180, 12, 2, 2, 'F');
         doc.setDrawColor(226, 232, 240);
@@ -329,7 +329,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.setFont("helvetica", "normal");
         doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
 
-        // Manejar texto largo
+        
         const splitText = doc.splitTextToSize(value || t('pdfNoneRegistered'), 120);
         doc.text(splitText, 60, yPos + 2);
         yPos += (splitText.length * 5) + 8;
@@ -341,12 +341,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       renderMedicalItem(t('pdfPills'), localMedicalData.pastillas);
       renderMedicalItem(t('pdfVaccines'), localMedicalData.vacunas);
 
-      // Condiciones de salud
+      
       if (user.healthConditions && user.healthConditions.length > 0) {
         renderMedicalItem(t('pdfOtherCond'), user.healthConditions.join(", "));
       }
 
-      // --- QR Code ---
+      
       yPos += 5;
       if (yPos > 210) {
         doc.addPage();
@@ -354,7 +354,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         yPos = 55;
       }
 
-      // Contenedor del QR
+      
       doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
       doc.roundedRect(15, yPos, 180, 50, 3, 3, 'F');
       doc.setDrawColor(226, 232, 240);
@@ -371,7 +371,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.text(t('pdfQrDesc'), 85, yPos + 22);
 
       doc.setFontSize(8);
-      doc.setTextColor(225, 29, 72); // rose
+      doc.setTextColor(225, 29, 72); 
       doc.text(t('pdfQrFooter'), 85, yPos + 38);
 
       const svg = qrRef.current?.querySelector("svg");
@@ -390,7 +390,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             ctx.drawImage(img, 0, 0, 512, 512);
           }
           const pngData = canvas.toDataURL("image/png");
-          // QR dentro de su caja
+          
           doc.addImage(pngData, 'PNG', 25, yPos + 5, 40, 40);
 
           doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
@@ -413,7 +413,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
       </div>
 
-      {/* Header */}
+      {}
       <header className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-6 pb-1 sm:pb-2">
         <div className="flex justify-between items-start w-full max-w-5xl mx-auto">
           <button
@@ -456,13 +456,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         </div>
       </header>
 
-      {/* Main Container */}
+      {}
       <main className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-8 flex-1 space-y-5 sm:space-y-7 max-w-5xl mx-auto w-full">
 
-        {/* Profile Card Header segment */}
+        {}
         <section className="grid grid-cols-1 md:grid-cols-[minmax(220px,0.9fr)_minmax(280px,1.1fr)] items-center gap-5 sm:gap-8 md:gap-12 md:min-h-[330px]">
 
-          {/* Area de Avatar con Etiqueta */}
+          {}
           <div className="flex justify-center md:justify-end">
             <div className="relative group shrink-0 select-none">
               <div className="absolute inset-[-1.75rem] sm:inset-[-3rem] rounded-full border border-blue-200/60 dark:border-blue-900/40"></div>
@@ -488,14 +488,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   </div>
                 )}
 
-                {/* Uploading overlay */}
+                {}
                 {isUploading && (
                   <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center rounded-full">
                     <Loader2 className="w-7 h-7 sm:w-9 sm:h-9 text-white animate-spin" />
                   </div>
                 )}
 
-                {/* Camera Icon Hover Overlay (only for non-guests, when not uploading) */}
+                {}
                 {user.id !== "guest" && !isUploading && (
                   <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-full">
                     <Camera className="w-7 h-7 sm:w-9 sm:h-9 text-white drop-shadow-md" />
@@ -503,7 +503,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 )}
               </div>
 
-              {/* Hidden File Input */}
+              {}
               {user.id !== "guest" && (
                 <input
                   type="file"
@@ -516,7 +516,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
               <span className="absolute bottom-2.5 right-2 sm:bottom-6 sm:right-4 w-7 h-7 sm:w-11 sm:h-11 bg-emerald-400 border-[5px] sm:border-[7px] border-white dark:border-slate-950 rounded-full shadow-lg"></span>
 
-              {/* Small floating Camera/Pencil Button in bottom-right corner */}
+              {}
               {user.id !== "guest" && (
                 <button
                   type="button"
@@ -557,7 +557,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </p>
             </div>
 
-            {/* Quick info badges */}
+            {}
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-1">
               {user.emergencyPhone && (
                 <span className="inline-flex items-center gap-1.5 bg-slate-100/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200/60 dark:border-slate-700">
@@ -581,10 +581,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </section>
 
-        {/* QR Code section segment card */}
+        {}
         <section className="bg-white/95 dark:bg-slate-900/95 rounded-[1.5rem] sm:rounded-[2.75rem] p-3.5 sm:p-8 border border-white/80 dark:border-slate-800 shadow-[0_18px_46px_rgba(37,99,235,0.1)] sm:shadow-[0_24px_70px_rgba(37,99,235,0.12)]">
           <div className="flex flex-row items-center gap-3 sm:gap-8 justify-between">
-            {/* Lado Izquierdo: Info */}
+            {}
             <div className="flex flex-col gap-2 flex-1 min-w-0 text-left">
               <div className="flex items-center gap-2 sm:gap-5">
                 <h4 className="font-display font-bold text-slate-950 dark:text-white text-base sm:text-3xl leading-tight truncate">
@@ -596,7 +596,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </p>
             </div>
 
-            {/* Lado Derecho: QR más pequeño y lateral */}
+            {}
             <div className="flex flex-col items-center gap-2 sm:gap-5 shrink-0">
               <div
                 ref={qrRef}
@@ -634,12 +634,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </section>
 
-        {/* ACCOUNT MANAGE LIST SEGMENT */}
+        {}
         <div className="space-y-3">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('accountManagement')}</h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start md:max-h-[50vh] md:overflow-y-auto md:pr-2">
-            {/* Menu Option items collapsible blocks */}
+            {}
             {[
               {
                 id: "personal",
@@ -692,7 +692,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                     <ChevronRight className={`w-5 h-5 text-slate-400 transform transition-transform ${isOpen ? "rotate-90 text-blue-600" : ""}`} />
                   </button>
 
-                  {/* Collapsed Nested Details Screen panel */}
+                  {}
                   <AnimatePresence>
                     {isOpen && (
                       <motion.div
@@ -703,7 +703,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       >
                         <div className="p-5 text-xs text-slate-600 space-y-4">
 
-                          {/* Nested Personal info update Form */}
+                          {}
                           {item.id === "personal" && (
                             <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
@@ -783,7 +783,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </form>
                           )}
 
-                          {/* Nested secure privacy content panel */}
+                          {}
                           {item.id === "seguridad" && (
                             <div className="space-y-3 text-left">
                               <p className="text-slate-500 dark:text-slate-400 leading-normal text-[13px]">
@@ -808,7 +808,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </div>
                           )}
 
-                          {/* Nested alert notifications checker options */}
+                          {}
                           {item.id === "notificaciones" && (
                             <div className="space-y-2.5 text-left">
                               <p className="text-[11px] text-slate-500 mb-2">{t('notifSelectDesc')}</p>
@@ -843,7 +843,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </div>
                           )}
 
-                          {/* Nested Datos Medicos Form */}
+                          {}
                           {item.id === "datos_medicos" && (
                             <form onSubmit={handleUpdateMedicalData} className="space-y-4 text-left">
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
@@ -999,7 +999,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </div>
 
-        {/* Protection standard banner at end */}
+        {}
         <div className="bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl p-4.5 border border-slate-200/50 dark:border-slate-800 flex items-center space-x-3.5 mt-4">
           <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/50">
             <Shield className="w-5 h-5 text-blue-600" />
@@ -1014,7 +1014,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </div>
 
-        {/* Admin Panel Button */}
+        {}
         {onGoToAdmin && (
           <button
             onClick={onGoToAdmin}
@@ -1025,7 +1025,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </button>
         )}
 
-        {/* Logout Button */}
+        {}
         {onLogout && (
           <button
             id="btn-profile-logout"
@@ -1043,7 +1043,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
       </main>
 
-      {/* Floating Save Success Toast */}
+      {}
       <AnimatePresence>
         {isSavedAlertOpen && (
           <motion.div
@@ -1059,7 +1059,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         )}
       </AnimatePresence>
 
-      {/* QR Modal - Fullscreen View */}
+      {}
       <AnimatePresence>
         {showQRModal && (
           <motion.div
@@ -1076,7 +1076,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl"
             >
-              {/* Modal Header */}
+              {}
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-display font-bold text-2xl sm:text-3xl text-slate-950 dark:text-white">
                   {t('shareProfile')}
@@ -1089,9 +1089,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 </button>
               </div>
 
-              {/* Modal Content */}
+              {}
               <div className="flex flex-col items-center space-y-6">
-                {/* Large QR Code */}
+                {}
                 <div
                   ref={qrRef}
                   className="w-72 h-72 sm:w-96 sm:h-96 border-4 border-blue-300 dark:border-blue-700 p-6 sm:p-8 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center shadow-lg"
@@ -1104,14 +1104,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   />
                 </div>
 
-                {/* QR Info */}
+                {}
                 <div className="w-full space-y-3 text-center">
                   <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                     {t('emergencyDesc')}
                   </p>
                 </div>
 
-                {/* Action Buttons */}
+                {}
                 <div className="flex gap-3 w-full pt-4 border-t border-slate-200 dark:border-slate-700">
                   <button
                     onClick={downloadQRCode}

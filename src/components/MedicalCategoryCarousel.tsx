@@ -1,8 +1,8 @@
-// @ts-ignore: Falta @types/react en este entorno
+
 import React from "react";
 import { motion } from "motion/react";
 
-/** Category model for the medical carousel */
+
 export interface MedicalCategory {
   id: string;
   label: string;
@@ -15,7 +15,7 @@ interface MedicalCategoryCarouselProps {
   onCategorySelected: (category: string) => void;
 }
 
-/** Premium horizontal category carousel overlaid on the map – Apple Maps / Uber style */
+
 export default function MedicalCategoryCarousel({
   categories,
   selectedCategory,
@@ -34,7 +34,7 @@ export default function MedicalCategoryCarousel({
         padding: "0 16px",
       }}
     >
-      {/* Hide scrollbar for WebKit */}
+      {}
       <style>{`.medical-carousel-wrapper::-webkit-scrollbar { display: none; }`}</style>
 
       <div
@@ -64,7 +64,7 @@ export default function MedicalCategoryCarousel({
                   : "bg-white border-slate-200/60 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
               }`}
             >
-              {/* Icon container */}
+              {}
               <span
                 className={`flex items-center justify-center w-5 h-5 shrink-0 transition-colors duration-200 ${
                   isSelected 
@@ -75,7 +75,7 @@ export default function MedicalCategoryCarousel({
                 {cat.icon}
               </span>
 
-              {/* Label */}
+              {}
               <span
                 className={`text-[13.5px] font-semibold tracking-tight whitespace-nowrap font-sans transition-colors duration-200 ${
                   isSelected 

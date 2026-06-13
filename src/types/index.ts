@@ -28,8 +28,8 @@ export interface HealthCenter {
   schedule: string;
   distance: string;
   durationMin: number;
-  lat: number; // percentage of map container Y (0 - 100) for custom interactive map
-  lng: number; // percentage of map container X (0 - 100)
+  lat: number; 
+  lng: number; 
   latitude?: number;
   longitude?: number;
   distanceKm?: number;

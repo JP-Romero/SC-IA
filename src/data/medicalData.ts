@@ -92,14 +92,14 @@ export const DOCTORS: Doctor[] = [
   }
 ];
 
-// ═══════════════════════════════════════════════════════════════════
-// BASE DE DATOS COMPLETA DE MEDICAMENTOS DISPONIBLES EN NICARAGUA
-// Basada en la Lista Básica de Medicamentos Esenciales (LBME) del MINSA
-// Tercera Edición 2022 – 488 principios activos, 22 grupos terapéuticos
-// ═══════════════════════════════════════════════════════════════════
+
+
+
+
+
 
 export const ALL_MEDICATIONS: string[] = [
-  // ── 1. Analgésicos y Antipiréticos ──
+  
   "Paracetamol 500 mg",
   "Paracetamol 1 g",
   "Paracetamol 120 mg/5 ml Jarabe (Panadol)",
@@ -121,7 +121,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Nefopam 20 mg",
   "Buprenorfina 0.3 mg",
 
-  // ── 2. Antiinflamatorios No Esteroideos (AINEs) ──
+  
   "Ibuprofeno 400 mg",
   "Ibuprofeno 600 mg",
   "Ibuprofeno 200 mg",
@@ -146,7 +146,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Acemetacina 60 mg",
   "Dexketoprofeno 25 mg",
 
-  // ── 3. Antibióticos ──
+  
   "Amoxicilina 500 mg",
   "Amoxicilina 250 mg/5 ml Suspensión",
   "Amoxicilina + Ácido Clavulánico 875/125 mg",
@@ -194,7 +194,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Oxacilina 500 mg",
   "Vancomicina 500 mg inyectable",
 
-  // ── 4. Antifúngicos ──
+  
   "Fluconazol 150 mg",
   "Fluconazol 200 mg",
   "Clotrimazol Crema 1%",
@@ -218,7 +218,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Miconazol Polvo",
   "Griseofulvina 500 mg",
 
-  // ── 5. Antiparasitarios ──
+  
   "Albendazol 400 mg",
   "Albendazol 200 mg/5 ml Suspensión",
   "Mebendazol 100 mg",
@@ -237,7 +237,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Artemetero + Lumefantrina",
   "Miltefosina 50 mg",
 
-  // ── 6. Antivirales ──
+  
   "Aciclovir 200 mg",
   "Aciclovir 400 mg",
   "Aciclovir 800 mg",
@@ -253,11 +253,11 @@ export const ALL_MEDICATIONS: string[] = [
   "Zidovudina 100 mg",
   "Remdesivir 100 mg",
 
-  // ── 7. Antimaláricos ──
+  
   "Cloroquina 250 mg",
   "Primaquina 15 mg",
 
-  // ── 8. Antialérgicos y Antihistamínicos ──
+  
   "Loratadina 10 mg",
   "Loratadina 5 mg/5 ml Jarabe",
   "Cetirizina 10 mg",
@@ -279,7 +279,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Epinefrina (Adrenalina) 1 mg inyectable",
   "Hidrocortisona 100 mg inyectable (emergencia alérgica)",
 
-  // ── 9. Sistema Digestivo ──
+  
   "Omeprazol 10 mg",
   "Omeprazol 20 mg (Prilosec/Gastrogel)",
   "Lansoprazol 30 mg",
@@ -325,7 +325,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Racecadotril 100 mg",
   "Sulfasalazina 500 mg",
 
-  // ── 10. Sistema Respiratorio ──
+  
   "Salbutamol Inhalador 100 mcg",
   "Salbutamol 2 mg/5 ml Jarabe",
   "Salbutamol Solución para Nebulizar 5 mg/ml",
@@ -367,7 +367,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Levodropropizina Jarabe",
   "Oxalamina Jarabe",
 
-  // ── 11. Sistema Cardiovascular ──
+  
   "Losartán 50 mg",
   "Losartán 100 mg",
   "Valsartán 80 mg",
@@ -446,7 +446,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Norepinefrina 4 mg/4 ml",
   "Dobutamina 250 mg inyectable",
 
-  // ── 12. Diabetes y Metabolismo ──
+  
   "Metformina 500 mg",
   "Metformina 850 mg",
   "Metformina 1000 mg",
@@ -486,7 +486,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Cinacalcet 30 mg",
   "Teriparatida inyectable",
 
-  // ── 13. Sistema Nervioso y Psiquiatría ──
+  
   "Diazepam 5 mg",
   "Diazepam 10 mg",
   "Diazepam 10 mg inyectable",
@@ -577,7 +577,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Oxcarbazepina 300 mg",
   "Vigabatrina 500 mg",
 
-  // ── 14. Vitaminas y Suplementos ──
+  
   "Ácido Fólico 5 mg",
   "Ácido Fólico 1 mg",
   "Sulfato Ferroso 300 mg",
@@ -623,7 +623,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Probióticos Cápsulas",
   "Electrolitos en Polvo",
 
-  // ── 15. Dermatología y Uso Tópico ──
+  
   "Hidrocortisona Crema 1%",
   "Betametasona Crema 0.05%",
   "Betametasona + Clotrimazol + Gentamicina Crema",
@@ -661,7 +661,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Urea Crema 20%",
   "Emoliente Dermatológico (Crema base)",
 
-  // ── 16. Oftalmología ──
+  
   "Ciprofloxacina Gotas Oftálmicas 0.3%",
   "Tobramicina Gotas Oftálmicas 0.3%",
   "Cloranfenicol Gotas Oftálmicas 0.5%",
@@ -680,7 +680,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Ciclosporina Gotas Oftálmicas",
   "Tropicamida Gotas Oftálmicas 1%",
 
-  // ── 17. Otorrinolaringología ──
+  
   "Ciprofloxacina Gotas Óticas 0.3%",
   "Neomicina + Polimixina B Gotas Óticas",
   "Cloranfenicol Gotas Óticas",
@@ -689,7 +689,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Benzocaína + Antipirina Gotas Óticas",
   "Fluticasona + Azelastina Spray Nasal",
 
-  // ── 18. Anticonceptivos y Salud Reproductiva ──
+  
   "Levonorgestrel + Etinilestradiol (Ciclo 21)",
   "Levonorgestrel + Etinilestradiol (Ciclo 28)",
   "Levonorgestrel 0.75 mg (Emergencia)",
@@ -708,7 +708,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Condones masculinos (caja 12 unidades)",
   "Test de Embarazo",
 
-  // ── 19. Corticosteroides Sistémicos ──
+  
   "Prednisona 5 mg",
   "Prednisona 20 mg",
   "Prednisona 50 mg",
@@ -719,7 +719,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Metilprednisolona 500 mg inyectable",
   "Deflazacort 6 mg",
 
-  // ── 20. Relajantes Musculares ──
+  
   "Metocarbamol 750 mg",
   "Metocarbamol + Ibuprofeno",
   "Ciclobenzaprina 10 mg",
@@ -728,7 +728,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Baclofeno 10 mg",
   "Orfenadrina 100 mg",
 
-  // ── 21. Urología ──
+  
   "Tamsulosina 0.4 mg",
   "Finasterida 5 mg",
   "Sildenafil 50 mg",
@@ -742,20 +742,20 @@ export const ALL_MEDICATIONS: string[] = [
   "Fenazopiridina 100 mg",
   "Citrato de Potasio Granulado",
 
-  // ── 22. Odontología ──
+  
   "Lidocaína Gel Oral 2%",
   "Benzocaína Gel Oral",
   "Enjuague Bucal Clorhexidina 0.12%",
   "Enjuague Bucal Fluoruro de Sodio",
   "Pasta Dental con Flúor 1450 ppm",
 
-  // ── 23. Anestésicos Locales ──
+  
   "Lidocaína 2% inyectable",
   "Lidocaína 2% + Epinefrina inyectable",
   "Lidocaína Spray 10%",
   "Bupivacaína 0.5% inyectable",
 
-  // ── 24. Antigripales y OTC ──
+  
   "Antigripal (Paracetamol+Clorfeniramina+Fenilefrina)",
   "Antigripal Forte (Noche)",
   "Antigripal Pediátrico Jarabe",
@@ -767,7 +767,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Solución de Hidratación Oral (Pedialyte)",
   "Suero Fisiológico Nasal",
 
-  // ── 25. Antisépticos y Desinfectantes ──
+  
   "Alcohol Etílico 70% (250 ml)",
   "Alcohol Etílico 70% (500 ml)",
   "Povidona Yodada Solución 10%",
@@ -776,7 +776,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Violeta de Genciana 1%",
   "Jabón Quirúrgico Clorhexidina",
 
-  // ── 26. Soluciones y Sueros ──
+  
   "Suero Fisiológico 0.9% (500 ml)",
   "Suero Fisiológico 0.9% (1000 ml)",
   "Suero Fisiológico 0.9% (100 ml lavado)",
@@ -785,7 +785,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Dextrosa 5% + Solución Salina (500 ml)",
   "Agua Estéril para Inyección (10 ml)",
 
-  // ── 27. Insumos Médicos de Farmacia ──
+  
   "Algodón Absorbente 100 g",
   "Gasa Estéril 10x10 cm (sobre)",
   "Venda Elástica 4 pulgadas",
@@ -799,7 +799,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Tensiómetro Digital de Brazo",
   "Nebulizador portátil",
 
-  // ── 28. Otros Medicamentos Esenciales ──
+  
   "Warfarina 5 mg",
   "Warfarina 3 mg",
   "Enoxaparina 40 mg inyectable",
@@ -854,10 +854,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Nintedanib 150 mg"
 ];
 
-/**
- * Normaliza una cadena de texto eliminando acentos, diacríticos y convirtiendo a minúsculas.
- * Mejora drásticamente la precisión del buscador al permitir búsquedas como "corazon" para "corazón".
- */
+
 export function normalizeText(text: string): string {
   return text
     .toLowerCase()

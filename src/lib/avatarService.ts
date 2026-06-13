@@ -6,21 +6,14 @@ export interface UploadAvatarResult {
   error?: string;
 }
 
-/**
- * Sube una foto de perfil a Supabase Storage en el bucket 'avatars',
- * elimina el archivo anterior si existe y actualiza la tabla profiles.
- *
- * @param userId - El ID del usuario autenticado
- * @param file - El objeto File de la imagen a subir
- * @param currentAvatarUrl - La URL del avatar actual del usuario (si tiene), para eliminar el archivo viejo
- */
+
 export async function uploadAvatar(
   userId: string,
   file: File,
   currentAvatarUrl?: string | null
 ): Promise<UploadAvatarResult> {
   try {
-    // 1. Validaciones de tipo y tamaño
+    
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       return {
@@ -29,7 +22,7 @@ export async function uploadAvatar(
       };
     }
 
-    const maxSize = 5 * 1024 * 1024; // 5 MB
+    const maxSize = 5 * 1024 * 1024; 
     if (file.size > maxSize) {
       return {
         success: false,
@@ -37,29 +30,29 @@ export async function uploadAvatar(
       };
     }
 
-    // 2. Extraer extensión y generar nombre de archivo único para evitar cacheo del navegador
+    
     const fileExt = file.name.split('.').pop() || 'png';
     const fileName = `avatar_${Date.now()}.${fileExt}`;
     const filePath = `${userId}/${fileName}`;
 
-    // 3. Eliminar el archivo viejo del bucket si existe
+    
     if (currentAvatarUrl) {
       try {
         if (currentAvatarUrl.includes('/avatars/')) {
           const pathParts = currentAvatarUrl.split('/avatars/');
           if (pathParts.length > 1) {
             const oldFilePath = decodeURIComponent(pathParts[1]);
-            const cleanOldFilePath = oldFilePath.split('?')[0]; // Limpiar query params
+            const cleanOldFilePath = oldFilePath.split('?')[0]; 
             await supabase.storage.from('avatars').remove([cleanOldFilePath]);
           }
         }
       } catch (removeErr) {
         console.error('Error al eliminar avatar anterior:', removeErr);
-        // No bloqueamos la subida si falla la eliminación del viejo archivo
+        
       }
     }
 
-    // 4. Subir la nueva imagen a storage
+    
     const { error: uploadError } = await supabase.storage
       .from('avatars')
       .upload(filePath, file, {
@@ -71,7 +64,7 @@ export async function uploadAvatar(
       return { success: false, error: `Error al subir la imagen: ${uploadError.message}` };
     }
 
-    // 5. Obtener la URL pública del archivo
+    
     const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
     if (!data || !data.publicUrl) {
       return { success: false, error: 'No se pudo obtener la URL pública del avatar subido.' };
@@ -79,7 +72,7 @@ export async function uploadAvatar(
 
     const publicUrl = data.publicUrl;
 
-    // 6. Actualizar el campo avatar_url en la tabla profiles
+    
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ avatar_url: publicUrl })

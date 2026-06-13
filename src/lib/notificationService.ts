@@ -17,7 +17,7 @@ export const DAILY_MESSAGES = [
   "Consejo del día: Usa protector solar todos los días, incluso si está nublado."
 ];
 
-// Helper to convert VAPID public key
+
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
@@ -61,7 +61,7 @@ export const subscribeToPushNotifications = async (userId: string) => {
     const registration = await navigator.serviceWorker.ready;
     let subscription = await registration.pushManager.getSubscription();
     
-    // Subscribe if not subscribed
+    
     if (!subscription) {
       const publicVapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
       if (!publicVapidKey) {
@@ -75,10 +75,10 @@ export const subscribeToPushNotifications = async (userId: string) => {
       });
     }
 
-    // Retrieve preference from localStorage
+    
     const currentPref = localStorage.getItem("notifPreference") || "consejo";
 
-    // Save to Supabase
+    
     const { error } = await supabase
       .from('push_subscriptions')
       .upsert({ 
@@ -105,15 +105,15 @@ export const showDailyNotification = async (userId: string) => {
     return;
   }
 
-  // Registra la suscripción para que el servidor pueda mandar notificaciones push
+  
   await subscribeToPushNotifications(userId);
 
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const today = new Date().toISOString().split("T")[0]; 
   const storageKey = `lastNotificationDate_${userId}`;
   const lastDate = localStorage.getItem(storageKey);
 
   if (lastDate !== today) {
-    // Es un nuevo día para este usuario, mostrar notificación (Local fallback si app está abierta)
+    
     const randomIndex = Math.floor(Math.random() * DAILY_MESSAGES.length);
     const message = DAILY_MESSAGES[randomIndex];
 

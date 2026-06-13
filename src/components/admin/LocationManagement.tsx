@@ -62,7 +62,7 @@ export default function LocationManagement() {
           setAdjustedLat(event.data.lat);
           setAdjustedLng(event.data.lng);
         } else if (event.data.type === "MAP_READY") {
-          // El iframe está listo, enviar el centro actual si hay uno
+          
           sendCenterToMap();
         }
       }
@@ -71,7 +71,7 @@ export default function LocationManagement() {
     return () => window.removeEventListener("message", handleMessage);
   }, [selectedCenter, adjustedLat, adjustedLng, overrides]);
 
-  // Enviar centro al mapa
+  
   const sendCenterToMap = useCallback(() => {
     if (!selectedCenter || !iframeRef.current?.contentWindow) return;
     
@@ -95,7 +95,7 @@ export default function LocationManagement() {
     }, "*");
   }, [selectedCenter, adjustedLat, adjustedLng, overrides]);
 
-  // Cuando cambia selectedCenter, cargar datos
+  
   useEffect(() => {
     if (selectedCenter) {
       const newLat = overrides[selectedCenter.id]?.latitud_ajustada !== undefined 

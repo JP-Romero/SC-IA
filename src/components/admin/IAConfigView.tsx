@@ -32,7 +32,7 @@ const IAConfigView: React.FC = () => {
   const [testMessages, setTestMessages] = useState<{sender: 'user'|'bot', text: string}[]>([]);
   const [isTesting, setIsTesting] = useState(false);
 
-  // Check if user is admin (profile type may not include 'role' in its definition)
+  
   const isAdmin = (profile as any)?.role === "admin";
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const IAConfigView: React.FC = () => {
     loadAIConfigs();
   }, []);
 
-  // Handle form input changes
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -71,10 +71,10 @@ const IAConfigView: React.FC = () => {
     }));
   };
 
-  // Handle adding new AI configuration
+  
   const handleAddAIConfig = async () => {
     try {
-      // Validate required fields
+      
       if (!formData.config_key || !formData.config_value) {
         alert('Por favor complete todos los campos obligatorios');
         return;
@@ -93,7 +93,7 @@ const IAConfigView: React.FC = () => {
 
       if (error) throw error;
 
-      // Reset form and close
+      
       setFormMode(null);
       setEditingConfig(null);
       setFormData({
@@ -113,12 +113,12 @@ const IAConfigView: React.FC = () => {
     }
   };
 
-  // Handle updating AI configuration
+  
   const handleUpdateAIConfig = async () => {
     if (!editingConfig) return;
 
     try {
-      // Validate required fields
+      
       if (!formData.config_key || !formData.config_value) {
         alert('Por favor complete todos los campos obligatorios');
         return;
@@ -138,7 +138,7 @@ const IAConfigView: React.FC = () => {
 
       if (error) throw error;
 
-      // Reset form and close
+      
       setFormMode(null);
       setEditingConfig(null);
       setFormData({
@@ -158,7 +158,7 @@ const IAConfigView: React.FC = () => {
     }
   };
 
-  // Handle deleting AI configuration
+  
   const handleDeleteAIConfig = async (id: string) => {
     if (!window.confirm('¿Está seguro de que desea eliminar esta configuración de IA? Esta acción no se puede deshacer.')) {
       return;
@@ -172,10 +172,10 @@ const IAConfigView: React.FC = () => {
 
       if (error) throw error;
 
-      // Reload AI configurations
+      
       await loadAIConfigs();
 
-      // Show success
+      
       alert('Configuración de IA eliminada exitosamente');
     } catch (err: any) {
       setError(err.message || 'Error deleting AI configuration');
@@ -183,7 +183,7 @@ const IAConfigView: React.FC = () => {
     }
   };
 
-  // Load AI configurations function (for refresh)
+  
   const loadAIConfigs = useCallback(async () => {
     try {
       setLoading(true);
@@ -202,7 +202,7 @@ const IAConfigView: React.FC = () => {
     }
   }, []);
 
-  // Handle Playground Chat
+  
   const handleTestChat = async () => {
     if (!testInput.trim() || isTesting) return;
     
@@ -215,7 +215,7 @@ const IAConfigView: React.FC = () => {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // En el backend se leerá automáticamente de supabase las configuraciones actualizadas
+        
         body: JSON.stringify({ 
           message: newMsg.text, 
           history: testMessages,
@@ -263,12 +263,12 @@ const IAConfigView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('iaConfiguration')}</h2>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => { // This button is for adding a new config
+            onClick={() => { 
               setFormMode('add');
               setEditingConfig(null);
               setFormData({
@@ -290,7 +290,7 @@ const IAConfigView: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Configurations List */}
+      {}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('aiConfigurationsList')} ({aiConfigs.length})</h3>
@@ -346,7 +346,7 @@ const IAConfigView: React.FC = () => {
         </div>
       </div>
 
-      {/* Add/Edit Form */}
+      {}
       {formMode !== null && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
@@ -359,7 +359,7 @@ const IAConfigView: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('configKey' as any)}</label>
-                  <input // Changed from textarea to input for config_key
+                  <input 
                     type="text"
                     name="config_key"
                     value={formData.config_key || ''}
@@ -370,7 +370,7 @@ const IAConfigView: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('configValue' as any)}</label>
-                  <textarea // Changed from input to textarea for config_value
+                  <textarea 
                     name="config_value"
                     value={formData.config_value || ''}
                     onChange={handleInputChange}
@@ -422,7 +422,7 @@ const IAConfigView: React.FC = () => {
         </div>
       )}
 
-      {/* AI Playground */}
+      {}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">

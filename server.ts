@@ -16,7 +16,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const PORT = 3000;
 
-// Initialize Gemini client on the server
+
 let aiClient: GoogleGenerativeAI | null = null;
 function getGeminiClient() {
   if (!aiClient) {
@@ -51,9 +51,9 @@ async function startServer() {
     allowedHeaders: ["Content-Type", "Authorization"]
   }));
   
-  app.use(express.json({ limit: "500kb" })); // Limit payload size to prevent DOS
+  app.use(express.json({ limit: "500kb" })); 
 
-  // API router setup - Triage / Chat IA endpoint
+  
   app.post("/api/chat", apiLimiter, async (req: Request, res: Response) => {
     try {
       const { message, history, userProfile } = req.body;
@@ -61,7 +61,7 @@ async function startServer() {
         return res.status(400).json({ error: "El mensaje es obligatorio" });
       }
 
-      // Check if API key is mock/missing, if so return a helpful simulated medic response to preserve experience
+      
       if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 10) {
         console.log("Using simulated response (unconfigured API key).");
         return res.json({
@@ -125,7 +125,7 @@ CENTROS DE REFERENCIA EN GRANADA:
 
 RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 
-      // Evaluamos la hora actual para inyectarla en el contexto del agente
+      
       const now = new Date();
       const localTimeStr = now.toLocaleString("es-NI", { timeZone: "America/Managua", weekday: 'long', hour: '2-digit', minute: '2-digit' });
       
@@ -166,7 +166,7 @@ Condiciones: ${userProfile.healthConditions?.join(', ') || 'Ninguna'}`;
         systemInstruction: finalSystemInstruction
       });
 
-      // Build chat with history
+      
       const chat = model.startChat({
         history: history && Array.isArray(history) ? history.map((turn: any) => ({
           role: (turn.sender === "user" || turn.role === "user") ? "user" : "model",

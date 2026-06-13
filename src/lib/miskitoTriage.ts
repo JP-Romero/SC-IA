@@ -1,17 +1,14 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// MOTOR DE TRIAJE EN IDIOMA MISKITO (OPTIMIZADO)
-// ═══════════════════════════════════════════════════════════════════════════════
-// Este motor se activa EXCLUSIVAMENTE cuando language === 'mi' (Miskito).
-// Ha sido optimizado con pre-cálculo y caché de palabras normalizadas para
-// que la búsqueda sea O(n) y responda instantáneamente en la app.
-// ═══════════════════════════════════════════════════════════════════════════════
+
+
+
+
+
+
+
 
 import { MISKITO_TRIAGE_DATABASE, MiskitoTriageRecord } from "../data/miskitoTriageDatabase";
 import { UserProfile } from "../types";
 
-/**
- * Normaliza un string removiendo acentos y convirtiendo a minúsculas.
- */
 function normalize(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
@@ -27,14 +24,14 @@ const MISKITO_STOP_WORDS = new Set([
   "lukisna", "lukisa", "takisa", "sna", "sma",
   "pali", "tara", "sampi", "pain", "saura", "ailal",
   "bara", "kaka", "dukiara", "baku", "sin", "kli",
-  // Español
+  
   "tengo", "me", "duele", "siento", "estoy", "muy", "mucho",
   "que", "con", "por", "para", "una", "los", "las", "el", "la",
-  // Inglés
+  
   "have", "feel", "lot", "very", "the", "and", "with"
 ]);
 
-// ─── CACHÉ DE PRE-PROCESAMIENTO PARA OPTIMIZACIÓN O(n) ───
+
 interface PreProcessedRecord extends MiskitoTriageRecord {
   normSymptoms: string[];
   normKeywords: string[];
@@ -57,16 +54,13 @@ function getOptimizedDatabase(): PreProcessedRecord[] {
   return cachedDatabase;
 }
 
-/**
- * Motor principal de triaje en Miskito (Ultra rápido)
- */
 export function getMiskitoTriageResponse(query: string, userProfile: UserProfile): string {
   const normalizedQuery = normalize(query);
   let words = normalizedQuery
     .split(/\W+/)
     .filter(w => w.length > 2 && !MISKITO_STOP_WORDS.has(w));
 
-  // Fallback si todas las palabras eran stop-words
+  
   if (words.length === 0) {
     words = normalizedQuery.split(/\W+/).filter(w => w.length > 3);
   }
@@ -75,37 +69,37 @@ export function getMiskitoTriageResponse(query: string, userProfile: UserProfile
   let bestMatch: PreProcessedRecord | null = null;
   let maxScore = 0;
 
-  // Búsqueda lineal O(n) sobre base pre-calculada
+  
   for (let i = 0; i < database.length; i++) {
     const record = database[i];
     let score = 0;
 
-    // 1. Match Exacto de Síntoma (15 pts)
+    
     for (let j = 0; j < record.normSymptoms.length; j++) {
       if (normalizedQuery.includes(record.normSymptoms[j])) {
         score += 15;
       }
     }
 
-    // 2. Match de Palabras Clave
+    
     for (let w = 0; w < words.length; w++) {
       const word = words[w];
       
-      // Keywords directos
+      
       for (let k = 0; k < record.normKeywords.length; k++) {
         const normKey = record.normKeywords[k];
         if (normKey === word) {
-          score += 8; // Match exacto de keyword
+          score += 8; 
         } else if (normKey.includes(word) || word.includes(normKey)) {
-          score += 3; // Substring
+          score += 3; 
         }
       }
 
-      // Palabras sueltas dentro de los síntomas
+      
       for (let sw = 0; sw < record.symptomWordsList.length; sw++) {
         const symptomWord = record.symptomWordsList[sw];
         if (symptomWord === word) {
-          score += 5; // Palabra clave dentro del síntoma
+          score += 5; 
         } else if (symptomWord.includes(word) || word.includes(symptomWord)) {
           score += 2;
         }
@@ -118,7 +112,7 @@ export function getMiskitoTriageResponse(query: string, userProfile: UserProfile
     }
   }
 
-  // Threshold: mínimo 4 puntos para considerarse un match real
+  
   if (!bestMatch || maxScore < 4) {
     return formatNoMatchResponse(query);
   }
@@ -126,9 +120,6 @@ export function getMiskitoTriageResponse(query: string, userProfile: UserProfile
   return formatMatchedResponse(bestMatch);
 }
 
-/**
- * Formateo de respuesta positiva
- */
 function formatMatchedResponse(record: MiskitoTriageRecord): string {
   let severityEmoji = "🟢 Sampi";
   let severityText = "Rutina — duktur ra waia sip sa taim brisma kaka";
@@ -166,9 +157,6 @@ function formatMatchedResponse(record: MiskitoTriageRecord): string {
   return response;
 }
 
-/**
- * Formateo de respuesta sin resultados
- */
 function formatNoMatchResponse(query: string): string {
   return `Prioridad nivel: 🟡 Urgencia sampi\n\n` +
     `🔍 EVALUACIÓN PAS (Kaikanka Pas)\n` +

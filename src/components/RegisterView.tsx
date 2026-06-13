@@ -146,7 +146,7 @@ export default function RegisterView({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
       </div>
 
-      {/* 3D Glassmorphic Floating Rings (Decorative Elements) */}
+      {}
       <div className="absolute top-[6%] right-[-12%] w-64 h-64 pointer-events-none opacity-25 dark:opacity-35 animate-float-slow z-0">
         <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full transform rotate-12">
           <circle cx="100" cy="100" r="70" stroke="url(#ringGrad1)" strokeWidth="18" strokeLinecap="round" filter="url(#glow)" />
@@ -176,7 +176,7 @@ export default function RegisterView({
         </svg>
       </div>
 
-      {/* Top Header / Action Bar */}
+      {}
       <header className="w-full px-6 pt-6 flex justify-end items-center z-10">
         <button
           id="btn-register-toggle-darkmode"
@@ -188,10 +188,10 @@ export default function RegisterView({
         </button>
       </header>
 
-      {/* Main Form Content */}
+      {}
       <main className="flex-1 w-full max-w-md md:max-w-lg mx-auto px-6 md:px-10 py-8 md:my-auto md:bg-white md:dark:bg-slate-900/80 md:backdrop-blur-xl md:shadow-2xl md:shadow-blue-500/10 md:dark:shadow-blue-900/20 md:rounded-[32px] md:border md:border-slate-100 md:dark:border-slate-800 flex flex-col justify-center z-10">
 
-        {/* Brand Logo & Name */}
+        {}
         <div className="flex flex-col items-center mb-5">
           <img
             src="/app-logo-v1.jpg"
@@ -203,7 +203,7 @@ export default function RegisterView({
           </h1>
         </div>
 
-        {/* Title Group */}
+        {}
         <div className="mb-6 text-left">
           <h2 className="text-[34px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             {t('createAccount')}<span className="text-blue-600 dark:text-blue-500">.</span>
@@ -213,9 +213,9 @@ export default function RegisterView({
           </p>
         </div>
 
-        {/* Form Fields */}
+        {}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nombre Completo Input */}
+          {}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
               {t('fullName')}
@@ -246,7 +246,7 @@ export default function RegisterView({
             )}
           </div>
 
-          {/* Email Input */}
+          {}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
               {t('emailLabel')}
@@ -277,7 +277,7 @@ export default function RegisterView({
             )}
           </div>
 
-          {/* Contraseña Input */}
+          {}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
               {t('passwordLabel')}
@@ -316,7 +316,7 @@ export default function RegisterView({
             )}
           </div>
 
-          {/* Confirmar Contraseña Input */}
+          {}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-455 dark:text-slate-500 tracking-wider">
               {t('confirmPassword')}
@@ -355,7 +355,7 @@ export default function RegisterView({
             )}
           </div>
 
-          {/* Checkbox Términos y Condiciones */}
+          {}
           <div className="space-y-1 pt-1">
             <label className="flex items-start space-x-3 cursor-pointer group">
               <input
@@ -378,7 +378,7 @@ export default function RegisterView({
             )}
           </div>
 
-          {/* Submit Button */}
+          {}
           <button
             id="btn-register-submit"
             type="submit"
@@ -399,7 +399,7 @@ export default function RegisterView({
           </button>
         </form>
 
-        {/* Divider */}
+        {}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-slate-150 dark:border-slate-800/80"></div>
@@ -411,7 +411,7 @@ export default function RegisterView({
           </div>
         </div>
 
-        {/* Google Register */}
+        {}
         <button
           id="btn-register-google"
           type="button"
@@ -432,7 +432,7 @@ export default function RegisterView({
             <span>{t('continueWithGoogle')}</span>
         </button>
 
-        {/* Already have account -> Login */}
+        {}
         <button
           id="btn-register-login-back"
           type="button"
@@ -446,7 +446,7 @@ export default function RegisterView({
 
       </main>
 
-      {/* Decorative Wave at the bottom */}
+      {}
       <footer className="w-full pb-8 pt-4 flex flex-col items-center justify-center relative">
         <div className="absolute bottom-0 inset-x-0 w-full overflow-hidden leading-none pointer-events-none opacity-40 dark:opacity-20 -z-10">
           <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[55px] text-blue-500 fill-current">

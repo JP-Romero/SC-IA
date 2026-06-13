@@ -166,7 +166,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     }
   };
 
-  // Carousel scroll ref and state
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
@@ -195,9 +195,9 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         window.removeEventListener("resize", checkScroll);
       };
     }
-  }, [messages.length]); // Re-attach if DOM changes due to messages length
+  }, [messages.length]); 
 
-  // Auto-scroll chat to bottom
+  
   useEffect(() => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -317,14 +317,14 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         return;
       }
       
-      // Check if response is simulated (fallback mode)
+      
       if (data.simulated) {
         console.warn("[ConsultaView] Simulated response received:", data.warning);
       }
       
       let botText = data.text || "Lo siento, no pude procesar la respuesta.";
       
-      // Add warning badge for simulated responses
+      
       if (data.simulated && data.warning) {
         botText = `📋 ${data.warning}\n\n${botText}`;
       }
@@ -362,7 +362,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const firstName = user.name.split(" ")[0];
   const isChatMode = messages.length > 0;
 
-  // Simple formatting for bold text
+  
   const formatMessageText = (text: string) => {
     const parts = text.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, i) => {
@@ -382,14 +382,14 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
       </div>
 
-      {/* ═══════════════ ORGANIC BACKGROUND BLOBS ═══════════════ */}
+      {}
       <div className="absolute pointer-events-none z-0" style={{ top: "-8%", right: "-15%", width: "420px", height: "420px", background: "radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.03) 50%, transparent 75%)", borderRadius: "55% 45% 60% 40% / 45% 55% 40% 60%", filter: "blur(40px)" }} />
       <div className="absolute pointer-events-none z-0" style={{ top: "5%", left: "-8%", width: "220px", height: "220px", background: "radial-gradient(ellipse at center, rgba(99,102,241,0.06) 0%, transparent 70%)", borderRadius: "40% 60% 55% 45% / 55% 45% 60% 40%", filter: "blur(35px)" }} />
       <div className="absolute pointer-events-none z-0" style={{ top: "35%", right: "-5%", width: "280px", height: "280px", background: "radial-gradient(ellipse at center, rgba(37,99,235,0.04) 0%, transparent 70%)", borderRadius: "50% 50% 40% 60% / 60% 40% 50% 50%", filter: "blur(50px)" }} />
       <div className="absolute pointer-events-none z-0" style={{ bottom: "15%", left: "-12%", width: "350px", height: "350px", background: "radial-gradient(ellipse at center, rgba(147,197,253,0.07) 0%, transparent 70%)", borderRadius: "60% 40% 45% 55% / 45% 55% 50% 50%", filter: "blur(45px)" }} />
       <div className="absolute pointer-events-none z-0" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "500px", height: "500px", background: "radial-gradient(ellipse at center, rgba(219,234,254,0.15) 0%, transparent 60%)", borderRadius: "50%", filter: "blur(60px)" }} />
 
-      {/* ═══════════════ HEADER ═══════════════ */}
+      {}
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -397,7 +397,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         className={`flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-2 z-20 relative w-full max-w-5xl mx-auto ${isChatMode ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0" : ""}`}
         style={{ paddingTop: "max(env(safe-area-inset-top, 20px), 40px)" }}
       >
-        {/* Logo */}
+        {}
         <div
           className="flex items-center gap-2.5 cursor-pointer active:opacity-70 transition-opacity"
           onClick={() => onNavigate && onNavigate("home")}
@@ -412,7 +412,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           </span>
         </div>
 
-        {/* Action Buttons: Reset Chat / Emergency Button */}
+        {}
         <div className="flex items-center gap-3">
           {isChatMode && (
             <button
@@ -431,7 +431,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               boxShadow: "0 6px 20px rgba(251,113,133,0.25)",
             }}
           >
-            {/* Inner glow */}
+            {}
             <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
             <Siren className="w-5 h-5 text-white relative z-10 mb-[1px]" />
             <span className="text-white text-[10px] font-bold relative z-10 leading-none mt-[-1px]">128</span>
@@ -439,11 +439,11 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         </div>
       </motion.header>
 
-      {/* ═══════════════ CONDITIONAL RENDER: HERO VS CHAT ═══════════════ */}
+      {}
       {!isChatMode ? (
         <AnimatePresence>
           <motion.div exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
-            {/* ═══════════════ MAIN TEXT CONTENT ═══════════════ */}
+            {}
             <motion.main
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -468,14 +468,14 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               </div>
             </motion.main>
 
-            {/* ═══════════════ SYMPTOM CHIPS CAROUSEL ═══════════════ */}
+            {}
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
               className="w-full max-w-5xl mx-auto relative mt-12 mb-4 z-20 group"
             >
-              {/* Left Arrow */}
+              {}
               <AnimatePresence>
                 {showLeftArrow && (
                   <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollByAmount(-220)} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
@@ -484,7 +484,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 )}
               </AnimatePresence>
 
-              {/* Right Arrow */}
+              {}
               <AnimatePresence>
                 {showRightArrow && (
                   <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollByAmount(220)} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
@@ -493,11 +493,11 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 )}
               </AnimatePresence>
 
-              {/* Overlays */}
+              {}
               <div className="absolute left-0 top-0 bottom-0 pointer-events-none z-10 transition-opacity duration-300" style={{ width: "80px", background: "linear-gradient(90deg, var(--tw-gradient-from) 0%, rgba(248,250,255,0) 100%)", opacity: showLeftArrow ? 1 : 0 }} />
               <div className="absolute right-0 top-0 bottom-0 pointer-events-none z-10 transition-opacity duration-300" style={{ width: "80px", background: "linear-gradient(270deg, var(--tw-gradient-from) 0%, rgba(248,250,255,0) 100%)", opacity: showRightArrow ? 1 : 0 }} />
 
-              {/* Scroll Container */}
+              {}
               <div ref={scrollRef} onMouseDown={handleMouseDown} onMouseLeave={handleMouseLeave} onMouseUp={handleMouseUp} onMouseMove={handleMouseMove} className="chips-scroll flex px-7 gap-3 pb-2 overflow-x-auto select-none" style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch", cursor: isDragging ? "grabbing" : "grab" }}>
                 <style>{`.chips-scroll::-webkit-scrollbar { display: none; }`}</style>
                 {SYMPTOM_CHIPS.map((chip) => {
@@ -515,7 +515,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           </motion.div>
         </AnimatePresence>
       ) : (
-        /* ═══════════════ CHAT MESSAGES LIST ═══════════════ */
+        
         <div className="flex-1 w-full max-w-5xl mx-auto px-5 py-4 overflow-y-auto z-10 flex flex-col gap-4">
           <AnimatePresence>
             {messages.map((msg, idx) => (
@@ -558,10 +558,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         </div>
       )}
 
-      {/* Flexible spacer (only when not chatting) */}
+      {}
       {!isChatMode && <div className="flex-1 min-h-[40px]" />}
 
-      {/* ═══════════════ CHAT INPUT CARD ═══════════════ */}
+      {}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -573,10 +573,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             isFocused ? "border-blue-600 shadow-[0_12px_35px_rgba(37,99,235,0.15)]" : "border-slate-200 dark:border-slate-800 shadow-[0_8px_30px_rgba(15,23,42,0.08)]"
           }`}
         >
-          {/* Subtle inner gradient for premium feel */}
+          {}
           <div className="absolute inset-0 pointer-events-none opacity-50 dark:opacity-10" style={{ background: "linear-gradient(180deg, rgba(248,250,252,0.5) 0%, transparent 40%)", borderRadius: "28px" }} />
 
-          {/* Textarea */}
+          {}
           <textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -589,14 +589,14 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             style={{ height: "56px", fontSize: "15px", lineHeight: 1.5, fontWeight: 400, fontFamily: "'Inter', sans-serif", paddingLeft: "4px", paddingRight: "4px" }}
           />
 
-          {/* Action buttons row */}
+          {}
           <div className="flex justify-between items-center relative z-10 mt-1">
-            {/* Attach button */}
+            {}
             <motion.button whileTap={{ scale: 0.9 }} className="flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" style={{ width: "42px", height: "42px", borderRadius: "50%", color: "#64748b" }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
             </motion.button>
 
-            {/* Right side: Mic + Send */}
+            {}
             <div className="flex items-center gap-2">
               <motion.button 
                 whileTap={{ scale: 0.9 }} 
@@ -620,7 +620,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         </div>
       </motion.div>
 
-      {/* ═══════════════ TRUST BADGE ═══════════════ */}
+      {}
       {!isChatMode && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.45 }} className="flex items-center justify-center gap-3.5 mb-24 z-10 w-full max-w-5xl mx-auto relative px-6">
           <div className="relative shrink-0" style={{ width: "32px", height: "34px" }}>

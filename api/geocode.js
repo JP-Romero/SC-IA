@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
 
-  const allowedOrigin = process.env.FRONTEND_URL || "*"; // En producción debe configurarse FRONTEND_URL
+  const allowedOrigin = process.env.FRONTEND_URL || "*"; 
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");

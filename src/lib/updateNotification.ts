@@ -1,13 +1,10 @@
-/**
- * Componente de Notificación de Actualizaciones Responsivo y Premium
- * Salud-Conecta IA
- */
+
 
 export const APP_VERSION = "v1.0.9";
 const DISMISS_KEY = "updateNotificationDismissedAt";
-const REAPPEAR_INTERVAL = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+const REAPPEAR_INTERVAL = 24 * 60 * 60 * 1000; 
 
-// Estilos CSS que se inyectarán en el documento
+
 const CSS_STYLES = `
   /* Contenedor de la notificación */
   #update-notification-root {
@@ -293,9 +290,7 @@ const CSS_STYLES = `
   }
 `;
 
-/**
- * Inyecta los estilos CSS en el head del documento si no existen
- */
+
 function injectStyles() {
   const styleId = "update-notification-styles";
   if (!document.getElementById(styleId)) {
@@ -306,9 +301,7 @@ function injectStyles() {
   }
 }
 
-/**
- * Verifica si se debe mostrar la notificación de actualización basándose en el descarte
- */
+
 export function shouldShowNotification(): boolean {
   const dismissedAt = localStorage.getItem(DISMISS_KEY);
   if (!dismissedAt) return true;
@@ -317,44 +310,36 @@ export function shouldShowNotification(): boolean {
   return elapsed > REAPPEAR_INTERVAL;
 }
 
-/**
- * Guarda el descarte en localStorage para no molestar por 24h
- */
+
 export function dismissUpdateNotification(): void {
   localStorage.setItem(DISMISS_KEY, Date.now().toString());
 }
 
-/**
- * Muestra el componente de actualización responsivo en pantalla.
- * 
- * @param onConfirm Callback cuando el usuario pulsa "Actualizar"
- * @param onCancel Callback opcional cuando el usuario pulsa "Más tarde" o cierra
- * @param force Si es true, ignora la restricción de las 24 horas (útil para comprobaciones manuales)
- */
+
 export function showUpdateNotification(
   onConfirm: () => void,
   onCancel?: () => void,
   force = false
 ): void {
-  // Evitar duplicados
+  
   if (document.getElementById("update-notification-root")) {
     return;
   }
 
-  // Si no se fuerza la aparición y no debe mostrarse (debido al descarte de 24h), salimos
+  
   if (!force && !shouldShowNotification()) {
     console.log("[UpdateNotification] Notificación ignorada recientemente (límite de 24 horas activo).");
     return;
   }
 
-  // Inyectar estilos CSS
+  
   injectStyles();
 
-  // Crear contenedor principal
+  
   const container = document.createElement("div");
   container.id = "update-notification-root";
 
-  // Estructura HTML interna
+  
   container.innerHTML = `
     <div class="un-container">
       <button class="un-close-btn" id="un-close" aria-label="Cerrar">
@@ -379,24 +364,24 @@ export function showUpdateNotification(
     </div>
   `;
 
-  // Añadir al DOM
+  
   document.body.appendChild(container);
 
-  // Trigger de la animación de entrada tras un breve delay (pintado en el DOM)
+  
   setTimeout(() => {
     container.classList.add("active");
   }, 50);
 
-  // Función para cerrar y destruir el componente
+  
   const destroy = (saveDismiss = false) => {
     if (saveDismiss) {
       dismissUpdateNotification();
     }
     
-    // Quitar clase active para animar la salida
+    
     container.classList.remove("active");
     
-    // Esperar a que la transición termine para remover del DOM
+    
     const handleTransitionEnd = (e: TransitionEvent) => {
       if (e.propertyName === "transform" || e.propertyName === "opacity") {
         container.removeEventListener("transitionend", handleTransitionEnd);
@@ -406,7 +391,7 @@ export function showUpdateNotification(
     
     container.addEventListener("transitionend", handleTransitionEnd);
     
-    // Fallback de seguridad por si no se dispara transitionend
+    
     setTimeout(() => {
       if (container.parentNode) {
         container.remove();
@@ -414,33 +399,28 @@ export function showUpdateNotification(
     }, 500);
   };
 
-  // Enlazar Eventos
+  
   const updateBtn = container.querySelector("#un-update");
   const laterBtn = container.querySelector("#un-later");
   const closeBtn = container.querySelector("#un-close");
 
   updateBtn?.addEventListener("click", () => {
-    destroy(false); // No guardamos descarte de 24h porque el usuario aceptó
+    destroy(false); 
     onConfirm();
   });
 
   laterBtn?.addEventListener("click", () => {
-    destroy(true); // Guardar descarte de 24h para no molestar
+    destroy(true); 
     if (onCancel) onCancel();
   });
 
   closeBtn?.addEventListener("click", () => {
-    destroy(true); // Cerrar desde la 'X' también cuenta como ignorar por 24h
+    destroy(true); 
     if (onCancel) onCancel();
   });
 }
 
-/**
- * Busca actualizaciones de forma activa en el Service Worker y notifica al usuario
- * 
- * @param registration Objeto de registro de Service Worker activo
- * @param forceCheck Si es true, omite limitaciones e interactúa con el usuario directamente
- */
+
 export async function checkForUpdates(
   registration: ServiceWorkerRegistration | null,
   forceCheck = false
@@ -451,15 +431,15 @@ export async function checkForUpdates(
 
   try {
     console.log("[UpdateNotification] Buscando actualizaciones en el Service Worker...");
-    // Intentar disparar la búsqueda de actualización en segundo plano del navegador
+    
     await registration.update();
     
-    // Comprobar si hay un trabajador esperando
+    
     if (registration.waiting) {
       return { updateFound: true };
     }
     
-    // Comprobar si se está instalando uno nuevo
+    
     if (registration.installing) {
       return new Promise((resolve) => {
         const worker = registration.installing;
@@ -476,7 +456,7 @@ export async function checkForUpdates(
           }
         });
         
-        // Timeout de seguridad de 5s para el estado instalándose
+        
         setTimeout(() => resolve({ updateFound: false }), 5000);
       });
     }

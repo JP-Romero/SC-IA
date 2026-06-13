@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 
-// Inicializar cliente de Supabase (usando las variables de entorno de Vercel)
+
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
@@ -81,8 +81,8 @@ CENTROS DE REFERENCIA EN GRANADA:
 RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 
 export default async function handler(req, res) {
-  // Configuración de CORS más restrictiva
-  const allowedOrigin = process.env.FRONTEND_URL || "*"; // En producción debe configurarse FRONTEND_URL
+  
+  const allowedOrigin = process.env.FRONTEND_URL || "*"; 
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
@@ -127,7 +127,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Evaluamos la hora actual para inyectarla en el contexto del agente
+    
     const now = new Date();
     const localTimeStr = now.toLocaleString("es-NI", { timeZone: "America/Managua", weekday: 'long', hour: '2-digit', minute: '2-digit' });
     
@@ -188,13 +188,13 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
       }
     }
 
-    // Get the model with system instruction
+    
     const model = ai.getGenerativeModel({
       model: aiModel,
       systemInstruction: systemPrompt,
     });
 
-    // Build chat with history
+    
     const chat = model.startChat({
       history: history && Array.isArray(history) ? history.map(turn => ({
         role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
@@ -242,7 +242,7 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
       console.log("API quota exceeded, switching to simulated mode");
     }
     
-    // If quota exceeded, return simulated response instead of error
+    
     if (shouldUseFallback) {
       return res.status(200).json({
         text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,

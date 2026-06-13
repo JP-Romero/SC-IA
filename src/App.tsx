@@ -39,7 +39,7 @@ export default function App() {
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
-  // Network status state
+  
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function App() {
     };
   }, []);
 
-  // PWA states
+  
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showIosGuideModal, setShowIosGuideModal] = useState(false);
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
@@ -74,7 +74,7 @@ export default function App() {
     }
   });
 
-  // Alertas / Banners descartados por el usuario
+  
   const [dismissedAnnouncements, setDismissedAnnouncements] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem("dismissedAnnouncements") || "[]");
@@ -83,7 +83,7 @@ export default function App() {
     }
   });
 
-  // Cargar Anuncios Activos
+  
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
@@ -92,14 +92,14 @@ export default function App() {
         if (!error && data) {
           const now = new Date();
           const active = data.filter((a: any) => {
-            // Asegurar cobertura de todo el día para las fechas
+            
             const start = new Date(a.fecha_inicio + "T00:00:00");
             const end = new Date(a.fecha_fin + "T23:59:59");
             return now >= start && now <= end && !dismissedAnnouncements.includes(a.id);
           });
           setAnnouncements(active);
         }
-        // Si hay un error 404, no rompemos la app, solo logueamos
+        
         if (error) console.warn("Nota: Tabla de anuncios no disponible aún.");
       } catch (err) {
         console.error("Error fetching announcements", err);
@@ -107,14 +107,14 @@ export default function App() {
     };
     fetchAnnouncements();
 
-    // Suscripción en tiempo real a anuncios
+    
     const announcementsSub = supabase
       .channel('announcements-channel')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'admin_announcements' },
         () => {
-          fetchAnnouncements(); // Recargar los anuncios si el admin añade o elimina uno
+          fetchAnnouncements(); 
         }
       )
       .subscribe();
@@ -122,7 +122,7 @@ export default function App() {
     return () => { supabase.removeChannel(announcementsSub); };
   }, [dismissedAnnouncements]);
 
-  // Cargar Configuración Global
+  
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -136,7 +136,7 @@ export default function App() {
     };
     fetchSettings();
 
-    // Suscripción en tiempo real a configuraciones globales (Feature flags y Mantenimiento)
+    
     const settingsSub = supabase
       .channel('global-settings-channel')
       .on(
@@ -158,7 +158,7 @@ export default function App() {
   const profileRole = (profile as any)?.role ?? (profile as any)?.rol;
   const isMaintenanceBlocked = maintenanceMode && profile && profileRole !== 'admin';
 
-  // Auto-redirect if feature is disabled
+  
   useEffect(() => {
     if (globalSettings) {
       if (currentView === "buscar" && !featureFlags.healthUnitSearch) setCurrentView("home");
@@ -166,7 +166,7 @@ export default function App() {
     }
   }, [currentView, featureFlags, globalSettings]);
 
-  // Font Size state
+  
   const [fontSize, setFontSize] = useState<"sm" | "base" | "lg">(() => {
     try {
       return (localStorage.getItem("fontSize") as "sm" | "base" | "lg") || "base";
@@ -175,7 +175,7 @@ export default function App() {
     }
   });
 
-  // Global dark mode state
+  
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     try {
       const savedTheme = localStorage.getItem("theme");
@@ -189,7 +189,7 @@ export default function App() {
     }
   });
 
-  // Synchronize dark mode class on document element
+  
   useEffect(() => {
     try {
       if (darkMode) {
@@ -204,7 +204,7 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // Synchronize font size
+  
   useEffect(() => {
     try {
       const root = document.documentElement;
@@ -222,37 +222,37 @@ export default function App() {
   }, [fontSize]);
 
 
-  // Auto scroll to top on page switches to mimic page routing
+  
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentView]);
 
-  // ─── Session-based navigation ─────────────────────────────
-  // Redirect to home if user is authenticated, or to login if not
+  
+  
   useEffect(() => {
     if (!initialized) return;
 
     if (session && user) {
-      // User is authenticated — if on login/register, redirect to home
+      
       if (currentView === "login" || currentView === "register") {
         setCurrentView("home");
       }
 
-      // Request notification permissions and show daily message
+      
       requestNotificationPermission().then((granted) => {
         if (granted) {
           showDailyNotification(user.id);
         }
       });
     } else {
-      // No session — force login screen
+      
       if (currentView !== "login" && currentView !== "register") {
         setCurrentView("login");
       }
     }
   }, [session, user, initialized]);
 
-  // Carga inicial del perfil desde caché local para evitar parpadeos visuales en móviles
+  
   useEffect(() => {
     if (initialized && user && user.id !== "guest") {
       try {
@@ -285,7 +285,7 @@ export default function App() {
     }
   }, [initialized, user]);
 
-  // Sync profile data from Supabase to local state con persistencia en caché
+  
   useEffect(() => {
     if (profile) {
       setLocalUser((prev) => {
@@ -367,14 +367,9 @@ export default function App() {
     localStorage.setItem("dismissedAnnouncements", JSON.stringify(updated));
   };
 
-  /**
-   * LÓGICA DE INSTALACIÓN PWA
-   * 1. Registrar el Service Worker.
-   * 2. Escuchar y capturar el evento 'beforeinstallprompt'.
-   * 3. Enlazar ese evento al botón con el ID 'btn-instalar'.
-   */
+  
   useEffect(() => {
-    // 1. Registro del Service Worker (también en index.html, pero de soporte aquí)
+    
     if ('serviceWorker' in navigator) {
       const registerSW = () => {
         navigator.serviceWorker.register('/service-worker.js')
@@ -382,12 +377,12 @@ export default function App() {
             console.log('[PWA] Service Worker registrado:', reg.scope);
             setSwRegistration(reg);
 
-            // Verificar si ya hay una actualización esperando al cargar
+            
             if (reg.waiting) {
               triggerUpdateNotification(reg);
             }
 
-            // Escuchar si se encuentra una nueva actualización en segundo plano
+            
             reg.addEventListener('updatefound', () => {
               const newWorker = reg.installing;
               if (newWorker) {
@@ -408,20 +403,20 @@ export default function App() {
         window.addEventListener('load', registerSW);
       }
 
-      // Escuchar si hay cambios de controlador
+      
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         console.log('[PWA] Nuevo Service Worker en control.');
       });
     }
 
-    // 2. Capturar el evento de instalación
+    
     const handleBeforeInstallPrompt = (e: any) => {
-      // Evitar que Chrome muestre el prompt automático
+      
       e.preventDefault();
-      // Guardar el evento para dispararlo manualmente
+      
       setDeferredPrompt(e);
 
-      // Mostrar nuestro propio banner si no ha sido descartado
+      
       try {
         const dismissed = localStorage.getItem("dismissedPwaBanner");
         if (dismissed !== "true") {
@@ -434,7 +429,7 @@ export default function App() {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // Escuchar cuando la app se instala con éxito
+    
     const handleAppInstalled = () => {
       console.log("[PWA] Aplicación instalada correctamente.");
       setShowPwaBanner(false);
@@ -453,16 +448,14 @@ export default function App() {
     };
   }, [t, addToast]);
 
-  /**
-   * 3. Función vinculada al botón con ID 'btn-instalar'
-   */
+  
   const handleInstallPwa = async () => {
     if (deferredPrompt) {
       try {
-        // Lanzar el banner de instalación guardado
+        
         await deferredPrompt.prompt();
 
-        // Verificar la elección del usuario
+        
         const { outcome } = await deferredPrompt.userChoice;
         console.log(`[PWA] El usuario eligió: ${outcome}`);
 
@@ -473,13 +466,13 @@ export default function App() {
           } catch (e) { }
         }
 
-        // Resetear el evento
+        
         setDeferredPrompt(null);
       } catch (error) {
         console.error("[PWA] Error en el proceso de instalación:", error);
       }
     } else {
-      // Fallback para iOS o navegadores que no soportan el evento
+      
       const userAgent = window.navigator.userAgent.toLowerCase();
       const isIos = /iphone|ipad|ipod/.test(userAgent);
 
@@ -491,7 +484,7 @@ export default function App() {
     }
   };
 
-  // ─── Handlers ──────────────────────────────────────────────
+  
   const handleLoginSuccess = (idOrName: string) => {
     if (idOrName === "guest") {
       setLocalUser({
@@ -505,7 +498,7 @@ export default function App() {
   };
 
   const handleRegisterSuccess = (name: string) => {
-    // Profile sync happens via useEffect above
+    
     setCurrentView("home");
   };
 
@@ -516,7 +509,7 @@ export default function App() {
   const handleUpdateUser = async (updatedUser: UserProfile) => {
     setLocalUser(updatedUser);
 
-    // Save locally
+    
     try {
       const userId = user?.id !== "guest" ? user?.id : "guest";
       if (userId) {
@@ -532,7 +525,7 @@ export default function App() {
       console.warn("Could not save to localStorage", e);
     }
 
-    // Guardar cambios en Supabase si no es usuario invitado
+    
     if (user && user.id !== "guest") {
       try {
         const { success, error } = await updateUserProfile(user.id, {
@@ -580,7 +573,7 @@ export default function App() {
     addToast(createToast(t('appReset'), "info"));
   };
 
-  // ─── Loading Screen ────────────────────────────────────────
+  
   if (!initialized) {
     return (
       <div className="min-h-dvh bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-slate-900 dark:to-slate-950 flex items-center justify-center">
@@ -623,10 +616,10 @@ export default function App() {
   return (
     <div className="min-h-dvh bg-slate-50 dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
 
-      {/* Toast Notifications */}
+      {}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {/* DESKTOP SIDEBAR NAVIGATION (Solo visible en Laptop/PC) */}
+      {}
       {currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
         <aside className="hidden md:flex flex-col w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
           <div className="p-6 flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView("home")}>
@@ -664,7 +657,7 @@ export default function App() {
             ))}
           </div>
 
-          {/* Bottom Profile Section */}
+          {}
           <div className="p-4 border-t border-slate-100 dark:border-slate-800">
             <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" : "hover:bg-slate-50 dark:hover:bg-slate-800 border-transparent"} text-left`}>
               {localUser.avatarUrl ? (
@@ -685,10 +678,10 @@ export default function App() {
         </aside>
       )}
 
-      {/* Dynamic Content Views based on Router State (Con padding lateral en Laptop para centrado perfecto) */}
+      {}
       <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : `min-h-screen ${hasBottomNav ? "pb-20" : "pb-0"}`} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
 
-        {/* Offline Banner */}
+        {}
         <AnimatePresence>
           {isOffline && (
             <motion.div
@@ -703,7 +696,7 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* PWA Download/Install Banner */}
+        {}
         <AnimatePresence>
           {showPwaBanner && (
             <motion.div
@@ -747,7 +740,7 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* Admin Announcements (Alertas y Promociones) */}
+        {}
         <AnimatePresence>
           {announcements.map(ann => {
             const isAlert = ann.tipo === 'alert';
@@ -932,12 +925,12 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* PERSISTENT 4-TAB NAVIGATION BAR IN PAGE FOOTERS */}
+        {}
         {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
           <nav className="fixed bottom-0 inset-x-0 bg-white dark:bg-slate-900 z-40 w-full border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:hidden">
             <div className={`grid ${gridColsClass} p-2.5 pt-3 pb-5 relative font-sans`}>
 
-              {/* Tab 1: Inicio */}
+              {}
               <button
                 id="btn-nav-home"
                 onClick={() => setCurrentView("home")}
@@ -958,7 +951,7 @@ export default function App() {
                 )}
               </button>
 
-              {/* Tab 2: Consulta IA */}
+              {}
               <button
                 id="btn-nav-consulta"
                 onClick={() => setCurrentView("consulta")}
@@ -980,7 +973,7 @@ export default function App() {
                 )}
               </button>
 
-              {/* Tab 3: Buscador (Centros) */}
+              {}
               {featureFlags.healthUnitSearch && (
                 <button
                   id="btn-nav-buscar"
@@ -1003,7 +996,7 @@ export default function App() {
                 </button>
               )}
 
-              {/* Tab 4: Premium */}
+              {}
               {featureFlags.premiumFeatures && (
                 <button
                   id="btn-nav-premium"
@@ -1029,7 +1022,7 @@ export default function App() {
         )}
       </div>
 
-      {/* REDESIGNED SETTINGS MODAL */}
+      {}
       <AnimatePresence>
         {isSettingsOpen && (
           <motion.div
@@ -1044,7 +1037,7 @@ export default function App() {
               exit={{ scale: 0.95, y: 15 }}
               className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200"
             >
-              {/* Modal Header */}
+              {}
               <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
                 <div className="flex items-center gap-3">
                   {settingsView !== "menu" && (
@@ -1076,7 +1069,7 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Modal Body */}
+              {}
               <div className="p-6 max-h-[70vh] overflow-y-auto max-md:no-scrollbar">
                 <AnimatePresence mode="wait">
                   {settingsView === "menu" && (
@@ -1087,11 +1080,11 @@ export default function App() {
                       exit={{ opacity: 0, x: 10 }}
                       className="space-y-6"
                     >
-                      {/* Appearance Section */}
+                      {}
                       <div className="space-y-3">
                         <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{t('appearance')}</h4>
 
-                        {/* Dark Mode Toggle */}
+                        {}
                         <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
                           <div className="flex items-center gap-3">
                             <div className={`p-2 rounded-xl ${darkMode ? "bg-indigo-500/10 text-indigo-400" : "bg-amber-500/10 text-amber-500"}`}>
@@ -1110,7 +1103,7 @@ export default function App() {
                           </button>
                         </div>
 
-                        {/* Font Size Selector */}
+                        {}
                         <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                           <div className="flex items-center gap-3 mb-3">
                             <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
@@ -1134,7 +1127,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Region Section */}
+                      {}
                       <div className="space-y-3">
                         <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{t('regional')}</h4>
                         <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
@@ -1156,7 +1149,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Information Section */}
+                      {}
                       <div className="space-y-3">
                         <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{t('legalInfo')}</h4>
                         <div className="space-y-2">
@@ -1180,11 +1173,11 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Updates Section */}
+                      {}
                       <div className="space-y-3">
                         <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{t('updates')}</h4>
 
-                        {/* Check updates button */}
+                        {}
                         <button
                           onClick={handleCheckForUpdates}
                           disabled={checkingUpdates}
@@ -1203,11 +1196,11 @@ export default function App() {
                           <span className="text-xs font-bold text-slate-400 dark:text-slate-500 font-mono">{APP_VERSION}</span>
                         </button>
 
-                        {/* Test update alert button (Simulate) */}
+                        {}
                         <button
                           onClick={() => {
                             setIsSettingsOpen(false);
-                            // Simular la notificación ignorando el límite de 24h
+                            
                             showUpdateNotification(() => {
                               addToast(createToast(t('simulatingReload'), "info"));
                               setTimeout(() => window.location.reload(), 1500);
@@ -1227,7 +1220,7 @@ export default function App() {
                         </button>
                       </div>
 
-                      {/* Advanced / Debug Section */}
+                      {}
                       <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                         <button
                           onClick={handleResetApp}
@@ -1315,7 +1308,7 @@ export default function App() {
                 </AnimatePresence>
               </div>
 
-              {/* Modal Footer */}
+              {}
               <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 dark:text-slate-500 text-center">
                 Salud-Conecta IA • {APP_VERSION}
               </div>
@@ -1324,7 +1317,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* EMERGENCY INFORMATIVE AND CONFIRMATION MODAL */}
+      {}
       <AnimatePresence>
         {isEmergencyModalOpen && (
           <motion.div
@@ -1340,7 +1333,7 @@ export default function App() {
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
               className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(251,113,133,0.08)] border border-rose-50 dark:border-rose-900/10 relative overflow-hidden"
             >
-              {/* Professional Emergency Content */}
+              {}
               <div className="flex flex-col mt-2 mb-5">
                 <div className="flex flex-col items-center justify-center text-center mb-5 mt-2">
                   <div className="w-[64px] h-[64px] rounded-full bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mb-3 shadow-[0_4px_16px_rgba(251,113,133,0.15)] relative">
@@ -1382,7 +1375,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {}
               <div className="flex flex-col gap-3" style={{ fontFamily: "'Inter', sans-serif" }}>
                 <motion.a
                   href="tel:128"
@@ -1409,7 +1402,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* iOS PWA Installation Guide Modal */}
+      {}
       <AnimatePresence>
         {showIosGuideModal && (
           <motion.div

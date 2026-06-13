@@ -1,6 +1,6 @@
 export const translations = {
   es: {
-    // Navigation
+    
     home: "Inicio",
     consulta: "Consulta IA",
     centros: "Centros Médicos",
@@ -8,7 +8,7 @@ export const translations = {
     premium: "Premium",
     perfil: "Mi perfil",
 
-    // Settings Modal
+    
     settings: "Configuración",
     appearance: "Apariencia",
     darkMode: "Modo oscuro",
@@ -25,7 +25,7 @@ export const translations = {
     resetApp: "Reiniciar base de datos local",
     version: "v1.2.0 • 2026",
 
-    // App Modals & Toasts
+    
     loadingModule: "Cargando módulo...",
     maintenanceTitle: "En Mantenimiento",
     maintenanceDesc: "Estamos realizando mejoras en la plataforma. Por favor, vuelve a intentarlo más tarde.",
@@ -61,19 +61,19 @@ export const translations = {
     updatePostponed: "Actualización pospuesta (Simulado)",
     useBrowserMenu: "Usa el menú del navegador para 'Instalar' o 'Añadir a pantalla de inicio'.",
 
-    // Terms & Privacy & Guide Titles
+    
     termsTitle: "Términos de Servicio",
     privacyTitle: "Política de Privacidad",
     guideTitle: "¿Cómo usar Salud-Conecta IA?",
 
-    // PWA Banner
+    
     pwaBannerTitle: "Instala la App Móvil",
     pwaBannerDesc: "Accede al instante a tu triaje médico con IA y disfruta de funciones offline optimizadas.",
     pwaInstallButton: "Instalar PWA",
     pwaIosInstructions: "En iOS: presiona el botón compartir ⎋ y selecciona 'Agregar a Inicio' ⊞",
     pwaSuccessToast: "¡Salud-Conecta IA se ha instalado correctamente!",
 
-    // Misc
+    
     welcome: "Bienvenido",
     guest: "Invitado",
     hello: "Hola",
@@ -114,7 +114,7 @@ export const translations = {
     homeEmergDesc: "Llama rápidamente a los servicios de emergencia (128).",
     backToApp: "Volver a la App",
 
-    // Buscar View
+    
     searchTitle: "Buscador",
     pharmacies: "Farmacias",
     doctors: "Médicos",
@@ -163,7 +163,7 @@ export const translations = {
     bookingSuccessDesc: "Tu cita con **{name}** ha quedado confirmada de forma segura bajo el número de registro **APP-{id}**.",
     smsReminder: "Un recordatorio SMS ha sido enviado.",
 
-    // Perfil View
+    
     verified: "Verificado",
     changePhoto: "Cambiar foto",
     noAlerts: "No tienes alertas críticas pendientes. Su historial clínico de triaje virtual se encuentra en perfecto orden.",
@@ -207,7 +207,7 @@ export const translations = {
     standardsDesc: "Cumplimos con los más altos estándares de privacidad y seguridad médica de acuerdo con las normativas GDPR y HIPAA.",
     logoutConfirm: "¿Estás seguro de que deseas cerrar la sesión?",
 
-    // Premium View
+    
     premiumTitle: "Premium",
     premiumSubtitle: "Potencia tu bienestar con beneficios exclusivos.",
     premiumActiveMsg: "¡Felicidades, {name}! Tu suscripción Premium está ACTIVA.",
@@ -251,7 +251,7 @@ export const translations = {
     checkoutSuccessMsg: "¡Gracias! Tu pago de **{price}** para **{name}** se procesó con éxito de forma segura.",
     transactionId: "ID de Transacción",
 
-    // Login/Register
+    
     loginTitle: "Bienvenido",
     loginSubtitle: "Tu salud, conectada e inteligente.",
     emailLabel: "Correo electrónico",
@@ -288,7 +288,7 @@ export const translations = {
     passMismatch: "Las contraseñas no coinciden.",
     termsRequired: "Debes aceptar los Términos y Condiciones.",
 
-    // Admin Panel
+    
     adminPanel: "Panel de Administración",
     userManagement: "Gestión de Usuarios",
     healthUnitManagement: "Gestión de Unidades de Salud",
@@ -338,7 +338,7 @@ export const translations = {
     voiceInput: "Entrada por Voz",
     videoConsultation: "Consulta por Video",
 
-    // Announcement Management
+    
     addAnnouncement: "Agregar Anuncio",
     editAnnouncement: "Editar Anuncio",
     announcementsList: "Lista de Anuncios",
@@ -361,7 +361,7 @@ export const translations = {
     activate: "Activar",
     deactivate: "Desactivar",
 
-    // Location Management
+    
     selectCenterToAdjust: "Seleccione un centro para ajustar",
     centerType: "Tipo",
     department: "Departamento",
@@ -382,7 +382,7 @@ export const translations = {
     centersWithCoords: "Centros con Coordenadas",
     centersWithoutCoords: "Centros sin Coordenadas",
 
-    // Existing admin translations continued
+    
     lastUpdated: "Última Actualización",
     settingsSaved: "Configuración guardada correctamente",
     saveAllSettings: "Guardar Toda la Configuración",
@@ -410,7 +410,7 @@ export const translations = {
       videoConsultation: "Consulta por Video"
     },
 
-    // IA Configuration
+    
     iaConfiguration: "Configuración de IA",
     addAIConfig: "Agregar Configuración de IA",
     editAIConfig: "Editar Configuración de IA",
@@ -423,7 +423,7 @@ export const translations = {
     updatedAt: "Actualizado en",
     saveChanges: "Guardar Cambios",
 
-    // Profile Additional Settings & Medical Data
+    
     medicalData: "Datos Médicos",
     medicalDataSubtitle: "Información clínica especializada",
     diseases: "Enfermedades que padece",
@@ -484,7 +484,7 @@ export const translations = {
     pdfFileName: "Info-Emergencia"
   },
   en: {
-    // Navigation
+    
     home: "Home",
     consulta: "AI Consultation",
     centros: "Medical Centers",
@@ -492,7 +492,7 @@ export const translations = {
     premium: "Premium",
     perfil: "My Profile",
 
-    // Settings Modal
+    
     settings: "Settings",
     appearance: "Appearance",
     darkMode: "Dark Mode",
@@ -509,7 +509,7 @@ export const translations = {
     resetApp: "Reset local database",
     version: "v1.2.0 • 2026",
 
-    // App Modals & Toasts
+    
     loadingModule: "Loading module...",
     maintenanceTitle: "Under Maintenance",
     maintenanceDesc: "We are making improvements to the platform. Please try again later.",
@@ -545,19 +545,19 @@ export const translations = {
     updatePostponed: "Update postponed (Simulated)",
     useBrowserMenu: "Use the browser menu to 'Install' or 'Add to Home Screen'.",
 
-    // Terms & Privacy & Guide Titles
+    
     termsTitle: "Terms of Service",
     privacyTitle: "Privacy Policy",
     guideTitle: "How to use Salud-Conecta IA?",
 
-    // PWA Banner
+    
     pwaBannerTitle: "Install the Mobile App",
     pwaBannerDesc: "Instantly access your AI medical triage and enjoy optimized offline features.",
     pwaInstallButton: "Install PWA",
     pwaIosInstructions: "On iOS: tap the share button ⎋ and select 'Add to Home Screen' ⊞",
     pwaSuccessToast: "Salud-Conecta IA has been installed successfully!",
 
-    // Misc
+    
     welcome: "Welcome",
     guest: "Guest",
     hello: "Hello",
@@ -598,7 +598,7 @@ export const translations = {
     homeEmergDesc: "Quickly call emergency services (128).",
     backToApp: "Back to App",
 
-    // Buscar View
+    
     searchTitle: "Search",
     pharmacies: "Pharmacies",
     doctors: "Doctors",
@@ -647,7 +647,7 @@ export const translations = {
     bookingSuccessDesc: "Your appointment with **{name}** has been securely confirmed under registration number **APP-{id}**.",
     smsReminder: "An SMS reminder has been sent.",
 
-    // Perfil View
+    
     verified: "Verified",
     changePhoto: "Change photo",
     noAlerts: "You have no pending critical alerts. Your virtual triage clinical history is in perfect order.",
@@ -691,7 +691,7 @@ export const translations = {
     standardsDesc: "We comply with the highest standards of medical privacy and security in accordance with GDPR and HIPAA regulations.",
     logoutConfirm: "Are you sure you want to log out?",
 
-    // Premium View
+    
     premiumTitle: "Premium",
     premiumSubtitle: "Boost your well-being with exclusive benefits.",
     premiumActiveMsg: "Congratulations, {name}! Your Premium subscription is ACTIVE.",
@@ -735,7 +735,7 @@ export const translations = {
     checkoutSuccessMsg: "Thank you! Your payment of **{price}** for **{name}** was processed successfully and securely.",
     transactionId: "Transaction ID",
 
-    // Login/Register
+    
     loginTitle: "Welcome",
     loginSubtitle: "Your health, connected and smart.",
     emailLabel: "Email address",
@@ -772,7 +772,7 @@ export const translations = {
     passMismatch: "Passwords do not match.",
     termsRequired: "You must accept the Terms and Conditions.",
 
-    // Admin Panel
+    
     adminPanel: "Admin Panel",
     userManagement: "User Management",
     healthUnitManagement: "Health Unit Management",
@@ -822,7 +822,7 @@ export const translations = {
     voiceInput: "Voice Input",
     videoConsultation: "Video Consultation",
 
-    // Announcement Management
+    
     addAnnouncement: "Add Announcement",
     editAnnouncement: "Edit Announcement",
     announcementsList: "Announcements List",
@@ -845,7 +845,7 @@ export const translations = {
     activate: "Activate",
     deactivate: "Deactivate",
 
-    // Location Management
+    
     selectCenterToAdjust: "Select a center to adjust",
     centerType: "Type",
     department: "Department",
@@ -866,7 +866,7 @@ export const translations = {
     centersWithCoords: "Centers with Coordinates",
     centersWithoutCoords: "Centers without Coordinates",
 
-    // Existing admin translations continued
+    
     lastUpdated: "Last Updated",
     settingsSaved: "Settings saved successfully",
     saveAllSettings: "Save All Settings",
@@ -894,7 +894,7 @@ export const translations = {
       videoConsultation: "Video Consultation"
     },
 
-    // IA Configuration
+    
     iaConfiguration: "IA Configuration",
     addAIConfig: "Add AI Configuration",
     editAIConfig: "Edit AI Configuration",
@@ -907,7 +907,7 @@ export const translations = {
     updatedAt: "Updated at",
     saveChanges: "Save Changes",
 
-    // Profile Additional Settings & Medical Data
+    
     medicalData: "Medical Data",
     medicalDataSubtitle: "Specialized clinical information",
     diseases: "Underlying diseases",
@@ -968,7 +968,7 @@ export const translations = {
     pdfFileName: "Emergency-Info"
   },
   mi: {
-    // Navigation
+    
     home: "Watla",
     consulta: "IA Makabanka",
     centros: "Siknis Watla",
@@ -976,7 +976,7 @@ export const translations = {
     premium: "Premium",
     perfil: "Nini Dukia",
 
-    // Settings Modal
+    
     settings: "Dukia Mangkanka",
     appearance: "Kaikanka",
     darkMode: "Tihmia Natka",
@@ -993,7 +993,7 @@ export const translations = {
     resetApp: "App Kli Mangkaya",
     version: "v1.2.0 • 2026",
 
-    // App Modals & Toasts
+    
     loadingModule: "Mangkisa...",
     maintenanceTitle: "Mantenimiento Ra",
     maintenanceDesc: "App pain paski sna. Kli try muns taim wala.",
@@ -1029,19 +1029,19 @@ export const translations = {
     updatePostponed: "Update swin.",
     useBrowserMenu: "Browser menu yus muns mangkaya.",
 
-    // Terms & Privacy & Guide Titles
+    
     termsTitle: "Ligal Natka Nani",
     privacyTitle: "Baman Dukia Natka",
     guideTitle: "Nahki Salud-Conecta IA yus munaia?",
 
-    // PWA Banner
+    
     pwaBannerTitle: "App Mangkaya",
     pwaBannerDesc: "Siknis IA app na mangks, net apia sin yus munaia.",
     pwaInstallButton: "Mangkaya",
     pwaIosInstructions: "iOS ra: share pruks ⎋ bara 'Add to Home Screen' pliks ⊞",
     pwaSuccessToast: "Salud-Conecta IA pain mangkan!",
 
-    // Misc
+    
     welcome: "Pain wam",
     guest: "Ula",
     hello: "Naksa",
@@ -1082,7 +1082,7 @@ export const translations = {
     homeEmergDesc: "Imaijinsi taim ra 128 aisas.",
     backToApp: "App kli dimaia",
 
-    // Buscar View
+    
     searchTitle: "Plikaya",
     pharmacies: "Midisin Watla Nani",
     doctors: "Duktur Nani",
@@ -1131,7 +1131,7 @@ export const translations = {
     bookingSuccessDesc: "Cita **{name}** wal pain, numira **APP-{id}**.",
     smsReminder: "SMS walan.",
 
-    // Perfil View
+    
     verified: "Pain",
     changePhoto: "Mawan kli",
     noAlerts: "Trabil apia. Siknis history pain.",
@@ -1175,7 +1175,7 @@ export const translations = {
     standardsDesc: "Ligal GDPR bara HIPAA pain.",
     logoutConfirm: "Takaya dukia man sma?",
 
-    // Premium View
+    
     premiumTitle: "Premium",
     premiumSubtitle: "Premium pain.",
     premiumActiveMsg: "Liliapa, {name}! Premium ACTIVA.",
@@ -1219,7 +1219,7 @@ export const translations = {
     checkoutSuccessMsg: "Tinki! Pay **{price}** **{name}** dukia pain.",
     transactionId: "Transaccion ID",
 
-    // Login/Register
+    
     loginTitle: "Pain wam",
     loginSubtitle: "Mawan pain, kumi ba.",
     emailLabel: "Email",
@@ -1256,7 +1256,7 @@ export const translations = {
     passMismatch: "Pasword apia.",
     termsRequired: "Ligal natka pain mangkaya.",
 
-    // Admin Panel
+    
     adminPanel: "Admin Watla",
     userManagement: "Yus munra nani luki",
     healthUnitManagement: "Siknis Watla luki",
@@ -1306,7 +1306,7 @@ export const translations = {
     voiceInput: "Bila wal",
     videoConsultation: "Video Makabanka",
 
-    // Announcement Management
+    
     addAnnouncement: "Alart mangkaya",
     editAnnouncement: "Alart kli mangkaya",
     announcementsList: "Alart nani",
@@ -1329,7 +1329,7 @@ export const translations = {
     activate: "Bara",
     deactivate: "Apia",
 
-    // Location Management
+    
     selectCenterToAdjust: "Siknis watla pliks",
     centerType: "Type",
     department: "Departamento",
@@ -1350,7 +1350,7 @@ export const translations = {
     centersWithCoords: "Tawan bara",
     centersWithoutCoords: "Tawan apia",
 
-    // Existing admin translations continued
+    
     lastUpdated: "Las mangkan",
     settingsSaved: "Luki pain mangkan",
     saveAllSettings: "Luki sut mangkaya",
@@ -1378,7 +1378,7 @@ export const translations = {
       videoConsultation: "Video Makabanka"
     },
 
-    // IA Configuration
+    
     iaConfiguration: "IA Luki",
     addAIConfig: "IA Luki mangkaya",
     editAIConfig: "IA Luki kli mangkaya",
@@ -1391,7 +1391,7 @@ export const translations = {
     updatedAt: "Las mangkan",
     saveChanges: "Mangkaya",
 
-    // Profile Additional Settings & Medical Data
+    
     medicalData: "Siknis Dukia",
     medicalDataSubtitle: "Siknis history baha",
     diseases: "Siknis nani prukisa",

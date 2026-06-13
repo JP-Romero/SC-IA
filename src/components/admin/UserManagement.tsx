@@ -13,7 +13,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [pendingRoles, setPendingRoles] = useState<Record<string, "user" | "admin">>({});
 
-  // Fetch all users (profiles)
+  
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -36,7 +36,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
     fetchUsers();
   }, []);
 
-  // Handle Premium Toggle
+  
   const handlePremiumToggle = async (userId: string, currentStatus: boolean) => {
     try {
       const newStatus = !currentStatus;
@@ -47,7 +47,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
 
       if (error) throw error;
 
-      // Update local state
+      
       setUsers(prevUsers =>
         prevUsers.map(u => u.id === userId ? { ...u, is_premium: newStatus } as UserProfile : u)
       );
@@ -56,7 +56,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
     }
   };
 
-  // Handle role change
+  
   const handleRoleChange = async (userId: string, targetRole: "user" | "admin") => {
     try {
       setEditingUserId(userId);
@@ -67,12 +67,12 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
 
       if (error) throw error;
 
-      // Update local state
+      
       setUsers(prevUsers =>
         prevUsers.map(u => u.id === userId ? { ...u, role: targetRole } : u)
       );
 
-      // Clear pending state
+      
       setPendingRoles(prev => {
         const copy = { ...prev };
         delete copy[userId];
@@ -103,18 +103,18 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
     );
   }
 
-  // Calculate Stats
+  
   const totalAdmins = users.filter(u => (u as any).role === 'admin').length;
   const totalPremium = users.filter(u => (u as any).is_premium).length;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('userManagement')}</h2>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
           <div>
@@ -144,7 +144,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
         </div>
       </div>
 
-      {/* Users Table */}
+      {}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
           <thead className="bg-slate-50 dark:bg-slate-800/50">
@@ -202,7 +202,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                     </span>
                   </td>
                   <td className="px-6 py-4 space-x-3">
-                    {/* Role selector (only show if not editing yourself or if admin) */}
+                    {}
                     {(userItem.id !== user.id || (user as any).role === 'admin') && (
                       <select
                         value={selectedRole}

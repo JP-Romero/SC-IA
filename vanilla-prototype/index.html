@@ -4,25 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salud Conecta IA - Registro</title>
-    <!-- Google Fonts for premium typography -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Link to our clean, pure CSS -->
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <!-- 1. PANTALLA DE INTRODUCCIÓN (SPLASH SCREEN) ULTRA RÁPIDA -->
+    
     <div id="splash-screen" class="splash-container">
         <div class="splash-content">
-            <!-- Icono Médico Animado (Estilo Pulso/Heartbeat) -->
+            
             <div class="splash-logo-wrapper">
                 <svg class="splash-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Glow effect path -->
+                    
                     <circle cx="50" cy="50" r="45" stroke="rgba(14, 165, 233, 0.2)" stroke-width="8" />
-                    <!-- Heartbeat + Medical Cross Combined -->
+                    
                     <path d="M50 20 V80 M20 50 H80" stroke="url(#crossGradient)" stroke-width="10" stroke-linecap="round" />
                     <path d="M25 50 H38 L44 30 L52 70 L58 45 L64 55 H75" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
                     <defs>
@@ -34,19 +34,19 @@
                     </defs>
                 </svg>
             </div>
-            <!-- Nombre de la App Adaptable con clamp() -->
+            
             <h1 class="splash-title">Salud Conecta <span class="accent-text">IA</span></h1>
             <p class="splash-subtitle">Tu portal de salud inteligente</p>
         </div>
     </div>
 
-    <!-- 2. CONTENEDOR PRINCIPAL DE LA APP -->
+    
     <div id="app-container" class="app-hidden">
         
-        <!-- Pantalla de Creación de Cuenta (Registro) -->
+        
         <div class="register-wrapper">
             
-            <!-- Columna Izquierda (Fondo Animado tipo Wave con Bienvenida - Visible solo en Desktop) -->
+            
             <div class="welcome-panel">
                 <div class="wave-bg"></div>
                 <div class="welcome-content">
@@ -61,7 +61,7 @@
                         Únete hoy mismo a <strong>Salud Conecta IA</strong> y empieza a disfrutar de consultas impulsadas por inteligencia artificial, monitoreo personalizado y un historial médico inteligente, 100% seguro.
                     </p>
                     
-                    <!-- Tarjetas de Características Premium -->
+                    
                     <div class="features-list">
                         <div class="feature-item">
                             <div class="feature-icon">
@@ -92,9 +92,9 @@
                 </div>
             </div>
 
-            <!-- Columna Derecha (Formulario / Tarjeta Glassmorphic en Móviles) -->
+            
             <div class="form-panel">
-                <!-- Capa de fondo wave para móviles (oculto en desktop ya que la col. izq. tiene el wave) -->
+                
                 <div class="mobile-wave-bg"></div>
                 
                 <div class="register-card">
@@ -113,7 +113,7 @@
 
                     <form id="register-form" novalidate>
                         
-                        <!-- Input: Nombre Completo -->
+                        
                         <div class="input-group">
                             <label for="reg-name" class="input-label">Nombre Completo</label>
                             <div class="input-wrapper">
@@ -126,7 +126,7 @@
                             <span class="error-message" id="name-error">El nombre es requerido</span>
                         </div>
 
-                        <!-- Input: Correo Electrónico -->
+                        
                         <div class="input-group">
                             <label for="reg-email" class="input-label">Correo Electrónico</label>
                             <div class="input-wrapper">
@@ -139,7 +139,7 @@
                             <span class="error-message" id="email-error">Ingresa un correo electrónico válido</span>
                         </div>
 
-                        <!-- Input: Contraseña -->
+                        
                         <div class="input-group">
                             <label for="reg-password" class="input-label">Contraseña</label>
                             <div class="input-wrapper">
@@ -149,12 +149,12 @@
                                 </svg>
                                 <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" required autocomplete="new-password">
                                 <button type="button" class="btn-toggle-password" id="toggle-password" aria-label="Mostrar contraseña">
-                                    <!-- Eye icon -->
+                                    
                                     <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                                         <circle cx="12" cy="12" r="3" />
                                     </svg>
-                                    <!-- Eye Off icon (hidden initially) -->
+                                    
                                     <svg class="eye-off-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
                                         <line x1="1" y1="1" x2="23" y2="23" />
@@ -164,7 +164,7 @@
                             <span class="error-message" id="password-error">La contraseña debe tener al menos 6 caracteres</span>
                         </div>
 
-                        <!-- Input: Confirmar Contraseña -->
+                        
                         <div class="input-group">
                             <label for="reg-confirm" class="input-label">Confirmar Contraseña</label>
                             <div class="input-wrapper">
@@ -187,7 +187,7 @@
                             <span class="error-message" id="confirm-error">Las contraseñas no coinciden</span>
                         </div>
 
-                        <!-- Checkbox Términos y Condiciones -->
+                        
                         <div class="checkbox-group">
                             <label class="checkbox-label">
                                 <input type="checkbox" id="reg-terms" required>
@@ -197,10 +197,10 @@
                             <span class="error-message" id="terms-error">Debes aceptar los términos y condiciones</span>
                         </div>
 
-                        <!-- Botón de Envío -->
+                        
                         <button type="submit" class="btn-submit" id="btn-submit">
                             <span class="btn-text">Registrarse</span>
-                            <!-- Spinner (hidden initially) -->
+                            
                             <svg class="spinner-icon hidden" viewBox="0 0 24 24" fill="none">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -208,12 +208,12 @@
                         </button>
                     </form>
 
-                    <!-- Divisor -->
+                    
                     <div class="divider">
                         <span>O registrarse con</span>
                     </div>
 
-                    <!-- Botón Google -->
+                    
                     <button class="btn-google" id="btn-google">
                         <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -224,7 +224,7 @@
                         <span>Google</span>
                     </button>
 
-                    <!-- Pie de Tarjeta -->
+                    
                     <div class="card-footer">
                         <span>¿Ya tienes una cuenta? <a href="#" class="form-link-action">Inicia Sesión</a></span>
                     </div>
@@ -234,7 +234,7 @@
         </div>
     </div>
 
-    <!-- Link to our JavaScript -->
+    
     <script src="app.js"></script>
 </body>
 </html>

@@ -49,7 +49,7 @@ const SettingsManagement: React.FC = () => {
         const { data, error } = await supabase.from('app_settings').select('*').eq('clave', 'global_config').single();
         
         if (error && error.code === 'PGRST116') {
-          // Si no existe, insertamos los valores por defecto
+          
           await supabase.from('app_settings').insert({ clave: 'global_config', valor: DEFAULT_SETTINGS, descripcion: 'Configuración global de la app' });
           setSettings(DEFAULT_SETTINGS);
         } else if (data && data.valor) {
@@ -67,14 +67,14 @@ const SettingsManagement: React.FC = () => {
     fetchSettings();
   }, []);
 
-  // Handle input change
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { value } = e.target;
     const isCheckbox = e.target instanceof HTMLInputElement && e.target.type === "checkbox";
     setEditValue(isCheckbox ? (e.target as HTMLInputElement).checked : value);
   };
 
-  // Handle saving a setting
+  
   const handleSaveSetting = async (field: string, value: any) => {
     if (!isAdmin) return;
     setIsSaving(true);
@@ -93,7 +93,7 @@ const SettingsManagement: React.FC = () => {
       setSettings(newSettings);
       setLastSaved(new Date());
 
-      // Reset edit state
+      
       setEditedField(null);
       setEditValue("");
     } catch (err: any) {
@@ -162,7 +162,7 @@ const SettingsManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('settings')}</h2>
         <div className="flex items-center gap-3">
@@ -176,13 +176,13 @@ const SettingsManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Settings Form */}
+      {}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm md:max-h-[70vh] md:overflow-y-auto overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
           <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><Smartphone className="w-4.5 h-4.5 text-blue-500" /> {t('generalSettings')}</h3>
         </div>
         <div className="px-6 py-4 space-y-4">
-          {/* App Name */}
+          {}
           <div className="space-y-1.5">
             <label className="text-[11px] uppercase font-bold text-slate-500">{t('appName')}</label>
             <input
@@ -199,7 +199,7 @@ const SettingsManagement: React.FC = () => {
             />
           </div>
 
-          {/* Welcome Message */}
+          {}
           <div className="space-y-1.5">
             <label className="text-[11px] uppercase font-bold text-slate-500">{t('welcomeMessage')}</label>
             <input
@@ -217,7 +217,7 @@ const SettingsManagement: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Contact Email */}
+            {}
             <div className="space-y-1.5">
               <label className="text-[11px] uppercase font-bold text-slate-500">{t('contactEmail')}</label>
               <input
@@ -231,7 +231,7 @@ const SettingsManagement: React.FC = () => {
               />
             </div>
 
-            {/* Emergency Number */}
+            {}
             <div className="space-y-1.5">
               <label className="text-[11px] uppercase font-bold text-slate-500">{t('emergencyNumber')}</label>
               <input
@@ -246,7 +246,7 @@ const SettingsManagement: React.FC = () => {
             </div>
           </div>
 
-          {/* Maintenance Mode */}
+          {}
           <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-xl ${settings.maintenanceMode ? "bg-red-100 dark:bg-red-900/30 text-red-600" : "bg-slate-200 dark:bg-slate-700 text-slate-500"}`}>
@@ -262,7 +262,7 @@ const SettingsManagement: React.FC = () => {
             </button>
           </div>
 
-          {/* Show PWA Banner */}
+          {}
           <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-xl ${settings.showPwaBanner ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600" : "bg-slate-200 dark:bg-slate-700 text-slate-500"}`}>
@@ -279,7 +279,7 @@ const SettingsManagement: React.FC = () => {
           </div>
         </div>
 
-        {/* Feature Flags Section */}
+        {}
         <div className="border-t border-slate-100 dark:border-slate-800">
           <div className="px-6 py-5 bg-slate-50/50 dark:bg-slate-800/30">
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><Sparkles className="w-4.5 h-4.5 text-indigo-500" /> {t('featureFlags')}</h3>
@@ -296,13 +296,13 @@ const SettingsManagement: React.FC = () => {
           </div>
         </div>
 
-        {/* AI Settings Section */}
+        {}
         <div className="border-t border-slate-100 dark:border-slate-800">
           <div className="px-6 py-5 bg-slate-50/50 dark:bg-slate-800/30">
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><Zap className="w-4.5 h-4.5 text-emerald-500" /> {t('aiSettings')}</h3>
           </div>
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* AI Model */}
+            {}
             <div className="space-y-1.5">
               <label className="text-[11px] uppercase font-bold text-slate-500">{t('aiModel')}</label>
               <select
@@ -319,7 +319,7 @@ const SettingsManagement: React.FC = () => {
               </select>
             </div>
 
-            {/* Max Consultation Length */}
+            {}
             <div className="space-y-1.5">
               <label className="text-[11px] uppercase font-bold text-slate-500">{t('maxConsultationLength')}</label>
               <input

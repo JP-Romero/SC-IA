@@ -9,39 +9,36 @@ interface EmergencyQRProps {
   healthConditions?: string[];
 }
 
-/**
- * Componente de Código QR de Emergencia optimizado para legibilidad universal.
- * Utiliza nivel de corrección 'H' y formato SVG para máxima compatibilidad.
- */
+
 export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions = [] }) => {
   const { t } = useLanguage();
 
-  // Estructuramos la información vital de forma compacta para no saturar el QR
+  
   const emergencyData = JSON.stringify({
     n: user.name,
     b: user.bloodType || "No especificado",
     c: healthConditions.length > 0 ? healthConditions.join(", ") : "Ninguna",
-    e: user.emergencyPhone || "128", // Número de emergencia local por defecto
-    v: new Date().toISOString().split('T')[0] // Fecha de validación para el disclaimer de 24h
+    e: user.emergencyPhone || "128", 
+    v: new Date().toISOString().split('T')[0] 
   });
 
   const downloadPDF = () => {
     import("jspdf").then(({ default: jsPDF }) => {
       const doc = new jsPDF();
 
-      // Título
+      
       doc.setFontSize(22);
-      doc.setTextColor(30, 58, 138); // Azul
+      doc.setTextColor(30, 58, 138); 
       doc.text(t('pdfMedicalCard'), 20, 20);
 
-      // Info del usuario
+      
       doc.setFontSize(14);
-      doc.setTextColor(51, 65, 85); // Slate
+      doc.setTextColor(51, 65, 85); 
       doc.text(`${t('pdfPatient')} ${user.name}`, 20, 40);
       doc.text(`${t('pdfBlood')} ${user.bloodType || t('pdfNotSpecified')}`, 20, 50);
       doc.text(`${t('pdfEmergContact')} ${user.emergencyPhone || t('pdfNotSpecified')}`, 20, 60);
 
-      // Condiciones médicas
+      
       doc.text(`${t('pdfOtherCond')}:`, 20, 75);
       doc.setFontSize(12);
       doc.setTextColor(100, 116, 139);
@@ -53,7 +50,7 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
         doc.text(t('pdfNoneRegistered'), 25, 85);
       }
 
-      // Añadir QR Code al PDF
+      
       const svg = document.getElementById("emergency-qr-code");
       if (svg) {
         const svgData = new XMLSerializer().serializeToString(svg);
@@ -70,7 +67,7 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
             ctx.drawImage(img, 0, 0, 512, 512);
           }
           const pngData = canvas.toDataURL("image/png");
-          // Añadir la imagen al PDF (x, y, width, height)
+          
           doc.addImage(pngData, 'PNG', 130, 30, 60, 60);
 
           doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
@@ -114,7 +111,7 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
           id="emergency-qr-code"
           value={emergencyData}
           size={220}
-          level="H" // Nivel de corrección alto para máxima legibilidad
+          level="H" 
           includeMargin={true}
           imageSettings={{
             src: "/app-logo-v1.jpg",

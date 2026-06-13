@@ -1,35 +1,33 @@
-/* ==========================================================================
-   SISTEMA DE DISEÑO & VARIABLES DE COLOR (Salud Conecta IA)
-   ========================================================================== */
+
 :root {
-    /* Paleta Médica / Soft Moderna */
+    
     --primary-blue: #2563eb;
     --primary-teal: #0d9488;
     --primary-cyan: #06b6d4;
     --primary-indigo: #4f46e5;
     
-    /* Neutros Premium */
+    
     --slate-50: #f8fafc;
     --slate-100: #f1f5f9;
     --slate-200: #e2e8f0;
     --slate-300: #cbd5e1;
     --slate-400: #94a3b8;
     --slate-500: #64748b;
-    --slate-750: #1e293b80; /* Para fondos oscuros translúcidos */
+    --slate-750: #1e293b80; 
     --slate-800: #1e293b;
     --slate-900: #0f172a;
     
-    /* Estados de Validación */
+    
     --danger: #ef4444;
     --danger-focus: rgba(239, 68, 68, 0.15);
     --success: #22c55e;
     --focus-ring: rgba(37, 99, 235, 0.18);
     
-    /* Tipografía */
+    
     --font-primary: 'Plus Jakarta Sans', 'Inter', sans-serif;
     --font-heading: 'Outfit', sans-serif;
     
-    /* Bordes y Sombras */
+    
     --radius-lg: 24px;
     --radius-md: 16px;
     --radius-sm: 12px;
@@ -37,7 +35,7 @@
     --shadow-button: 0 4px 14px 0 rgba(37, 99, 235, 0.25);
 }
 
-/* Reset Global */
+
 * {
     margin: 0;
     padding: 0;
@@ -53,9 +51,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* ==========================================================================
-   1. PANTALLA DE INTRODUCCIÓN (SPLASH SCREEN)
-   ========================================================================== */
+
 .splash-container {
     position: fixed;
     top: 0;
@@ -73,7 +69,7 @@ body {
     visibility: visible;
 }
 
-/* Desvanecimiento activado por JS a los 1.8 segundos */
+
 .splash-container.fade-out {
     opacity: 0;
     visibility: hidden;
@@ -88,7 +84,7 @@ body {
     padding: 2rem;
 }
 
-/* Contenedor del Logo con Animación Pulse Heartbeat */
+
 .splash-logo-wrapper {
     margin-bottom: 1.5rem;
     animation: heartbeat 1.5s ease-in-out infinite;
@@ -101,7 +97,7 @@ body {
     filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.3));
 }
 
-/* Títulos Adaptables usando clamp() */
+
 .splash-title {
     font-family: var(--font-heading);
     font-size: clamp(2rem, 5vw + 0.5rem, 3.5rem);
@@ -126,7 +122,7 @@ body {
     text-transform: uppercase;
 }
 
-/* Animación Pulse / Heartbeat Suave en el Logo */
+
 @keyframes heartbeat {
     0% {
         transform: scale(1);
@@ -150,9 +146,7 @@ body {
     }
 }
 
-/* ==========================================================================
-   CONTENEDOR PRINCIPAL Y VISIBILIDAD POST-SPLASH
-   ========================================================================== */
+
 .app-hidden {
     opacity: 0;
     visibility: hidden;
@@ -167,9 +161,7 @@ body {
     transform: scale(1);
 }
 
-/* ==========================================================================
-   2. PANTALLA DE CREACIÓN DE CUENTA (MÓVIL - DEFAULT)
-   ========================================================================== */
+
 .register-wrapper {
     min-height: 100vh;
     display: flex;
@@ -180,7 +172,7 @@ body {
     padding: 2rem 1rem;
 }
 
-/* Fondo Wave Móvil (Cubre todo en teléfonos) */
+
 .mobile-wave-bg {
     position: absolute;
     top: 0;
@@ -194,14 +186,7 @@ body {
     will-change: background-position;
 }
 
-/*
- * @keyframes wave-gradient
- * Fondo animado que crea una sensación de ola bidireccional (wave):
- * - Ciclo 1 (0% a 25%): Movimiento vertical descendente (50% 0% a 50% 100%).
- * - Transición (25% a 50%): Desplazamiento oblicuo hacia la esquina izquierda (0% 50%).
- * - Ciclo 2 (50% a 75%): Movimiento horizontal de izquierda a derecha (0% 50% a 100% 50%).
- * - Reinicio (75% a 100%): Regreso suave al inicio vertical (100% 50% a 50% 0%).
- */
+
 @keyframes wave-gradient {
     0% {
         background-position: 50% 0%;
@@ -220,7 +205,7 @@ body {
     }
 }
 
-/* Tarjeta de Registro con Glassmorphism */
+
 .register-card {
     width: 90%;
     max-width: 440px;
@@ -235,7 +220,7 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Logo pequeño para el header en móvil */
+
 .mobile-brand {
     display: flex;
     align-items: center;
@@ -271,7 +256,7 @@ body {
     color: var(--primary-blue);
 }
 
-/* Títulos del formulario */
+
 .card-header {
     text-align: center;
     margin-bottom: 1.75rem;
@@ -293,7 +278,7 @@ body {
     line-height: 1.4;
 }
 
-/* Formulario e Inputs */
+
 .input-group {
     display: flex;
     flex-direction: column;
@@ -341,7 +326,7 @@ body {
     transition: all 0.25s ease;
 }
 
-/* Estilos de Enfoque en Inputs con Micro-animación */
+
 .input-wrapper input:focus {
     border-color: var(--primary-blue);
     background-color: #ffffff;
@@ -354,7 +339,7 @@ body {
     color: var(--primary-blue);
 }
 
-/* Botón de ocultar/mostrar contraseña */
+
 .btn-toggle-password {
     position: absolute;
     right: 14px;
@@ -382,7 +367,7 @@ body {
     display: none !important;
 }
 
-/* Validaciones y Mensajes de Error */
+
 .input-group.invalid .input-wrapper input {
     border-color: var(--danger);
     background-color: var(--danger-light);
@@ -412,7 +397,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Checkbox Personalizado */
+
 .checkbox-group {
     margin-bottom: 1.5rem;
     display: flex;
@@ -492,7 +477,7 @@ body {
     text-decoration: underline;
 }
 
-/* Botones y Acciones */
+
 .btn-submit {
     width: 100%;
     padding: 0.95rem;
@@ -522,7 +507,7 @@ body {
     transform: translateY(0);
 }
 
-/* Icono spinner de carga para feedback visual */
+
 .spinner-icon {
     width: 18px;
     height: 18px;
@@ -534,7 +519,7 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Divisor O */
+
 .divider {
     display: flex;
     align-items: center;
@@ -562,7 +547,7 @@ body {
     margin-left: .75em;
 }
 
-/* Botón Google */
+
 .btn-google {
     width: 100%;
     padding: 0.85rem;
@@ -593,7 +578,7 @@ body {
     height: 18px;
 }
 
-/* Card Footer */
+
 .card-footer {
     text-align: center;
     margin-top: 1.5rem;
@@ -614,7 +599,7 @@ body {
     text-decoration: underline;
 }
 
-/* Elementos deshabilitados en carga */
+
 input:disabled,
 button:disabled {
     opacity: 0.6;
@@ -623,9 +608,7 @@ button:disabled {
     box-shadow: none !important;
 }
 
-/* ==========================================================================
-   3. SECCIÓN RESPONSIVA (COMPUTADORAS / ESCRITORIO - min-width: 768px)
-   ========================================================================== */
+
 @media (min-width: 768px) {
     body {
         background-color: #ffffff;
@@ -636,12 +619,12 @@ button:disabled {
         align-items: stretch;
     }
     
-    /* Ocultar Fondo Wave de Móvil */
+    
     .mobile-wave-bg {
         display: none;
     }
     
-    /* Estructura dividida de dos columnas */
+    
     .welcome-panel {
         display: flex;
         flex: 1.1;
@@ -664,7 +647,7 @@ button:disabled {
         z-index: 2;
     }
     
-    /* El wave se queda solo en el panel izquierdo de bienvenida */
+    
     .wave-bg {
         position: absolute;
         top: 0;
@@ -678,7 +661,7 @@ button:disabled {
         will-change: background-position;
     }
     
-    /* Remover el efecto Glassmorphic del Formulario en Escritorio */
+    
     .register-card {
         background: transparent;
         backdrop-filter: none;
@@ -690,7 +673,7 @@ button:disabled {
         max-width: 420px;
     }
     
-    /* Ocultar logo móvil en escritorio ya que tenemos el panel */
+    
     .mobile-brand {
         display: none;
     }
@@ -713,7 +696,7 @@ button:disabled {
         background-color: #ffffff;
     }
     
-    /* Estilos del Contenido del Panel de Bienvenida */
+    
     .welcome-content {
         max-width: 480px;
         z-index: 2;
@@ -756,7 +739,7 @@ button:disabled {
         margin-bottom: 2.5rem;
     }
     
-    /* Lista de Características en Desktop */
+    
     .features-list {
         display: flex;
         flex-direction: column;
@@ -799,7 +782,7 @@ button:disabled {
         line-height: 1.4;
     }
     
-    /* Animación de entrada para panel de bienvenida */
+    
     @keyframes fadeInUp {
         from {
             opacity: 0;
