@@ -228,6 +228,7 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     console.error("Chat API Error:", error);
     
     const errorMessage = error?.message || String(error) || "Error desconocido";
+    const userMessageBody = req.body?.message || "los síntomas descritos";
     
     let userMessage = "Ocurrió un error procesando el triaje virtual con IA.";
     let shouldUseFallback = false;
@@ -242,10 +243,9 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
       console.log("API quota exceeded, switching to simulated mode");
     }
     
-    
     if (shouldUseFallback) {
       return res.status(200).json({
-        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${userMessageBody}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
         warning: "Respuesta generada en modo simulado debido a limitaciones temporales de la API."
       });
@@ -257,17 +257,4 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
       timestamp: new Date().toISOString(),
     });
   }
-};
-bios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
-        simulated: true,
-        warning: "Respuesta generada en modo simulado debido a limitaciones temporales de la API."
-      });
-    }
-    
-    return res.status(500).json({
-      error: userMessage,
-      details: errorMessage,
-      timestamp: new Date().toISOString(),
-    });
-  }
-};
+}
