@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Siren, Mic, MicOff } from "lucide-react";
 import { getOfflineTriageResponse } from "../lib/offlineTriage";
 import { getMiskitoTriageResponse } from "../lib/miskitoTriage";
+import { getKriolTriageResponse } from "../lib/kriolTriage";
 interface ConsultaViewProps {
   user: UserProfile;
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -263,6 +264,21 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           text: miskitoResponse,
+          sender: "bot",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, botMsg]);
+        setIsLoading(false);
+      }, 800);
+      return;
+    }
+
+    if (language === 'kr') {
+      setTimeout(() => {
+        const kriolResponse = getKriolTriageResponse(userText, user);
+        const botMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: kriolResponse,
           sender: "bot",
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
