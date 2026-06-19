@@ -7,6 +7,7 @@ import PerfilView from "./components/PerfilView";
 import LoginView from "./components/LoginView";
 import RegisterView from "./components/RegisterView";
 import AdminView from "./components/AdminView";
+import AnnouncementModal from "./components/AnnouncementModal";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
 import { updateUserProfile } from "./lib/authService";
@@ -742,37 +743,12 @@ export default function App() {
 
         {}
         <AnimatePresence>
-          {announcements.map(ann => {
-            const isAlert = ann.tipo === 'alert';
-            const isPromo = ann.tipo === 'promotion';
-            return (
-              <motion.div
-                key={ann.id}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className={`w-full text-white shadow-sm border-b z-40 relative px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 overflow-hidden ${isAlert ? 'bg-gradient-to-r from-rose-600 to-red-600 border-rose-500/20' :
-                    isPromo ? 'bg-gradient-to-r from-amber-500 to-orange-500 border-amber-400/20' :
-                      'bg-gradient-to-r from-slate-800 to-slate-900 border-slate-700/20'
-                  }`}
-              >
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-                    {isAlert ? <AlertTriangle className="w-4.5 h-4.5 text-rose-100" /> :
-                      isPromo ? <Star className="w-4.5 h-4.5 text-amber-100" /> :
-                        <Megaphone className="w-4.5 h-4.5 text-slate-100" />}
-                  </div>
-                  <div className="text-left">
-                    <h4 className="font-display font-bold text-xs sm:text-sm tracking-tight">{ann.titulo}</h4>
-                    <p className="text-[10px] sm:text-xs text-white/90 font-normal max-w-2xl leading-normal">{ann.mensaje}</p>
-                  </div>
-                </div>
-                <button onClick={() => dismissAnnouncement(ann.id)} className="p-1.5 hover:bg-white/20 active:scale-95 rounded-lg text-white/80 hover:text-white transition-all shrink-0 cursor-pointer absolute top-2 right-2 sm:relative sm:top-0 sm:right-0">
-                  <X className="w-4 h-4" />
-                </button>
-              </motion.div>
-            );
-          })}
+          {announcements.length > 0 && (
+            <AnnouncementModal
+              announcements={announcements}
+              onDismiss={dismissAnnouncement}
+            />
+          )}
         </AnimatePresence>
 
         <AnimatePresence mode="wait">
