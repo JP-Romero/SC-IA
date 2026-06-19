@@ -143,7 +143,7 @@ Condiciones: ${userProfile.healthConditions?.join(', ') || 'Ninguna'}`;
 
       const finalSystemInstruction = systemInstruction + timeContext + profileContext;
 
-      let aiModel = "gemini-2.0-flash-lite";
+      let aiModel = "gemini-2.5-flash";
       try {
         if (!process.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL.includes("placeholder")) {
            throw new Error("Supabase no configurado");
