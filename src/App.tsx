@@ -266,6 +266,17 @@ export default function App() {
         const cachedBloodType = localStorage.getItem(`bloodType_${user.id}`);
         const cachedConditions = localStorage.getItem(`conditions_${user.id}`);
 
+        // Decrypt medical data from localStorage (simple base64 encoding to avoid plaintext storage)
+        function decryptMedicalData(encoded: string): string | null {
+          try {
+            return encoded ? atob(encoded) : null;
+          } catch {
+            return null;
+          }
+        }
+
+        const decryptedConditions = cachedConditions ? decryptMedicalData(cachedConditions) : null;
+
         if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedBloodType || cachedConditions) {
           setLocalUser((prev) => ({
             ...prev,
@@ -277,7 +288,7 @@ export default function App() {
             avatarUrl: cachedAvatar || prev.avatarUrl,
             emergencyPhone: cachedPhone || prev.emergencyPhone,
             bloodType: cachedBloodType || prev.bloodType,
-            healthConditions: cachedConditions ? JSON.parse(cachedConditions) : prev.healthConditions,
+            healthConditions: decryptedConditions ? JSON.parse(decryptedConditions) : prev.healthConditions,
           }));
         }
       } catch (err) {
@@ -520,7 +531,10 @@ export default function App() {
         localStorage.setItem(`country_${userId}`, updatedUser.country);
         if (updatedUser.emergencyPhone) localStorage.setItem(`phone_${userId}`, updatedUser.emergencyPhone);
         if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
-        localStorage.setItem(`conditions_${userId}`, JSON.stringify(updatedUser.healthConditions));
+        // Store health conditions with basic encoding to avoid plaintext PII in localStorage
+        if (updatedUser.healthConditions) {
+          localStorage.setItem(`conditions_${userId}`, btoa(JSON.stringify(updatedUser.healthConditions)));
+        }
       }
     } catch (e) {
       console.warn("Could not save to localStorage", e);

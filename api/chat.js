@@ -121,8 +121,7 @@ export default async function handler(req, res) {
     if (!ai) {
       console.error("Failed to initialize Gemini client - API key may be invalid");
       return res.status(500).json({
-        error: "No se pudo inicializar el servicio de IA. Verifica la configuración de la API key.",
-        details: "GEMINI_API_KEY no está configurada o es inválida",
+        error: "No se pudo inicializar el servicio de IA. Intente nuevamente más tarde.",
         timestamp: new Date().toISOString(),
       });
     }
@@ -135,14 +134,30 @@ export default async function handler(req, res) {
 Hora y día actual en Nicaragua: ${localTimeStr}
 REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba está fuera de ese horario (noches o fines de semana), ESTÁN CERRADOS. En caso de síntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos sí atienden 24/7. Es vital para la seguridad no derivarlos a clínicas cerradas.`;
 
+    // Sanitize user input to prevent prompt injection
+    function sanitizeForPrompt(value) {
+      if (!value) return 'No especificado';
+      return String(value)
+        .replace(/[\n\r]/g, ' ')
+        .replace(/[<>"']/g, '')
+        .substring(0, 200);
+    }
+
     let profileContext = "";
     const safeUserProfile = userProfile && typeof userProfile === 'object' ? userProfile : {};
     if (Object.keys(safeUserProfile).length > 0) {
+      const safeName = sanitizeForPrompt(safeUserProfile.name);
+      const safeCity = sanitizeForPrompt(safeUserProfile.city);
+      const safeBloodType = sanitizeForPrompt(safeUserProfile.bloodType);
+      const safeConditions = safeUserProfile.healthConditions && safeUserProfile.healthConditions.length > 0 
+        ? safeUserProfile.healthConditions.map(c => sanitizeForPrompt(c)).join(', ') 
+        : 'Ninguna reportada';
+      
       profileContext = `\n\n[CONTEXTO DEL PACIENTE]
-Nombre: ${safeUserProfile.name || 'No especificado'}
-Ciudad: ${safeUserProfile.city || 'No especificada'}
-Tipo de Sangre: ${safeUserProfile.bloodType || 'No especificado'}
-Condiciones Médicas Preexistentes: ${safeUserProfile.healthConditions && safeUserProfile.healthConditions.length > 0 ? safeUserProfile.healthConditions.join(', ') : 'Ninguna reportada'}
+Nombre: ${safeName || 'No especificado'}
+Ciudad: ${safeCity || 'No especificada'}
+Tipo de Sangre: ${safeBloodType || 'No especificado'}
+Condiciones Médicas Preexistentes: ${safeConditions}
 
 INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas preexistentes al evaluar los síntomas y proporcionar recomendaciones. Nunca indiques medicamentos contraindicados.`;
     }
@@ -253,7 +268,6 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     
     return res.status(500).json({
       error: userMessage,
-      details: errorMessage,
       timestamp: new Date().toISOString(),
     });
   }

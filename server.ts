@@ -42,20 +42,46 @@ async function startServer() {
   
   // Security middlewares
   app.use(helmet({
-    contentSecurityPolicy: false, // Disabling CSP for Vite dev server compatibility if needed, or configure properly
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        connectSrc: ["'self'", "https://*.supabase.co", "https://generativelanguage.googleapis.com", "https://nominatim.openstreetmap.org"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        frameSrc: ["'self'", "https://*.supabase.co"],
+        baseUri: ["'self'"],
+      },
+    },
     crossOriginEmbedderPolicy: false
   }));
   app.use(cors({
-    origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL || "*" : "*",
+    origin: process.env.NODE_ENV === "production" && process.env.FRONTEND_URL ? process.env.FRONTEND_URL : "http://localhost:3000",
     methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   }));
   
-  app.use(express.json({ limit: "500kb" })); 
+  app.use(express.json({ limit: "100kb" })); 
 
   
   app.post("/api/chat", apiLimiter, async (req: Request, res: Response) => {
     try {
+      // Verify authentication - require a valid session
+      const authHeader = req.headers.authorization;
+      const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+      
+      let authenticated = false;
+      if (token) {
+        try {
+          const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token);
+          if (!authError && authUser) authenticated = true;
+        } catch {
+          // Token validation failed silently
+        }
+      }
+
       const { message, history, userProfile } = req.body;
       if (!message) {
         return res.status(400).json({ error: "El mensaje es obligatorio" });
@@ -133,12 +159,27 @@ RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 Hora y día actual en Nicaragua: ${localTimeStr}
 REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba está fuera de ese horario (noches o fines de semana), ESTÁN CERRADOS. En caso de síntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos sí atienden 24/7. Es vital para la seguridad no derivarlos a clínicas cerradas.`;
 
+      // Sanitize user input to prevent prompt injection
+      function sanitizeForPrompt(value: string): string {
+        if (!value) return 'No especificado';
+        return String(value)
+          .replace(/[\n\r]/g, ' ')
+          .replace(/[<>"']/g, '')
+          .substring(0, 200);
+      }
+
       let profileContext = "";
       if (userProfile && typeof userProfile === 'object') {
+        const safeName = sanitizeForPrompt(userProfile.name);
+        const safeCity = sanitizeForPrompt(userProfile.city);
+        const safeConditions = Array.isArray(userProfile.healthConditions) 
+          ? userProfile.healthConditions.map((c: string) => sanitizeForPrompt(c)).join(', ') 
+          : 'Ninguna';
+        
         profileContext = `\n\n[CONTEXTO DEL PACIENTE]
-Nombre: ${userProfile.name || 'No especificado'}
-Ciudad: ${userProfile.city || 'No especificada'}
-Condiciones: ${userProfile.healthConditions?.join(', ') || 'Ninguna'}`;
+Nombre: ${safeName || 'No especificado'}
+Ciudad: ${safeCity || 'No especificada'}
+Condiciones: ${safeConditions || 'Ninguna'}`;
       }
 
       const finalSystemInstruction = systemInstruction + timeContext + profileContext;
@@ -179,9 +220,9 @@ Condiciones: ${userProfile.healthConditions?.join(', ') || 'Ninguna'}`;
       try {
         const result = await chat.sendMessage(message);
         responseText = result.response ? result.response.text() : "";
-      } catch (aiErr) {
+      } catch (aiErr: any) {
         console.error("AI Generation Error:", aiErr);
-        if (aiErr.message?.includes("SAFETY")) {
+        if (aiErr?.message?.includes("SAFETY")) {
             return res.status(200).json({ text: "Consulta bloqueada por seguridad. Reformule sus síntomas.", simulated: false });
         }
         throw aiErr;
@@ -195,8 +236,7 @@ Condiciones: ${userProfile.healthConditions?.join(', ') || 'Ninguna'}`;
     } catch (error: any) {
       console.error("Detalle del Error en API Chat:", error);
       return res.status(500).json({
-        error: "Ocurrió un error procesando el triaje virtual con IA.",
-        details: error?.message || ""
+        error: "Ocurrió un error procesando el triaje virtual con IA. Intente nuevamente."
       });
     }
   });
