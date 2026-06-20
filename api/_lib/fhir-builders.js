@@ -80,24 +80,6 @@ export function buildPatient({ cedula, nombre, ciudad, pais, contactoEmergencia,
     });
   }
 
-  // Emergency contact
-  if (contactoEmergencia) {
-    patient.contact = [{
-      relationship: [{
-        coding: [{
-          system: "http://terminology.hl7.org/CodeSystem/v2-0131",
-          code: "C",
-          display: "Emergency Contact",
-        }],
-      }],
-      telecom: [{
-        system: "phone",
-        value: contactoEmergencia,
-        use: "mobile",
-      }],
-    }];
-  }
-
   return patient;
 }
 
@@ -405,6 +387,37 @@ export function buildImmunizations(vacunas, patientReference) {
       primarySource: false,
     };
   }).filter(Boolean);
+}
+
+/**
+ * Build RelatedPerson resource for emergency contact
+ * @param {string} contactoEmergencia - Phone number of emergency contact
+ * @param {string} patientReference
+ * @returns {object|null}
+ */
+export function buildRelatedPerson(contactoEmergencia, patientReference) {
+  if (!contactoEmergencia || !contactoEmergencia.trim()) return null;
+
+  return {
+    resourceType: "RelatedPerson",
+    meta: buildMeta(),
+    active: true,
+    patient: {
+      reference: patientReference,
+    },
+    relationship: [{
+      coding: [{
+        system: "http://terminology.hl7.org/CodeSystem/v2-0131",
+        code: "C",
+        display: "Emergency Contact",
+      }],
+    }],
+    telecom: [{
+      system: "phone",
+      value: contactoEmergencia.trim(),
+      use: "mobile",
+    }],
+  };
 }
 
 /**

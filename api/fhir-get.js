@@ -81,7 +81,7 @@ export default async function handler(req, res) {
     console.log(`[${requestId}] Found Patient/${patientId}. Fetching resources...`);
 
     // ─── Fetch all related resources in parallel ─────────────────
-    const [conditions, allergies, observations, medications, carePlans, immunizations] =
+    const [conditions, allergies, observations, medications, carePlans, immunizations, relatedPersons] =
       await Promise.all([
         getPatientResources(patientId, "Condition").catch(() => []),
         getPatientResources(patientId, "AllergyIntolerance").catch(() => []),
@@ -89,6 +89,7 @@ export default async function handler(req, res) {
         getPatientResources(patientId, "MedicationStatement").catch(() => []),
         getPatientResources(patientId, "CarePlan").catch(() => []),
         getPatientResources(patientId, "Immunization").catch(() => []),
+        getPatientResources(patientId, "RelatedPerson").catch(() => []),
       ]);
 
     // ─── Transform FHIR → form format ───────────────────────────
@@ -134,9 +135,10 @@ export default async function handler(req, res) {
     const cedulaValue =
       patient.identifier?.find((i) => i.system === "urn:oid:2.16.558.1")?.value || sanitizedCedula;
 
-    // Contacto de emergencia
+    // Contacto de emergencia (RelatedPerson)
     const contactoEmergencia =
-      patient.contact?.[0]?.telecom?.[0]?.value || "";
+      relatedPersons[0]?.telecom?.find((t) => t.system === "phone")?.value || 
+      patient.contact?.[0]?.telecom?.[0]?.value || ""; // Fallback for old data
 
     const formData = {
       enfermedades,

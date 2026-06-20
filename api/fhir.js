@@ -38,6 +38,7 @@ import {
   buildMedicationStatements,
   buildCarePlan,
   buildImmunizations,
+  buildRelatedPerson,
   buildTransactionBundle,
 } from "./_lib/fhir-builders.js";
 import crypto from "crypto";
@@ -116,6 +117,7 @@ export default async function handler(req, res) {
         "MedicationStatement",
         "CarePlan",
         "Immunization",
+        "RelatedPerson",
       ];
 
       for (const resourceType of resourceTypes) {
@@ -190,6 +192,10 @@ export default async function handler(req, res) {
 
     // Immunizations (vaccines)
     allResources.push(...buildImmunizations(data.vacunas, patientRef));
+
+    // Emergency Contact
+    const relatedPerson = buildRelatedPerson(data.contactoEmergencia, patientRef);
+    if (relatedPerson) allResources.push(relatedPerson);
 
     console.log(`[${requestId}] Built ${allResources.length} resources + 1 Patient`);
 
