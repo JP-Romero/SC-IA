@@ -416,7 +416,7 @@ export function buildImmunizations(vacunas, patientReference) {
  * @param {string|null} existingPatientId - If patient already exists, use PUT instead of POST
  * @returns {object} FHIR Bundle of type "transaction"
  */
-export function buildTransactionBundle(patient, otherResources, existingPatientId = null) {
+export function buildTransactionBundle(patient, otherResources, existingPatientId = null, temporaryUuid = null) {
   const entries = [];
 
   // Patient entry — update if exists, create if new
@@ -433,6 +433,7 @@ export function buildTransactionBundle(patient, otherResources, existingPatientI
     // Use identifier-based conditional create to prevent duplicates
     const cedula = patient.identifier?.find((i) => i.system === NICARAGUA_OID)?.value;
     entries.push({
+      fullUrl: temporaryUuid, // Allow intra-bundle referencing for the new patient
       resource: patient,
       request: {
         method: "POST",

@@ -40,6 +40,7 @@ import {
   buildImmunizations,
   buildTransactionBundle,
 } from "./_lib/fhir-builders.js";
+import crypto from "crypto";
 
 export default async function handler(req, res) {
   // ─── CORS ────────────────────────────────────────────────────────
@@ -156,9 +157,10 @@ export default async function handler(req, res) {
     // ─── Build patient reference ─────────────────────────────────
     // For new patients, we use a temporary UUID reference within the bundle.
     // For existing patients, use their actual ID.
+    const temporaryUuid = `urn:uuid:${crypto.randomUUID()}`;
     const patientRef = existingPatientId
       ? `Patient/${existingPatientId}`
-      : "Patient";
+      : temporaryUuid;
 
     // ─── Build all FHIR resources ────────────────────────────────
     const allResources = [];
@@ -192,7 +194,7 @@ export default async function handler(req, res) {
     console.log(`[${requestId}] Built ${allResources.length} resources + 1 Patient`);
 
     // ─── Build and execute Transaction Bundle ────────────────────
-    const bundle = buildTransactionBundle(patient, allResources, existingPatientId);
+    const bundle = buildTransactionBundle(patient, allResources, existingPatientId, temporaryUuid);
 
     console.log(`[${requestId}] Executing FHIR Transaction Bundle with ${bundle.entry.length} entries...`);
 
