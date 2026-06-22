@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { UserProfile, ChatMessage } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
-import { Siren, Mic, MicOff } from "lucide-react";
+import { Siren, Mic, MicOff, History, X, CalendarDays, Clock3, MessageCircle } from "lucide-react";
 import { getOfflineTriageResponse } from "../lib/offlineTriage";
 import { getMiskitoTriageResponse } from "../lib/miskitoTriage";
 import { getKriolTriageResponse } from "../lib/kriolTriage";
@@ -199,6 +199,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   // --- CHAT STATE ---
   const [messages, setMessages] = useState<ChatMessage[]>(() => loadTriageHistory(user.id));
   const [isLoading, setIsLoading] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // --- SPEECH RECOGNITION ---
@@ -469,6 +470,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
   const handleResetChat = () => {
     setMessages([]);
+    setIsHistoryOpen(false);
     try {
       localStorage.removeItem(getTriageHistoryKey(user.id));
     } catch (err) {
@@ -478,6 +480,19 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
   const firstName = user.name.split(" ")[0];
   const isChatMode = messages.length > 0;
+  const historyMessages = normalizeStoredMessages(messages);
+
+  const formatHistoryDate = (value?: string) => {
+    const date = value ? new Date(value) : new Date();
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleDateString("es-NI", { weekday: "long", day: "numeric", month: "long" });
+  };
+
+  const formatHistoryTime = (value?: string) => {
+    const date = value ? new Date(value) : new Date();
+    if (Number.isNaN(date.getTime())) return "--:--";
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
 
   
   const formatMessageText = (text: string) => {
@@ -531,6 +546,19 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
         {}
         <div className="flex items-center gap-3">
+          <motion.button
+            whileTap={{ scale: 0.94 }}
+            onClick={() => setIsHistoryOpen(true)}
+            className="relative flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 border border-blue-100 dark:border-blue-900/40 text-blue-600 dark:text-blue-400 shadow-[0_8px_24px_rgba(37,99,235,0.10)] hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+            title="Historial de triaje"
+          >
+            <History className="w-5 h-5" />
+            {historyMessages.length > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[9px] font-black border-2 border-white dark:border-slate-900 flex items-center justify-center">
+                {historyMessages.length > 9 ? "9+" : historyMessages.length}
+              </span>
+            )}
+          </motion.button>
           {isChatMode && (
             <button
               onClick={handleResetChat}
@@ -751,6 +779,118 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           </p>
         </motion.div>
       )}
+
+      <AnimatePresence>
+        {isHistoryOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-6"
+            onClick={() => setIsHistoryOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 28, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 22, scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 330, damping: 30 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full sm:max-w-2xl max-h-[86dvh] bg-white dark:bg-slate-900 rounded-t-[30px] sm:rounded-[30px] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden"
+            >
+              <div className="px-5 sm:px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-900 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-[0_14px_28px_rgba(37,99,235,0.25)] shrink-0">
+                    <History className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-lg sm:text-xl font-black text-slate-950 dark:text-white tracking-tight">
+                      Historial de triaje
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Últimos 14 días con fecha y hora
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsHistoryOpen(false)}
+                  className="w-10 h-10 rounded-full bg-white/80 dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-100 dark:border-slate-700 flex items-center justify-center transition-colors shrink-0"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="px-5 sm:px-6 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-[11px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/25 rounded-full px-3 py-1.5">
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>{historyMessages.length} mensajes</span>
+                </div>
+                {historyMessages.length > 0 && (
+                  <button
+                    onClick={handleResetChat}
+                    className="text-[11px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-full px-3 py-1.5 transition-colors"
+                  >
+                    Limpiar historial
+                  </button>
+                )}
+              </div>
+
+              <div className="max-h-[58dvh] overflow-y-auto px-4 sm:px-6 py-4 bg-slate-50/70 dark:bg-slate-950/30">
+                {historyMessages.length > 0 ? (
+                  <div className="space-y-3">
+                    {historyMessages.map((message) => (
+                      <div
+                        key={`history-${message.id}`}
+                        className={`rounded-2xl border p-4 shadow-sm ${
+                          message.sender === "user"
+                            ? "bg-blue-600 border-blue-500 text-white"
+                            : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200"
+                        }`}
+                      >
+                        <div className={`flex flex-wrap items-center gap-2 mb-2 text-[10px] font-black ${
+                          message.sender === "user" ? "text-blue-100" : "text-slate-400 dark:text-slate-500"
+                        }`}>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${
+                            message.sender === "user" ? "bg-white/15" : "bg-slate-100 dark:bg-slate-800"
+                          }`}>
+                            <CalendarDays className="w-3 h-3" />
+                            {formatHistoryDate(message.createdAt)}
+                          </span>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${
+                            message.sender === "user" ? "bg-white/15" : "bg-slate-100 dark:bg-slate-800"
+                          }`}>
+                            <Clock3 className="w-3 h-3" />
+                            {formatHistoryTime(message.createdAt)}
+                          </span>
+                          <span className={`ml-auto rounded-full px-2 py-1 ${
+                            message.sender === "user"
+                              ? "bg-white/15 text-white"
+                              : "bg-blue-50 dark:bg-blue-900/25 text-blue-600 dark:text-blue-400"
+                          }`}>
+                            {message.sender === "user" ? "Tú" : "Salud-Conecta IA"}
+                          </span>
+                        </div>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                          {message.text}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center">
+                    <div className="mx-auto w-16 h-16 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-blue-500 shadow-sm mb-4">
+                      <History className="w-7 h-7" />
+                    </div>
+                    <h4 className="text-base font-black text-slate-900 dark:text-white">Sin historial todavía</h4>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
+                      Cuando hagas una consulta, aparecerá aquí con su fecha y hora durante 14 días.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
