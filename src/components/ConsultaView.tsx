@@ -116,6 +116,80 @@ const SYMPTOM_CHIPS = [
   },
 ];
 
+const TRIAGE_HISTORY_DAYS = 14;
+const TRIAGE_HISTORY_MS = TRIAGE_HISTORY_DAYS * 24 * 60 * 60 * 1000;
+
+const getTriageHistoryKey = (userId?: string) => `triageHistory_${userId || "guest"}`;
+
+const getMessageDate = (message: ChatMessage) => {
+  const explicitDate = message.createdAt ? new Date(message.createdAt) : null;
+  if (explicitDate && !Number.isNaN(explicitDate.getTime())) return explicitDate;
+
+  const timestampFromId = Number(message.id);
+  if (Number.isFinite(timestampFromId) && timestampFromId > 0) {
+    const idDate = new Date(timestampFromId);
+    if (!Number.isNaN(idDate.getTime())) return idDate;
+  }
+
+  return new Date();
+};
+
+const normalizeStoredMessages = (messages: ChatMessage[]) => {
+  const cutoff = Date.now() - TRIAGE_HISTORY_MS;
+  return messages
+    .filter((message) => {
+      const messageDate = getMessageDate(message);
+      return messageDate.getTime() >= cutoff;
+    })
+    .map((message) => {
+      const messageDate = getMessageDate(message);
+      return {
+        ...message,
+        createdAt: message.createdAt || messageDate.toISOString(),
+        timestamp: message.timestamp || messageDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
+    });
+};
+
+const loadTriageHistory = (userId?: string): ChatMessage[] => {
+  try {
+    const stored = localStorage.getItem(getTriageHistoryKey(userId));
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+    return normalizeStoredMessages(parsed);
+  } catch (err) {
+    console.warn("No se pudo cargar el historial de triaje:", err);
+    return [];
+  }
+};
+
+const saveTriageHistory = (userId: string | undefined, messages: ChatMessage[]) => {
+  try {
+    const normalized = normalizeStoredMessages(messages);
+    localStorage.setItem(getTriageHistoryKey(userId), JSON.stringify(normalized));
+    return normalized;
+  } catch (err) {
+    console.warn("No se pudo guardar el historial de triaje:", err);
+    return messages;
+  }
+};
+
+const buildHistoryForApi = (messages: ChatMessage[]) => {
+  return normalizeStoredMessages(messages).map((message) => {
+    const messageDate = getMessageDate(message);
+    const dateLabel = messageDate.toLocaleString("es-NI", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+
+    return {
+      ...message,
+      text: `[${dateLabel}] ${message.text}`,
+    };
+  });
+};
+
 export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: ConsultaViewProps) {
   const { t, language } = useLanguage();
   const [activeChip, setActiveChip] = useState("fiebre");
@@ -123,13 +197,24 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const [isFocused, setIsFocused] = useState(false);
 
   // --- CHAT STATE ---
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => loadTriageHistory(user.id));
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // --- SPEECH RECOGNITION ---
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    setMessages(loadTriageHistory(user.id));
+  }, [user.id]);
+
+  useEffect(() => {
+    const normalized = saveTriageHistory(user.id, messages);
+    if (normalized.length !== messages.length) {
+      setMessages(normalized);
+    }
+  }, [messages]);
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -251,7 +336,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       id: Date.now().toString(),
       text: userText,
       sender: "user",
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString()
     };
 
     setMessages(prev => [...prev, newUserMsg]);
@@ -265,7 +351,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           id: (Date.now() + 1).toString(),
           text: miskitoResponse,
           sender: "bot",
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          createdAt: new Date().toISOString()
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
@@ -280,7 +367,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           id: (Date.now() + 1).toString(),
           text: kriolResponse,
           sender: "bot",
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          createdAt: new Date().toISOString()
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
@@ -295,7 +383,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           id: (Date.now() + 1).toString(),
           text: offlineResponse,
           sender: "bot",
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          createdAt: new Date().toISOString()
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
@@ -307,7 +396,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText, history: messages, userProfile: user, language })
+        body: JSON.stringify({ message: userText, history: buildHistoryForApi(messages), userProfile: user, language })
       });
       
       let data: any;
@@ -327,7 +416,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           id: (Date.now() + 1).toString(),
           text: offlineResponse,
           sender: "bot",
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          createdAt: new Date().toISOString()
         };
         setMessages(prev => [...prev, errorMsg]);
         return;
@@ -349,7 +439,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         id: (Date.now() + 1).toString(),
         text: botText,
         sender: "bot",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        createdAt: new Date().toISOString()
       };
       
       setMessages(prev => [...prev, botMsg]);
@@ -360,7 +451,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         id: (Date.now() + 1).toString(),
         text: offlineResponse,
         sender: "bot",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        createdAt: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMsg]);
     } finally {
@@ -372,6 +464,15 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
+    }
+  };
+
+  const handleResetChat = () => {
+    setMessages([]);
+    try {
+      localStorage.removeItem(getTriageHistoryKey(user.id));
+    } catch (err) {
+      console.warn("No se pudo limpiar el historial de triaje:", err);
     }
   };
 
@@ -432,7 +533,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         <div className="flex items-center gap-3">
           {isChatMode && (
             <button
-              onClick={() => setMessages([])}
+              onClick={handleResetChat}
               className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
             >
               Reiniciar

@@ -48,6 +48,7 @@ export interface ChatMessage {
   text: string;
   sender: "user" | "bot";
   timestamp: string;
+  createdAt?: string;
 }
 
 export interface Appointment {
