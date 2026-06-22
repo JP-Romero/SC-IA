@@ -1113,11 +1113,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         {onLogout && (
           <button
             id="btn-profile-logout"
-            onClick={() => {
-              if (window.confirm(t('logoutConfirm'))) {
-                onLogout();
-              }
-            }}
+            onClick={onLogout}
             className="w-full mt-5 bg-red-50 dark:bg-red-900/10 hover:bg-red-100/80 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200/85 dark:border-red-900/30 rounded-2xl py-3.5 px-5 font-bold text-xs flex items-center justify-center space-x-2 transition-all active:scale-[0.98] cursor-pointer"
           >
             <LogOut className="w-4.5 h-4.5 text-red-500 shrink-0" />

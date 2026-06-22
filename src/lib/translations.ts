@@ -206,6 +206,10 @@ export const translations = {
     saveSuccess: "¡La información de Kenneth se guardó con éxito en el perfil local!",
     standardsDesc: "Cumplimos con los más altos estándares de privacidad y seguridad médica de acuerdo con las normativas GDPR y HIPAA.",
     logoutConfirm: "¿Estás seguro de que deseas cerrar la sesión?",
+    logoutModalTitle: "¿Cerrar sesión?",
+    logoutModalDesc: "Vas a salir de tu cuenta en este dispositivo. Podrás volver a entrar cuando lo necesites.",
+    logoutModalSecureNote: "Tus datos médicos y preferencias seguirán protegidos en Salud-Conecta IA.",
+    logoutModalStay: "Permanecer",
 
     
     premiumTitle: "Premium",
@@ -690,6 +694,10 @@ export const translations = {
     saveSuccess: "Kenneth's information was successfully saved to the local profile!",
     standardsDesc: "We comply with the highest standards of medical privacy and security in accordance with GDPR and HIPAA regulations.",
     logoutConfirm: "Are you sure you want to log out?",
+    logoutModalTitle: "Log out?",
+    logoutModalDesc: "You are about to leave your account on this device. You can sign back in whenever you need.",
+    logoutModalSecureNote: "Your medical data and preferences will remain protected in Salud-Conecta IA.",
+    logoutModalStay: "Stay signed in",
 
     
     premiumTitle: "Premium",
@@ -1174,6 +1182,10 @@ export const translations = {
     saveSuccess: "Nini pain mangkan!",
     standardsDesc: "Ligal GDPR bara HIPAA pain.",
     logoutConfirm: "Takaya dukia man sma?",
+    logoutModalTitle: "Takaya?",
+    logoutModalDesc: "Naha device ra man account ba wina takbia. Man kli dimi kai sa.",
+    logoutModalSecureNote: "Man medical data bara preferences ba Salud-Conecta IA ra pain bribia.",
+    logoutModalStay: "Dima bri",
 
     
     premiumTitle: "Premium",
@@ -1658,6 +1670,10 @@ export const translations = {
     saveSuccess: "Kenneth's information was successfully saved to the local profile!",
     standardsDesc: "We comply with the highest standards of medical privacy and security in accordance with GDPR and HIPAA regulations.",
     logoutConfirm: "Are you sure you want to log out?",
+    logoutModalTitle: "Log out?",
+    logoutModalDesc: "You are about to leave your account on this device. You can sign back in whenever you need.",
+    logoutModalSecureNote: "Your medical data and preferences will remain protected in Salud-Conecta IA.",
+    logoutModalStay: "Stay signed in",
 
     
     premiumTitle: "Premium",
