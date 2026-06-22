@@ -548,6 +548,9 @@ export default function App() {
       }
     } catch (e) {
       console.warn("Could not save to localStorage", e);
+    } finally {
+      // Show local save success message immediately, regardless of remote sync
+      addToast(createToast(t('saveSuccess', { name: updatedUser.name }), "success"));
     }
 
     
@@ -561,6 +564,7 @@ export default function App() {
 
         if (success) {
           addToast(createToast(t('profileSaved'), "success")); // This toast is for remote save.
+          // The remote save doesn't need a separate toast, as the local one is sufficient for UX.
         } else {
           addToast(createToast(error || t('profileSaveError'), "error"));
         }
