@@ -560,7 +560,7 @@ export default function App() {
         } as any);
 
         if (success) {
-          addToast(createToast(t('profileSaved'), "success"));
+          addToast(createToast(t('profileSaved'), "success")); // This toast is for remote save.
         } else {
           addToast(createToast(error || t('profileSaveError'), "error"));
         }
