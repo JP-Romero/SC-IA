@@ -228,14 +228,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       .replace(/[\u0300-\u036f]/g, "");
 
   const requestCurrentLocation = useCallback(() => {
-    if (!("geolocation" in navigator)) {
     if (!navigator.geolocation) {
       setGeoStatus("error");
       setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
       setLocationMode("manual");
       return;
     }
-
     setGeoStatus("loading");
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -249,8 +247,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         setGeoError("");
         setLocationMode("nearby");
 
-        
-        
         const nearestCenter = mergedCenters
           .filter((center) => center.latitude && center.longitude)
           .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
@@ -266,80 +262,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         setGeoError(error.message || "No se pudo obtener tu ubicación.");
         setLocationMode("manual");
       },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 30000,
-        timeout: 12000,
-      },
+      { enableHighAccuracy: true, maximumAge: 30000, timeout: 12000 }
     );
   }, [mergedCenters]);
-
-  // Solicitar la ubicación una sola vez al cargar el componente
-  useEffect(() => {
-    if (!("geolocation" in navigator)) {
-      setGeoStatus("error");
-      setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
-      setLocationMode("manual");
-      return;
-    }
-    requestCurrentLocation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-    setGeoStatus("loading");
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        const userLoc = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        };
-
-        
-        
-        let shouldUpdate = true;
-        if (userLocation) {
-          const distanceMeters = getDistanceKm(userLoc, userLocation as unknown as HealthCenter) * 1000;
-
-          
-          if (distanceMeters < 10) {
-            shouldUpdate = false;
-          }
-        }
-
-        if (shouldUpdate) {
-          setUserLocation(userLoc);
-          setGeoStatus("ready");
-          setGeoError("");
-          setLocationMode("nearby");
-
-          
-          
-          const nearestCenter = mergedCenters
-            .filter((center) => center.latitude && center.longitude)
-            .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-            .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
-
-          if (nearestCenter) {
-            setActiveFilter("centro");
-            setSelectedCenter(nearestCenter);
-          }
-        }
-      },
-      (error) => {
-        setGeoStatus("error");
-        setGeoError(error.message || "No se pudo obtener tu ubicación.");
-        setLocationMode("manual");
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 30000,
-        timeout: 12000,
-      },
-    );
-
-    return () => navigator.geolocation.clearWatch(watchId);
-  }, [mergedCenters, activeFilter, selectedCenter]);
 
   useEffect(() => {
     if (!userLocation) return;
@@ -403,6 +328,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
     return () => controller.abort();
   }, [googleMapsApiKey, userLocation, mergedCenters]);
+
+  // Solicitar la ubicación una sola vez al cargar el componente
+  useEffect(() => {
+    requestCurrentLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filteredCenters = useMemo(() => {
     const typeFilteredCenters = mergedCenters.filter((center) => {
