@@ -1,9 +1,13 @@
 import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { useGeolocation } from '../hooks/useGeolocation';
-import { HEALTH_CENTERS } from '../data/healthUnits';
+// import { HEALTH_CENTERS } from '../data/healthUnits'; // Comentado para evitar errores, ya que la fuente de datos no está unificada.
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+// Importamos los iconos por defecto de leaflet para evitar errores de archivos no encontrados.
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 // --- INICIO DE LA MODIFICACIÓN ---
 
@@ -13,11 +17,13 @@ const FALLBACK_LOCATION = {
   longitude: -85.956,
 };
 
-// Configuración para el ícono del marcador (soluciona un problema común con Leaflet y React)
-const icon = L.icon({ 
-    iconUrl: "/marker-icon.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
+// Configuración del icono del marcador usando los recursos de la propia librería Leaflet.
+const defaultIcon = L.icon({
+    iconRetinaUrl,
+    iconUrl,
+    shadowUrl,
+    iconSize: [25, 41], iconAnchor: [12, 41],
+    popupAnchor: [1, -34], shadowSize: [41, 41]
 });
 
 const MedicalCentersMap: React.FC = () => {
@@ -49,17 +55,17 @@ const MedicalCentersMap: React.FC = () => {
 
       {/* Marcador para la ubicación del usuario */}
       {userLocation && (
-        <Marker position={[userLocation.latitude, userLocation.longitude]} icon={icon}>
+        <Marker position={[userLocation.latitude, userLocation.longitude]} icon={defaultIcon}>
           <Popup>Tu ubicación actual</Popup>
         </Marker>
       )}
 
-      {/* Mapeamos y mostramos todos los centros de salud */}
-      {HEALTH_CENTERS.filter(center => center.latitude && center.longitude).map(center => (
-        <Marker key={center.id} position={[center.latitude!, center.longitude!]} icon={icon}>
+      {/* Mapeamos y mostramos todos los centros de salud - TEMPORALMENTE DESHABILITADO */}
+      {/* {HEALTH_CENTERS.filter(center => center.latitude && center.longitude).map(center => (
+        <Marker key={center.id} position={[center.latitude!, center.longitude!]} icon={defaultIcon}>
           <Popup>{center.name}</Popup>
         </Marker>
-      ))}
+      ))} */}
     </MapContainer>
   );
 };

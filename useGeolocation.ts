@@ -18,8 +18,11 @@ export const useGeolocation = () => {
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      setState(s => ({ ...s, loading: false, error: new GeolocationPositionError() }));
       console.error("La geolocalización no es soportada por este navegador.");
+      // No se puede instanciar GeolocationPositionError directamente.
+      // Usamos un objeto de error personalizado o un mensaje.
+      const customError = { code: 0, message: "Geolocation not supported" } as GeolocationPositionError;
+      setState(s => ({ ...s, loading: false, error: customError }));
       return;
     }
 
@@ -28,7 +31,8 @@ export const useGeolocation = () => {
     };
 
     const onError = (error: GeolocationPositionError) => {
-      setState({ loading: true, error, data: null });
+      // Si hay un error, debemos poner loading en false para que la UI reaccione.
+      setState({ loading: false, error, data: null });
     };
 
     navigator.geolocation.getCurrentPosition(onSuccess, onError, { enableHighAccuracy: true });
