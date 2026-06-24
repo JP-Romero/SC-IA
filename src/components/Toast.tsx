@@ -2,14 +2,14 @@ import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
-// ─── Types ────────────────────────────────────────────────────
+
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 export interface ToastData {
   id: string;
   message: string;
   type: ToastType;
-  duration?: number; // ms, default 4000
+  duration?: number; 
 }
 
 interface ToastProps {
@@ -22,7 +22,7 @@ interface ToastContainerProps {
   onDismiss: (id: string) => void;
 }
 
-// ─── Config ────────────────────────────────────────────────────
+
 const TOAST_CONFIG: Record<ToastType, { icon: typeof CheckCircle; bg: string; border: string; text: string; iconColor: string }> = {
   success: {
     icon: CheckCircle,
@@ -54,7 +54,7 @@ const TOAST_CONFIG: Record<ToastType, { icon: typeof CheckCircle; bg: string; bo
   },
 };
 
-// ─── Single Toast ──────────────────────────────────────────────
+
 function Toast({ toast, onDismiss }: ToastProps) {
   const config = TOAST_CONFIG[toast.type];
   const Icon = config.icon;
@@ -90,7 +90,7 @@ function Toast({ toast, onDismiss }: ToastProps) {
   );
 }
 
-// ─── Toast Container ───────────────────────────────────────────
+
 export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   return (
     <div className="fixed top-4 inset-x-0 z-[100] flex flex-col items-center gap-2 px-4 pointer-events-none">
@@ -105,7 +105,7 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   );
 }
 
-// ─── Hook helper to generate toast IDs ─────────────────────────
+
 let toastCounter = 0;
 export function createToast(message: string, type: ToastType, duration?: number): ToastData {
   return {

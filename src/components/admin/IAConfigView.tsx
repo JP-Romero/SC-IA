@@ -32,7 +32,7 @@ const IAConfigView: React.FC = () => {
   const [testMessages, setTestMessages] = useState<{sender: 'user'|'bot', text: string}[]>([]);
   const [isTesting, setIsTesting] = useState(false);
 
-  // Check if user is admin (profile type may not include 'role' in its definition)
+  
   const isAdmin = (profile as any)?.role === "admin";
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const IAConfigView: React.FC = () => {
     loadAIConfigs();
   }, []);
 
-  // Handle form input changes
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -71,10 +71,10 @@ const IAConfigView: React.FC = () => {
     }));
   };
 
-  // Handle adding new AI configuration
+  
   const handleAddAIConfig = async () => {
     try {
-      // Validate required fields
+      
       if (!formData.config_key || !formData.config_value) {
         alert('Por favor complete todos los campos obligatorios');
         return;
@@ -93,7 +93,7 @@ const IAConfigView: React.FC = () => {
 
       if (error) throw error;
 
-      // Reset form and close
+      
       setFormMode(null);
       setEditingConfig(null);
       setFormData({
@@ -113,12 +113,12 @@ const IAConfigView: React.FC = () => {
     }
   };
 
-  // Handle updating AI configuration
+  
   const handleUpdateAIConfig = async () => {
     if (!editingConfig) return;
 
     try {
-      // Validate required fields
+      
       if (!formData.config_key || !formData.config_value) {
         alert('Por favor complete todos los campos obligatorios');
         return;
@@ -138,7 +138,7 @@ const IAConfigView: React.FC = () => {
 
       if (error) throw error;
 
-      // Reset form and close
+      
       setFormMode(null);
       setEditingConfig(null);
       setFormData({
@@ -158,7 +158,7 @@ const IAConfigView: React.FC = () => {
     }
   };
 
-  // Handle deleting AI configuration
+  
   const handleDeleteAIConfig = async (id: string) => {
     if (!window.confirm('¿Está seguro de que desea eliminar esta configuración de IA? Esta acción no se puede deshacer.')) {
       return;
@@ -172,10 +172,10 @@ const IAConfigView: React.FC = () => {
 
       if (error) throw error;
 
-      // Reload AI configurations
+      
       await loadAIConfigs();
 
-      // Show success
+      
       alert('Configuración de IA eliminada exitosamente');
     } catch (err: any) {
       setError(err.message || 'Error deleting AI configuration');
@@ -183,7 +183,7 @@ const IAConfigView: React.FC = () => {
     }
   };
 
-  // Load AI configurations function (for refresh)
+  
   const loadAIConfigs = useCallback(async () => {
     try {
       setLoading(true);
@@ -202,7 +202,7 @@ const IAConfigView: React.FC = () => {
     }
   }, []);
 
-  // Handle Playground Chat
+  
   const handleTestChat = async () => {
     if (!testInput.trim() || isTesting) return;
     
@@ -215,7 +215,7 @@ const IAConfigView: React.FC = () => {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // En el backend se leerá automáticamente de supabase las configuraciones actualizadas
+        
         body: JSON.stringify({ 
           message: newMsg.text, 
           history: testMessages,
@@ -263,12 +263,12 @@ const IAConfigView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('iaConfiguration')}</h2>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => {
+            onClick={() => { 
               setFormMode('add');
               setEditingConfig(null);
               setFormData({
@@ -277,27 +277,27 @@ const IAConfigView: React.FC = () => {
                 description: ''
               });
             }}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-2"
           >
-            <Plus className="w-4 h-4" /> Agregar
+            <Plus className="w-4 h-4" /> {t('addAIConfig')}
           </button>
           <button
             onClick={loadAIConfigs}
-            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 flex items-center gap-2"
           >
             <Clock className="w-4 h-4" /> {t('refresh')}
           </button>
         </div>
       </div>
 
-      {/* AI Configurations List */}
+      {}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('aiConfigurationsList')} ({aiConfigs.length})</h3>
         </div>
         <div className="px-6 py-4 overflow-y-auto max-h-[400px]">
           {aiConfigs.length === 0 ? (
-            <div className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
+            <div className="px-6 py-8 text-center text-slate-500 dark:text-slate-400 flex flex-col items-center justify-center gap-2">
               <p>No AI configurations found</p>
             </div>
           ) : (
@@ -327,7 +327,7 @@ const IAConfigView: React.FC = () => {
                           description: config.description || ''
                         });
                       }}
-                      className="px-3 py-1.5 text-xs font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="px-3 py-1.5 text-xs font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-1"
                     >
                       {t('edit')}
                     </button>
@@ -335,7 +335,7 @@ const IAConfigView: React.FC = () => {
                       type="button"
                       onClick={() => handleDeleteAIConfig(config.id)}
                       className="px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                    >
+                    > 
                       {t('delete')}
                     </button>
                   </div>
@@ -346,12 +346,12 @@ const IAConfigView: React.FC = () => {
         </div>
       </div>
 
-      {/* Add/Edit Form */}
+      {}
       {formMode !== null && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
-              {formMode === 'add' ? 'Agregar Configuración IA' : 'Editar Configuración IA'}
+              {formMode === 'add' ? t('addAIConfig') : t('editAIConfig')}
             </h3>
           </div>
           <div className="px-6 py-4 space-y-4">
@@ -359,7 +359,7 @@ const IAConfigView: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('configKey' as any)}</label>
-                  <input
+                  <input 
                     type="text"
                     name="config_key"
                     value={formData.config_key || ''}
@@ -370,7 +370,7 @@ const IAConfigView: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('configValue' as any)}</label>
-                  <textarea
+                  <textarea 
                     name="config_value"
                     value={formData.config_value || ''}
                     onChange={handleInputChange}
@@ -411,7 +411,7 @@ const IAConfigView: React.FC = () => {
                 <button
                   type="button"
                   onClick={formMode === 'add' ? handleAddAIConfig : handleUpdateAIConfig}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-1"
                   disabled={!(formData.config_key && formData.config_value)}
                 >
                   {formMode === 'add' ? t('createAIConfig' as any) : t('saveChanges')}
@@ -421,6 +421,64 @@ const IAConfigView: React.FC = () => {
           </div>
         </div>
       )}
+
+      {}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-500" /> AI Playground
+          </h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Prueba las configuraciones de IA en tiempo real.
+          </p>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="flex flex-col h-64 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-md p-3 bg-slate-50 dark:bg-slate-800">
+            {testMessages.length === 0 ? (
+              <p className="text-sm text-slate-400 italic">No hay mensajes aún. Envía una consulta para empezar.</p>
+            ) : (
+              testMessages.map((msg, idx) => (
+                <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} mb-2`}>
+                  <div className={`max-w-[80%] p-2 rounded-lg ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white'}`}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))
+            )}
+            {isTesting && (
+              <div className="flex justify-start mb-2">
+                <div className="max-w-[80%] p-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Pensando...
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={testInput}
+              onChange={(e) => setTestInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleTestChat(); }}
+              placeholder="Escribe tu consulta de prueba aquí..."
+              className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isTesting}
+            />
+            <button
+              onClick={handleTestChat}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-1"
+              disabled={isTesting || !testInput.trim()}
+            >
+              <Send className="w-4 h-4" /> Enviar
+            </button>
+          </div>
+          <button
+            onClick={() => setTestMessages([])}
+            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 flex items-center gap-1"
+          >
+            Limpiar Chat
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

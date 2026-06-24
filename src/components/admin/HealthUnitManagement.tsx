@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { HEALTH_CENTERS } from "../../data/healthUnits";
 import { Loader2 } from "lucide-react";
 
-// Mock data for departments - in a real app, this would come from an API or file listing
+
 const DEPARTAMENTOS = [
   "BOACO",
   "CARAZO",
@@ -133,7 +133,7 @@ const HealthUnitManagement: React.FC = () => {
     }));
   };
 
-  // Handle saving (Add or Edit)
+  
   const handleSaveUnit = async () => {
     if (!newUnit.nombre || !newUnit.tipo_unidad_salud) return;
     setIsSaving(true);
@@ -248,7 +248,7 @@ const HealthUnitManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex justify-between items-center flex-wrap">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('healthUnitManagement')}</h2>
@@ -277,7 +277,7 @@ const HealthUnitManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Add/Edit Form */}
+      {}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6">
         {editMode ? (
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{t('editHealthUnit')}</h3>
@@ -441,7 +441,7 @@ const HealthUnitManagement: React.FC = () => {
         </form>
       </div>
 
-      {/* Health Units List */}
+      {}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('healthUnitsList')} ({healthUnits.length})</h3>

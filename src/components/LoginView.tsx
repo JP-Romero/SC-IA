@@ -88,7 +88,7 @@ export default function LoginView({
       if (!result.success) {
         onToast?.(createToast(result.error || t('googleError'), "error"));
       }
-      // If success, the page will redirect to Google OAuth
+      
     } catch {
       onToast?.(createToast(t('googleConnError'), "error"));
     } finally {
@@ -103,9 +103,15 @@ export default function LoginView({
   const isLoading = isSubmitting || loading;
 
   return (
-    <div className="min-h-screen w-full flex flex-col justify-between bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-[#0b0f19] dark:to-[#0f172a] text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
+    <div className="min-h-dvh w-full flex flex-col justify-between bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-[#0b0f19] dark:to-[#0f172a] text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-blue-200/55 dark:border-blue-900/30"></div>
+        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-blue-200/45 dark:border-blue-900/30"></div>
+        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-blue-100/45 dark:bg-blue-950/30 blur-3xl"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
+      </div>
 
-      {/* 3D Glassmorphic Floating Rings (Decorative Elements) */}
+      {}
       <div className="absolute top-[6%] right-[-12%] w-64 h-64 pointer-events-none opacity-25 dark:opacity-35 animate-float-slow z-0">
         <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full transform rotate-12">
           <circle cx="100" cy="100" r="70" stroke="url(#ringGrad1)" strokeWidth="18" strokeLinecap="round" filter="url(#glow)" />
@@ -135,7 +141,7 @@ export default function LoginView({
         </svg>
       </div>
 
-      {/* Top Header / Action Bar */}
+      {}
       <header className="w-full px-6 pt-6 flex justify-end items-center z-10">
         <button
           id="btn-toggle-darkmode"
@@ -147,10 +153,10 @@ export default function LoginView({
         </button>
       </header>
 
-      {/* Main Form Content */}
+      {}
       <main className="flex-1 w-full max-w-md md:max-w-lg mx-auto px-6 md:px-10 py-8 md:my-auto md:bg-white md:dark:bg-slate-900/80 md:backdrop-blur-xl md:shadow-2xl md:shadow-blue-500/10 md:dark:shadow-blue-900/20 md:rounded-[32px] md:border md:border-slate-100 md:dark:border-slate-800 flex flex-col justify-center z-10">
 
-        {/* Brand Logo & Name */}
+        {}
         <div className="flex flex-col items-center mb-7">
           <img
             src="/app-logo-v1.jpg"
@@ -162,7 +168,7 @@ export default function LoginView({
           </h1>
         </div>
 
-        {/* Title Group */}
+        {}
         <div className="mb-7 text-left">
           <h2 className="text-[38px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             {t('loginTitle')}<span className="text-blue-600 dark:text-blue-500">.</span>
@@ -172,9 +178,9 @@ export default function LoginView({
           </p>
         </div>
 
-        {/* Form Fields */}
+        {}
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email Input */}
+          {}
           <div className="space-y-1.5">
             <label className="text-[11.5px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
               {t('emailLabel')}
@@ -205,7 +211,7 @@ export default function LoginView({
             )}
           </div>
 
-          {/* Contraseña Input */}
+          {}
           <div className="space-y-1.5">
             <label className="text-[11.5px] uppercase font-bold text-slate-455 dark:text-slate-500 tracking-wider">
               {t('passwordLabel')}
@@ -244,7 +250,7 @@ export default function LoginView({
             )}
           </div>
 
-          {/* Submit Button */}
+          {}
           <button
             id="btn-login-submit"
             type="submit"
@@ -265,7 +271,7 @@ export default function LoginView({
           </button>
         </form>
 
-        {/* Divider */}
+        {}
         <div className="relative my-7">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-slate-150 dark:border-slate-800/80"></div>
@@ -277,9 +283,9 @@ export default function LoginView({
           </div>
         </div>
 
-        {/* Third Party / Secondary Actions */}
+        {}
         <div className="space-y-3.5">
-          {/* Google Button */}
+          {}
           <button
             id="btn-login-google"
             type="button"
@@ -300,7 +306,7 @@ export default function LoginView({
             <span>{t('continueWithGoogle')}</span>
           </button>
 
-          {/* Continue without account */}
+          {}
           <button
             id="btn-login-guest"
             type="button"
@@ -315,7 +321,7 @@ export default function LoginView({
 
       </main>
 
-      {/* Footer & Bottom Decorative Wave */}
+      {}
       <footer className="w-full pb-8 pt-4 flex flex-col items-center justify-center z-10 relative">
         <p className="text-xs text-slate-500 dark:text-slate-450 font-medium">
           {t('noAccount')}{" "}
@@ -328,7 +334,7 @@ export default function LoginView({
           </button>
         </p>
 
-        {/* Wave SVG (Visual enhancement) */}
+        {}
         <div className="absolute bottom-0 inset-x-0 w-full overflow-hidden leading-none pointer-events-none opacity-40 dark:opacity-20 -z-10">
           <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[55px] text-blue-500 fill-current">
             <path d="M0,0 C300,90 900,10 1200,80 L1200,120 L0,120 Z"></path>

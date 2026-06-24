@@ -1,25 +1,3 @@
-export interface Doctor {
-  id: string;
-  name: string;
-  specialty: string;
-  rating: number;
-  experience: number;
-  status: "Disponible" | "No disponible";
-  distance: string;
-  photoUrl: string;
-}
-
-export interface Pharmacy {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  distance: string;
-  status: "Disponible" | "Poco stock" | "Agotado";
-  openNow: boolean;
-  closingTime?: string;
-  medsAvailable: string[];
-}
 
 export interface HealthCenter {
   id: string;
@@ -28,8 +6,8 @@ export interface HealthCenter {
   schedule: string;
   distance: string;
   durationMin: number;
-  lat: number; // percentage of map container Y (0 - 100) for custom interactive map
-  lng: number; // percentage of map container X (0 - 100)
+  lat: number; 
+  lng: number; 
   latitude?: number;
   longitude?: number;
   distanceKm?: number;
@@ -48,6 +26,7 @@ export interface ChatMessage {
   text: string;
   sender: "user" | "bot";
   timestamp: string;
+  createdAt?: string;
 }
 
 export interface Appointment {

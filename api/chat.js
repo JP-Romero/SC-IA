@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 
-// Inicializar cliente de Supabase (usando las variables de entorno de Vercel)
+
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
@@ -81,13 +81,14 @@ CENTROS DE REFERENCIA EN GRANADA:
 RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 
 export default async function handler(req, res) {
-  // CORS headers
+  
+  const allowedOrigin = process.env.FRONTEND_URL || "*"; 
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
   );
 
   if (req.method === "OPTIONS") {
@@ -99,7 +100,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, history, userProfile } = req.body;
+    const { message, userProfile, language } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
@@ -120,13 +121,12 @@ export default async function handler(req, res) {
     if (!ai) {
       console.error("Failed to initialize Gemini client - API key may be invalid");
       return res.status(500).json({
-        error: "No se pudo inicializar el servicio de IA. Verifica la configuración de la API key.",
-        details: "GEMINI_API_KEY no está configurada o es inválida",
+        error: "No se pudo inicializar el servicio de IA. Intente nuevamente más tarde.",
         timestamp: new Date().toISOString(),
       });
     }
 
-    // Evaluamos la hora actual para inyectarla en el contexto del agente
+    
     const now = new Date();
     const localTimeStr = now.toLocaleString("es-NI", { timeZone: "America/Managua", weekday: 'long', hour: '2-digit', minute: '2-digit' });
     
@@ -134,13 +134,30 @@ export default async function handler(req, res) {
 Hora y día actual en Nicaragua: ${localTimeStr}
 REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba está fuera de ese horario (noches o fines de semana), ESTÁN CERRADOS. En caso de síntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos sí atienden 24/7. Es vital para la seguridad no derivarlos a clínicas cerradas.`;
 
+    // Sanitize user input to prevent prompt injection
+    function sanitizeForPrompt(value) {
+      if (!value) return 'No especificado';
+      return String(value)
+        .replace(/[\n\r]/g, ' ')
+        .replace(/[<>"']/g, '')
+        .substring(0, 200);
+    }
+
     let profileContext = "";
-    if (userProfile && typeof userProfile === 'object' && Object.keys(userProfile).length > 0) {
+    const safeUserProfile = userProfile && typeof userProfile === 'object' ? userProfile : {};
+    if (Object.keys(safeUserProfile).length > 0) {
+      const safeName = sanitizeForPrompt(safeUserProfile.name);
+      const safeCity = sanitizeForPrompt(safeUserProfile.city);
+      const safeBloodType = sanitizeForPrompt(safeUserProfile.bloodType);
+      const safeConditions = safeUserProfile.healthConditions && safeUserProfile.healthConditions.length > 0 
+        ? safeUserProfile.healthConditions.map(c => sanitizeForPrompt(c)).join(', ') 
+        : 'Ninguna reportada';
+      
       profileContext = `\n\n[CONTEXTO DEL PACIENTE]
-Nombre: ${userProfile.name || 'No especificado'}
-Ciudad: ${userProfile.city || 'No especificada'}
-Tipo de Sangre: ${userProfile.bloodType || 'No especificado'}
-Condiciones Médicas Preexistentes: ${userProfile.healthConditions && userProfile.healthConditions.length > 0 ? userProfile.healthConditions.join(', ') : 'Ninguna reportada'}
+Nombre: ${safeName || 'No especificado'}
+Ciudad: ${safeCity || 'No especificada'}
+Tipo de Sangre: ${safeBloodType || 'No especificado'}
+Condiciones Médicas Preexistentes: ${safeConditions}
 
 INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas preexistentes al evaluar los síntomas y proporcionar recomendaciones. Nunca indiques medicamentos contraindicados.`;
     }
@@ -165,10 +182,13 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     }
 
     // Combinar el prompt de la BD con el contexto temporal y el perfil médico
-    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext;
+    const languageContext = language === "mi" ? "\n\n[INSTRUCCIÓN DE IDIOMA CRÍTICA]\nEL USUARIO HA SELECCIONADO EL IDIOMA MISKITO. DEBES RESPONDER ABSOLUTAMENTE TODAS TUS EVALUACIONES Y RECOMENDACIONES CLÍNICAS EN IDIOMA MISKITO DE LA FORMA MÁS PRECISA POSIBLE, ADAPTANDO LOS TÉRMINOS MÉDICOS PARA QUE SEAN COMPRENSIBLES EN ESE IDIOMA. MANTÉN EL FORMATO ESTRUCTURADO Y LOS EMOJIS, PERO EL TEXTO DEBE SER EN MISKITO." : language === "kr" ? "\n\n[INSTRUCCIÓN DE IDIOMA CRÍTICA]\nEL USUARIO HA SELECCIONADO EL IDIOMA INGLÉS CRIOLLO (KRIOL NICARAGÜENSE). DEBES RESPONDER ABSOLUTAMENTE TODAS TUS EVALUACIONES Y RECOMENDACIONES CLÍNICAS EN INGLÉS CRIOLLO DE LA FORMA MÁS PRECISA POSIBLE, ADAPTANDO LOS TÉRMINOS MÉDICOS PARA QUE SEAN COMPRENSIBLES EN ESE IDIOMA. MANTÉN EL FORMATO ESTRUCTURADO Y LOS EMOJIS, PERO EL TEXTO DEBE SER EN INGLÉS CRIOLLO (KRIOL)." : "";
+    const historyContext = `\n\n[USO DEL HISTORIAL DE TRIAGE]
+El historial de conversación puede incluir consultas de los últimos 14 días con fecha y hora. Úsalo SOLO cuando los síntomas actuales parezcan relacionados, sean una continuación, recurrencia o empeoramiento de algo previo. Si los síntomas actuales no tienen relación clara con el historial, ignóralo y evalúa la consulta actual por sí sola. No menciones el historial salvo que aporte valor clínico.`;
+    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext + historyContext;
 
     // Obtener aiModel dinámico desde Supabase
-    let aiModel = "gemini-2.0-flash-lite";
+    let aiModel = "gemini-2.5-flash-lite";
     if (supabase) {
       try {
         const { data: configData, error: configError } = await supabase
@@ -185,32 +205,44 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
       }
     }
 
-    // Get the model with system instruction
     const model = ai.getGenerativeModel({
       model: aiModel,
       systemInstruction: systemPrompt,
     });
 
-    // Build chat with history
+    // Iniciar chat sin historial (ahorro máximo de tokens - no se envía historial a la API)
     const chat = model.startChat({
-      history: history && Array.isArray(history) ? history.map(turn => ({
-        role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
-        parts: [{ text: turn.text || turn.content || "" }],
-      })) : [],
+      history: [],
     });
+    
 
     // Generate response
-    const response = await chat.sendMessage(message);
-    const responseText = response.response.text();
+    let response;
+    try {
+      response = await chat.sendMessage(message);
+    } catch (sendErr) {
+      console.error("Gemini Send Message Error:", sendErr);
+      // Si el error es por seguridad o filtros
+      if (sendErr.message?.includes("SAFETY")) {
+        return res.status(200).json({
+          text: "Lo siento, no puedo procesar esa consulta por razones de seguridad. Por favor, intenta describir tus síntomas de forma más directa.",
+          simulated: false
+        });
+      }
+      throw sendErr;
+    }
+
+    const responseText = response && response.response ? response.response.text() : null;
 
     return res.status(200).json({
-      text: responseText || "No obtuve una respuesta clara del asistente.",
+      text: responseText || "El asistente recibió la consulta pero no pudo generar una respuesta clara.",
       simulated: false,
     });
   } catch (error) {
     console.error("Chat API Error:", error);
     
     const errorMessage = error?.message || String(error) || "Error desconocido";
+    const userMessageBody = req.body?.message || "los síntomas descritos";
     
     let userMessage = "Ocurrió un error procesando el triaje virtual con IA.";
     let shouldUseFallback = false;
@@ -225,10 +257,9 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
       console.log("API quota exceeded, switching to simulated mode");
     }
     
-    // If quota exceeded, return simulated response instead of error
     if (shouldUseFallback) {
       return res.status(200).json({
-        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${userMessageBody}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
         warning: "Respuesta generada en modo simulado debido a limitaciones temporales de la API."
       });
@@ -236,8 +267,7 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     
     return res.status(500).json({
       error: userMessage,
-      details: errorMessage,
       timestamp: new Date().toISOString(),
     });
   }
-};
+}

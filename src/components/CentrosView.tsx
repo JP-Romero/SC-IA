@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { HealthCenter } from "../types";
 import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS, HEALTH_CENTER_TOTAL } from "../data/healthUnits";
 import { useLanguage } from "../contexts/LanguageContext";
-import { AlertTriangle, Phone, Siren } from "lucide-react";
+import { AlertTriangle, Phone, Siren, Building2, Hospital, Pill, Stethoscope } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabaseClient";
 import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategoryCarousel";
@@ -39,14 +39,14 @@ function getDistanceKm(from: UserLocation, to: HealthCenter): number {
 
 function getCenterOperatingStatus(type: string): { isOpen: boolean; text: string; is24h: boolean } {
   const lowerType = type.toLowerCase();
-  // Los hospitales y centros maternos atienden emergencias 24/7
+  
   if (lowerType.includes("hospital") || lowerType.includes("materna") || lowerType.includes("emergencia")) {
     return { isOpen: true, text: "Abierto 24h", is24h: true };
   }
 
-  // Horario típico de Puestos y Centros de Salud MINSA: Lunes a Viernes 8:00 AM - 4:00 PM
+  
   const now = new Date();
-  const day = now.getDay(); // 0: Dom, 1: Lun...
+  const day = now.getDay(); 
   const hour = now.getHours();
 
   const isWeekday = day >= 1 && day <= 5;
@@ -87,6 +87,7 @@ function getNearestHospital(
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+  const googleMapsMapId = (import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined) || "DEMO_MAP_ID";
   const [locationQuery, setLocationQuery] = useState("Granada");
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
     HEALTH_CENTERS.find((center) => center.department?.toLowerCase().includes("granada")) ?? HEALTH_CENTERS[0],
@@ -96,62 +97,46 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [locationMode, setLocationMode] = useState<"nearby" | "manual">("nearby");
   const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [geoError, setGeoError] = useState("");
-  const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
+  const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia" | "medico">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
   const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
+  const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
 
-  // Medical categories for the floating carousel
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  
   const MEDICAL_CATEGORIES: MedicalCategory[] = useMemo(() => [
     {
       id: "centros",
-      label: "Centros",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-          <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-          <path d="M9 22v-4h6v4" />
-          <path d="M8 6h.01" /><path d="M16 6h.01" />
-          <path d="M8 10h.01" /><path d="M16 10h.01" />
-          <path d="M8 14h.01" /><path d="M16 14h.01" />
-        </svg>
-      ),
+      label: t('centers'),
+      icon: <Building2 className="w-5 h-5" />,
     },
     {
       id: "hospitales",
-      label: "Hospitales",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-          <path d="M12 6v4" /><path d="M14 14h-4" /><path d="M14 18h-4" />
-          <path d="M14 8h-4" />
-          <path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2" />
-          <path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18" />
-        </svg>
-      ),
+      label: t('hospitals'),
+      icon: <Hospital className="w-5 h-5" />,
     },
     {
       id: "farmacias",
-      label: "Farmacias",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-          <line x1="12" y1="5" x2="12" y2="19" stroke="#10b981" />
-          <line x1="5" y1="12" x2="19" y2="12" stroke="#10b981" />
-        </svg>
-      ),
+      label: t('pharmacies'),
+      icon: <Pill className="w-5 h-5" />,
     },
     {
       id: "medicos",
-      label: "Médicos",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
-      ),
+      label: t('doctors'),
+      icon: <Stethoscope className="w-5 h-5" />,
     },
-  ], []);
+  ], [t]);
 
-  /** Find the nearest health center to the user's location */
+  
   const findNearestCenter = useCallback(() => {
     if (!userLocation) return null;
 
@@ -161,22 +146,21 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center ?? null;
   }, [mergedCenters, userLocation]);
 
-  /** Handle category selection from carousel – syncs with map filters */
+  
   const handleCategorySelected = useCallback((category: string) => {
     setSelectedCarouselCategory(category);
 
     if (category === "centros" && userLocation) {
-      // When "centros" is selected and user location is available, show the nearest center
+      
       const nearestCenter = findNearestCenter();
       if (nearestCenter) {
-        setSelectedCenter(nearestCenter);
-        // Also update the filter to show centros
         setActiveFilter("centro");
+        setSelectedCenter(nearestCenter);
         return;
       }
     }
 
-    // Fallback to original behavior for other cases or when location is not available
+    
     switch (category) {
       case "centros":
         setActiveFilter("centro");
@@ -188,14 +172,14 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         setActiveFilter("farmacia");
         break;
       case "medicos":
-        setActiveFilter("todos");
+        setActiveFilter("medico");
         break;
       default:
         setActiveFilter("todos");
     }
   }, [findNearestCenter, userLocation]);
 
-  // Cargar overrides y custom centers desde Supabase
+  
   useEffect(() => {
     const fetchOverrides = async () => {
       try {
@@ -244,72 +228,43 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       .replace(/[\u0300-\u036f]/g, "");
 
   const requestCurrentLocation = useCallback(() => {
-    if (!("geolocation" in navigator)) {
+    if (!navigator.geolocation) {
       setGeoStatus("error");
       setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
       setLocationMode("manual");
       return;
     }
-
     setGeoStatus("loading");
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setUserLocation({
+        const userLoc = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           accuracy: position.coords.accuracy,
-        });
+        };
+        setUserLocation(userLoc);
         setGeoStatus("ready");
         setGeoError("");
         setLocationMode("nearby");
+
+        const nearestCenter = mergedCenters
+          .filter((center) => center.latitude && center.longitude)
+          .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
+          .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+
+        if (nearestCenter) {
+          setActiveFilter("centro");
+          setSelectedCenter(nearestCenter);
+        }
       },
       (error) => {
         setGeoStatus("error");
         setGeoError(error.message || "No se pudo obtener tu ubicación.");
         setLocationMode("manual");
       },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 30000,
-        timeout: 12000,
-      },
+      { enableHighAccuracy: true, maximumAge: 30000, timeout: 12000 }
     );
-  }, []);
-
-  useEffect(() => {
-    if (!("geolocation" in navigator)) {
-      setGeoStatus("error");
-      setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
-      setLocationMode("manual");
-      return;
-    }
-
-    setGeoStatus("loading");
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        setUserLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        });
-        setGeoStatus("ready");
-        setGeoError("");
-        setLocationMode("nearby");
-      },
-      (error) => {
-        setGeoStatus("error");
-        setGeoError(error.message || "No se pudo obtener tu ubicación.");
-        setLocationMode("manual");
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 30000,
-        timeout: 12000,
-      },
-    );
-
-    return () => navigator.geolocation.clearWatch(watchId);
-  }, []);
+  }, [mergedCenters]);
 
   useEffect(() => {
     if (!userLocation) return;
@@ -351,7 +306,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       } catch (error) {
         if (!controller.signal.aborted) {
           try {
-            // Fallback to our serverless geocode proxy to avoid CORS and User-Agent blocks
+            
             const osmResponse = await fetch(
               `/api/geocode?lat=${userLocation.latitude}&lng=${userLocation.longitude}`,
               { signal: controller.signal }
@@ -374,6 +329,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return () => controller.abort();
   }, [googleMapsApiKey, userLocation, mergedCenters]);
 
+  // Solicitar la ubicación una sola vez al cargar el componente
+  useEffect(() => {
+    requestCurrentLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const filteredCenters = useMemo(() => {
     const typeFilteredCenters = mergedCenters.filter((center) => {
     const typeText = normalizeQuery(center.type);
@@ -384,12 +345,14 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           ? typeText.includes("centro") || typeText.includes("clinica") || typeText.includes("puesto")
           : activeFilter === "farmacia"
             ? typeText.includes("farmacia") || typeText.includes("botica")
-            : true;
+            : activeFilter === "medico"
+              ? typeText.includes("medico") || typeText.includes("doctor")
+              : true;
 
       return matchesType;
     });
 
-    // 1. Añadir estatus de operación y distancia a todos los centros filtrados por tipo
+    
     const centersWithStatus = typeFilteredCenters.map(center => {
       const status = getCenterOperatingStatus(center.type);
       return {
@@ -404,7 +367,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     if (locationMode === "nearby" && userLocation) {
       const normalizedCity = normalizeQuery(detectedCity);
 
-      // 2. Filtrar por radio y ORDENAR PRIORIZANDO LOS ABIERTOS
+      
       const centersByDistance = centersWithStatus
         .filter((center) => center.latitude && center.longitude && center.distanceKm! <= NEARBY_RADIUS_KM)
         .sort((a, b) => {
@@ -511,7 +474,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     }
   };
 
-  // Message listener for Leaflet marker clicks
+  
   useEffect(() => {
     const handleMapMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === "SELECT_CENTER") {
@@ -525,7 +488,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return () => window.removeEventListener("message", handleMapMessage);
   }, [mergedCenters]);
 
-  // Post updates to the Leaflet map iframe
+  
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -548,6 +511,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       userLocation: userLocation,
       centerOnId: selectedCenter?.id || null,
       zoomLevel: selectedCenter?.latitude && selectedCenter?.longitude ? 15 : undefined,
+      isDark: isDarkMode,
     };
 
     const sendUpdate = () => {
@@ -562,9 +526,202 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return () => {
       iframe.removeEventListener("load", sendUpdate);
     };
-  }, [filteredCenters, selectedCenter, userLocation]);
+  }, [filteredCenters, selectedCenter, userLocation, isDarkMode]);
 
-  const leafletHtml = useMemo(() => {
+  const mapHtml = useMemo(() => {
+    if (googleMapsApiKey) {
+      const darkStyle = [
+        { "elementType": "geometry", "stylers": [{ "color": "#1e293b" }] },
+        { "elementType": "labels.text.stroke", "stylers": [{ "color": "#1e293b" }] },
+        { "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
+        { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#cbd5e1" }] },
+        { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
+        { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#0f172a" }] },
+        { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#475569" }] },
+        { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#0f172a" }] },
+        { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#1e293b" }] },
+        { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
+        { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#334155" }] },
+        { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#1e293b" }] },
+        { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f1f5f9" }] },
+        { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#1e293b" }] },
+        { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{ "color": "#cbd5e1" }] },
+        { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#020617" }] },
+        { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#475569" }] }
+      ];
+
+      const lightStyle = [
+        { "elementType": "geometry", "stylers": [{ "color": "#f8fafc" }] },
+        { "elementType": "labels.text.stroke", "stylers": [{ "color": "#ffffff" }, { "weight": 2 }] },
+        { "elementType": "labels.text.fill", "stylers": [{ "color": "#475569" }] },
+        { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#1e293b" }] },
+        { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
+        { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#f1f5f9" }] },
+        { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
+        { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
+        { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#f1f5f9" }] },
+        { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
+        { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#f1f5f9" }] },
+        { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#e2e8f0" }] },
+        { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#1e293b" }] },
+        { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] },
+        { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] }
+      ];
+
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <style>
+            html, body, #map { height: 100%; margin: 0; padding: 0; background: #f1f5f9; }
+          </style>
+        </head>
+        <body>
+          <div id="map"></div>
+          <script>
+            const darkStyle = ${JSON.stringify(darkStyle)};
+            const lightStyle = ${JSON.stringify(lightStyle)};
+            
+            let map;
+            let markersMap = new Map();
+            let userLocationMarker = null;
+            let currentSelectedId = null;
+            let pendingMessage = null;
+
+            function initMap() {
+              map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 12.1364, lng: -86.2514 },
+                zoom: 9,
+                disableDefaultUI: true,
+                zoomControl: true,
+                mapId: "${googleMapsMapId}"
+              });
+
+              if (pendingMessage) {
+                handleUpdate(pendingMessage);
+                pendingMessage = null;
+              }
+            }
+
+            function handleUpdate(msg) {
+              if (!map) {
+                pendingMessage = msg;
+                return;
+              }
+
+              // Apply theme style dynamically
+              map.setOptions({
+                styles: msg.isDark ? darkStyle : lightStyle
+              });
+
+              // Update user location marker
+              if (userLocationMarker) {
+                userLocationMarker.map = null;
+                userLocationMarker = null;
+              }
+              if (msg.userLocation && msg.userLocation.latitude && msg.userLocation.longitude) {
+                const userPinContainer = document.createElement('div');
+                userPinContainer.style.width = '0px';
+                userPinContainer.style.height = '0px';
+                userPinContainer.style.position = 'relative';
+
+                const userPin = document.createElement('div');
+                userPin.innerHTML = \`<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="6" fill="%233b82f6" stroke="white" stroke-width="2"/><circle cx="15" cy="15" r="12" fill="none" stroke="%233b82f6" stroke-width="1.5" opacity="0.4"/></svg>\`;
+                userPin.style.position = 'absolute';
+                userPin.style.transform = 'translate(-50%, -50%)';
+                userPinContainer.appendChild(userPin);
+
+                userLocationMarker = new google.maps.marker.AdvancedMarkerElement({
+                  position: { lat: msg.userLocation.latitude, lng: msg.userLocation.longitude },
+                  map: map,
+                  content: userPinContainer,
+                  title: "Tu ubicación"
+                });
+              }
+
+              // Update markers
+              const newIds = new Set(msg.centers.map(c => c.id));
+              for (let [id, markerObj] of markersMap.entries()) {
+                if (!newIds.has(id)) {
+                  markerObj.marker.map = null;
+                  markersMap.delete(id);
+                }
+              }
+
+              msg.centers.forEach(c => {
+                if (!c.lat || !c.lng) return;
+                
+                const isSelected = c.id === msg.selectedId;
+                const size = isSelected ? 38 : 28;
+                const strokeColor = isSelected ? '#3b82f6' : 'white';
+                const strokeWidth = isSelected ? 3 : 2;
+                
+                const svgContent = c.isHospital
+                  ? \`<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%232563eb" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="25" font-family="sans-serif" font-weight="bold" font-size="16" fill="white" text-anchor="middle">H</text></svg>\`
+                  : \`<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%2310b981" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="27" font-family="sans-serif" font-weight="bold" font-size="22" fill="white" text-anchor="middle">+</text></svg>\`;
+
+                const container = document.createElement('div');
+                container.style.width = '0px';
+                container.style.height = '0px';
+                container.style.position = 'relative';
+
+                const markerContent = document.createElement('div');
+                markerContent.innerHTML = svgContent;
+                markerContent.style.position = 'absolute';
+                markerContent.style.transform = 'translate(-50%, -50%)';
+                container.appendChild(markerContent);
+
+                let markerObj = markersMap.get(c.id);
+                if (markerObj) {
+                  markerObj.marker.content = container;
+                  markerObj.marker.position = { lat: c.lat, lng: c.lng };
+                } else {
+                  const marker = new google.maps.marker.AdvancedMarkerElement({
+                    position: { lat: c.lat, lng: c.lng },
+                    map: map,
+                    content: container,
+                    title: c.name
+                  });
+
+                  marker.addListener('click', () => {
+                    window.parent.postMessage({ type: 'SELECT_CENTER', centerId: c.id }, '*');
+                  });
+
+                  markersMap.set(c.id, { marker, lat: c.lat, lng: c.lng });
+                }
+              });
+
+              if (msg.forceCenterOnUser && msg.userLocation) {
+                map.setCenter({ lat: msg.userLocation.latitude, lng: msg.userLocation.longitude });
+                map.setZoom(15);
+              } else if (msg.centerOnId && msg.centerOnId !== currentSelectedId) {
+                currentSelectedId = msg.centerOnId;
+                const match = markersMap.get(msg.centerOnId);
+                if (match) {
+                  map.setCenter({ lat: match.lat, lng: match.lng });
+                  map.setZoom(msg.zoomLevel || 15);
+                }
+              } else if (!msg.centerOnId) {
+                currentSelectedId = null;
+              }
+            }
+
+            window.addEventListener('message', (event) => {
+              const msg = event.data;
+              if (msg.type === 'UPDATE_DATA') {
+                handleUpdate(msg);
+              }
+            });
+          </script>
+          <script src="https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}&callback=initMap&loading=async&libraries=marker" async defer></script>
+        </body>
+        </html>
+      `;
+    }
+
+    
     return `
       <!DOCTYPE html>
       <html>
@@ -679,15 +836,15 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </body>
       </html>
     `;
-  }, []);
+  }, [googleMapsApiKey, googleMapsMapId]);
 
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
 
-      {/* ═══════════════ SIDEBAR PANEL (Left side on desktop) ═══════════════ */}
+      {}
       <div className={`w-full md:w-[380px] lg:w-[420px] flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20 transition-all duration-300 ${mobileView === "list" ? "h-full flex" : "hidden md:flex md:h-full"}`}>
         
-        {/* Header inside Sidebar */}
+        {}
         <header className="flex justify-between items-center px-4 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800/60 shrink-0">
           <div
             onClick={() => onNavigate && onNavigate("home")}
@@ -736,7 +893,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </div>
         </header>
 
-        {/* Title, Search Pill and Filters */}
+        {}
         <div className="px-4 py-4 border-b border-slate-100 dark:border-slate-800/60 shrink-0 bg-slate-50/50 dark:bg-slate-900/50 space-y-3">
           <div>
             <h1 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-[-0.03em] leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -749,7 +906,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             </p>
           </div>
 
-          {/* Location search pill */}
+          {}
           <div className="flex flex-col gap-2">
             <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full px-3.5 py-2 shadow-[0_2px_6px_rgba(0,0,0,0.03)]">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 shrink-0 text-slate-500">
@@ -762,7 +919,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                   setLocationMode("manual");
                   setLocationQuery(event.target.value);
                 }}
-                placeholder="Buscar ciudad o centro..."
+                placeholder={t('locationPlaceholder') || "Buscar ciudad o centro..."}
                 className="w-full bg-transparent text-[12.5px] font-medium text-slate-700 dark:text-slate-300 outline-none placeholder:text-slate-400"
               />
             </div>
@@ -783,10 +940,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     : "bg-white text-blue-700 border border-blue-100 dark:bg-slate-950 dark:text-blue-300 dark:border-blue-900/40"
                 }`}
               >
-                {geoStatus === "loading" ? "Ubicando..." : "Mi ubicación"}
+                {geoStatus === "loading" ? "Ubicando..." : t('nearYou')}
               </button>
               
-              {/* Type Filter Chips */}
+              {}
               <button
                 onClick={() => setActiveFilter(activeFilter === "hospital" ? "todos" : "hospital")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
@@ -795,7 +952,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                 }`}
               >
-                Hosp.
+                {t('hospitals')}
               </button>
               <button
                 onClick={() => setActiveFilter(activeFilter === "centro" ? "todos" : "centro")}
@@ -805,7 +962,27 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                 }`}
               >
-                Centros
+                {t('centers')}
+              </button>
+              <button
+                onClick={() => setActiveFilter(activeFilter === "farmacia" ? "todos" : "farmacia")}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                  activeFilter === "farmacia"
+                    ? "bg-emerald-600 text-white"
+                    : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                }`}
+              >
+                {t('pharmacies')}
+              </button>
+              <button
+                onClick={() => setActiveFilter(activeFilter === "medico" ? "todos" : "medico")}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                  activeFilter === "medico"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                }`}
+              >
+                {t('doctors')}
               </button>
             </div>
 
@@ -825,7 +1002,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </div>
         </div>
 
-        {/* Scrollable Centers List */}
+        {}
         <div className={`flex-1 overflow-y-auto px-4 py-3 space-y-3 no-scrollbar pb-24 ${mobileView === "list" ? "block" : "hidden md:block"}`}>
           <div className="flex justify-between items-center mb-1.5">
             <h3 className="text-[12.5px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">
@@ -871,25 +1048,22 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                       className="flex items-center justify-between cursor-pointer gap-3 min-w-0"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        {/* Icon circle */}
+                        {}
                         <div
-                          className="w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0"
-                          style={{
-                            background: isHospital ? "#eff6ff" : "#f0fdf4",
-                            border: isHospital ? "1px solid #dbeafe" : "1px solid #dcfce7",
-                          }}
+                          className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0 border ${
+                            isHospital 
+                              ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-white" 
+                              : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-white"
+                          }`}
                         >
                           {isHospital ? (
-                            <span className="text-xs font-bold text-[#2563eb]">H</span>
+                            <Hospital className="w-4 h-4" />
                           ) : (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[14px] h-[14px]">
-                              <line x1="12" y1="5" x2="12" y2="19" />
-                              <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
+                            <Building2 className="w-4 h-4" />
                           )}
                         </div>
 
-                        {/* Title & Type */}
+                        {}
                         <div className="min-w-0 text-left">
                           <h4 className="text-[13px] font-bold text-slate-900 dark:text-white leading-tight truncate">{hc.name}</h4>
                           <p className="text-[10.5px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">{hc.type}</p>
@@ -900,7 +1074,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                         </div>
                       </div>
 
-                      {/* Distance */}
+                      {}
                       <div className="shrink-0 text-right ml-2 flex flex-col items-end">
                         <span className="text-[12.5px] font-semibold text-slate-700 dark:text-slate-300">
                           {hc.distanceKm !== undefined ? `${hc.distanceKm.toFixed(1)} km` : hc.municipality}
@@ -911,7 +1085,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                       </div>
                     </div>
 
-                    {/* EXPANDED SECTION FOR ACTIONS (Same concept as Burger King Locator) */}
+                    {}
                     <AnimatePresence>
                       {isSelected && (
                         <motion.div
@@ -922,7 +1096,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                           className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 overflow-hidden"
                         >
                           <div className="space-y-2">
-                            {/* Schedule Badge */}
+                            {}
                             <div className="flex items-center gap-2">
                               <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${
                                 operatingStatus.isOpen
@@ -935,7 +1109,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">ID: {hc.sourceNumber}</span>
                             </div>
 
-                            {/* Closed hospital warning recommendation */}
+                            {}
                             {!operatingStatus.isOpen && (() => {
                               const referenceLoc = (hc.latitude && hc.longitude)
                                 ? { latitude: hc.latitude, longitude: hc.longitude }
@@ -952,13 +1126,13 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                               ) : null;
                             })()}
 
-                            {/* Location description */}
+                            {}
                             <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100/50 dark:border-slate-800/40">
                               <span className="font-bold block text-slate-700 dark:text-slate-300 mb-0.5">Dirección:</span>
                               {hc.locality}
                             </p>
 
-                            {/* CTA Action buttons inside the card */}
+                            {}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1.5">
                               <a
                                 href={googleMapsSearchUrl}
@@ -1003,17 +1177,17 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         </div>
       </div>
 
-      {/* ═══════════════ MAP PANEL (Right side on desktop) ═══════════════ */}
+      {}
       <div className={`flex-1 relative z-10 shrink-0 ${mobileView === "map" ? "h-full flex flex-col" : "hidden md:flex md:flex-col md:h-full"}`}>
         <iframe
           ref={iframeRef}
           title={`Mapa de Centros Médicos`}
-          srcDoc={leafletHtml}
+          srcDoc={mapHtml}
           className="w-full h-full border-0"
           loading="lazy"
         />
 
-        {/* ═══════════════ FLOATING MEDICAL CATEGORY CAROUSEL ═══════════════ */}
+        {}
         <div
           className="absolute top-0 left-0 right-0 z-20"
           style={{
@@ -1032,7 +1206,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </div>
         </div>
 
-        {/* Floating Toggle Button on Mobile Map View */}
+        {}
         {mobileView === "map" && (
           <button
             onClick={() => setMobileView("list")}
@@ -1049,7 +1223,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </button>
         )}
 
-        {/* Floating Recenter Button */}
+        {}
         <button
           onClick={handleRecenter}
           className={`absolute ${mobileView === "map" ? "top-[136px]" : "top-[80px]"} right-4 z-30 flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800/80 hover:scale-105 active:scale-95 transition-all`}
@@ -1065,7 +1239,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </svg>
         </button>
 
-        {/* Floating selected center card on mobile when map is active */}
+        {}
         {selectedCenter && mobileView === "map" && (
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -1076,19 +1250,16 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             <div className="flex items-start justify-between gap-3 min-w-0">
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className="w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0"
-                  style={{
-                    background: selectedCenter.type.toLowerCase().includes("hospital") ? "#eff6ff" : "#f0fdf4",
-                    border: selectedCenter.type.toLowerCase().includes("hospital") ? "1px solid #dbeafe" : "1px solid #dcfce7",
-                  }}
+                  className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0 border ${
+                    selectedCenter.type.toLowerCase().includes("hospital")
+                      ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-white"
+                      : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-white"
+                  }`}
                 >
                   {selectedCenter.type.toLowerCase().includes("hospital") ? (
-                    <span className="text-xs font-bold text-[#2563eb]">H</span>
+                    <Hospital className="w-4 h-4" />
                   ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[14px] h-[14px]">
-                      <line x1="12" y1="5" x2="12" y2="19" />
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
+                    <Building2 className="w-4 h-4" />
                   )}
                 </div>
 
@@ -1164,7 +1335,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         )}
       </div>
 
-      {/* ═══════════════ EMERGENCY CONFIRMATION MODAL ═══════════════ */}
+      {}
       <AnimatePresence>
         {isEmergencyModalOpen && (
           <motion.div
@@ -1216,7 +1387,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     className="py-3.5 px-4 rounded-2xl bg-rose-400 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-rose-100/50 transition-all active:scale-95"
                   >
                     <Phone className="w-4 h-4" />
-                    Llamar al 128
+                    {t('call128')}
                   </a>
                 </div>
               </div>

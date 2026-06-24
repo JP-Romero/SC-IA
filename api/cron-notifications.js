@@ -1,12 +1,12 @@
 import webpush from 'web-push';
 import { createClient } from '@supabase/supabase-js';
 
-// Setup Supabase
+
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
-// Setup Web Push
+
 const publicKey = process.env.VITE_VAPID_PUBLIC_KEY;
 const privateKey = process.env.VAPID_PRIVATE_KEY;
 const subject = process.env.VAPID_SUBJECT || 'mailto:soporte@salud-conecta.com';
@@ -33,12 +33,18 @@ const RECORDATORIOS = [
 ];
 
 export default async function handler(req, res) {
+  
+  const authHeader = req.headers.authorization;
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   if (!supabase || !publicKey || !privateKey) {
     return res.status(500).json({ error: 'Configuración de base de datos o Web Push faltante.' });
   }
 
   try {
-    // 1. Obtener todas las suscripciones push de Supabase incluyendo preferencias
+    
     const { data: subscriptions, error } = await supabase
       .from('push_subscriptions')
       .select('subscription, preferences');
@@ -53,19 +59,19 @@ export default async function handler(req, res) {
 
     let sentCount = 0;
 
-    // 2. Enviar notificaciones filtradas por preferencia
+    
     const sendPromises = subscriptions.map((subRecord) => {
       const { subscription, preferences } = subRecord;
       const prefsArray = (preferences || 'consejo').split(',');
 
-      // Si el usuario silenció ambas
+      
       if (prefsArray.includes('ninguna')) {
         return Promise.resolve();
       }
 
       let message = "";
       
-      // Si tiene ambas, elegimos una de forma aleatoria (50% probabilidad)
+      
       if (prefsArray.includes('consejo') && prefsArray.includes('recordatorio')) {
          if (Math.random() > 0.5) {
             message = CONSEJOS[Math.floor(Math.random() * CONSEJOS.length)];
@@ -75,7 +81,7 @@ export default async function handler(req, res) {
       } else if (prefsArray.includes('recordatorio')) {
          message = RECORDATORIOS[Math.floor(Math.random() * RECORDATORIOS.length)];
       } else {
-         // Por defecto, o si solo eligió 'consejo', enviamos un consejo
+         
          message = CONSEJOS[Math.floor(Math.random() * CONSEJOS.length)];
       }
 
@@ -90,7 +96,7 @@ export default async function handler(req, res) {
         .catch((err) => {
           if (err.statusCode === 404 || err.statusCode === 410) {
             console.log('Subscription has expired or is no longer valid: ', err);
-            // Opcional: Eliminar la suscripción inválida
+            
           } else {
             console.error('Error sending push: ', err);
           }

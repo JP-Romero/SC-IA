@@ -1,12 +1,14 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle, Clock, Megaphone, Star } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { uploadAvatar } from "../lib/avatarService";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabaseClient";
+import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
+import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNotificationRecord } from "../lib/notificationService";
 
 interface PerfilViewProps {
   user: UserProfile;
@@ -22,7 +24,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const { refreshProfile } = useAuth();
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
 
-  // Forms state for updates
+  
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
   const [editCity, setEditCity] = useState(user.city);
@@ -32,34 +34,91 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editConditions, setEditConditions] = useState<string[]>(user.healthConditions);
   const [newCondition, setNewCondition] = useState("");
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
-  const [showNotificationBadge, setShowNotificationBadge] = useState(true);
+  const [notificationHistory, setNotificationHistory] = useState<AppNotificationRecord[]>([]);
+  const [isNotificationInboxOpen, setIsNotificationInboxOpen] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
 
-  // Local Medical Data State
-  const [localMedicalData, setLocalMedicalData] = useState(() => {
-    const saved = localStorage.getItem(`medicalData_${user.id || 'guest'}`);
-    return saved ? JSON.parse(saved) : {
-      enfermedades: "",
-      alergias: "",
-      tipoSangre: "",
-      tratamientos: "",
-      pastillas: "",
-      vacunas: "",
-      peso: "",
-      altura: "",
-      cedula: "",
-      contactoEmergencia: "",
-    };
+  // Medical Data State (FHIR-backed)
+  const [localMedicalData, setLocalMedicalData] = useState<MedicalFormData>(() => {
+    // Initial load from localStorage as immediate cache
+    try {
+      const saved = localStorage.getItem(`medicalData_${user.id || 'guest'}`);
+      return saved ? JSON.parse(saved) : getEmptyMedicalForm();
+    } catch {
+      return getEmptyMedicalForm();
+    }
   });
+  const [isSavingMedical, setIsSavingMedical] = useState(false);
+  const [medicalSyncSource, setMedicalSyncSource] = useState<"fhir" | "localStorage" | "none">("none");
+  const [medicalSaveError, setMedicalSaveError] = useState<string | null>(null);
 
-  const handleUpdateMedicalData = (e: React.FormEvent) => {
+  // Load medical data from FHIR on mount (if cédula available)
+  useEffect(() => {
+    const loadFromFhir = async () => {
+      const cedula = localMedicalData.cedula;
+      if (!cedula || cedula.trim().length < 3) return;
+
+      try {
+        const result = await loadMedicalData(cedula, user.id || 'guest');
+        if (result.found && result.data) {
+          setLocalMedicalData(result.data);
+          setMedicalSyncSource(result.source);
+        }
+      } catch (err) {
+        console.warn("Failed to load FHIR data on mount:", err);
+      }
+    };
+
+    loadFromFhir();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleUpdateMedicalData = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem(`medicalData_${user.id || 'guest'}`, JSON.stringify(localMedicalData));
-    setIsSavedAlertOpen(true);
-    setTimeout(() => {
-      setIsSavedAlertOpen(false);
-      setActiveMenuSection(null);
-    }, 2500);
+    setIsSavingMedical(true);
+    setMedicalSaveError(null);
+
+    try {
+      const result = await saveMedicalData(
+        localMedicalData,
+        user.id || 'guest',
+        {
+          nombre: user.name,
+          email: user.email,
+          ciudad: user.city,
+          pais: user.country,
+        }
+      );
+
+      setMedicalSyncSource(result.source);
+
+      if (result.source === "fhir") {
+        setIsSavedAlertOpen(true);
+        setTimeout(() => {
+          setIsSavedAlertOpen(false);
+          setActiveMenuSection(null);
+        }, 2500);
+      } else {
+        // Saved to localStorage (fallback)
+        setMedicalSaveError(result.message);
+        setIsSavedAlertOpen(true);
+        setTimeout(() => {
+          setIsSavedAlertOpen(false);
+          setMedicalSaveError(null);
+        }, 4000);
+      }
+    } catch (err: any) {
+      console.error("Medical data save error:", err);
+      setMedicalSaveError("Error inesperado al guardar datos médicos.");
+      // Still show alert since localStorage fallback in the service saved the data
+      setIsSavedAlertOpen(true);
+      setTimeout(() => {
+        setIsSavedAlertOpen(false);
+        setMedicalSaveError(null);
+      }, 4000);
+    } finally {
+      setIsSavingMedical(false);
+    }
   };
 
   // Notifications State (Local Storage & Supabase)
@@ -85,8 +144,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     setNotifPreference(newPrefs);
     const prefString = newPrefs.join(",");
     localStorage.setItem("notifPreference", prefString);
+
     
-    // Actualizar en la base de datos si el usuario está logueado
     if (user.id && user.id !== "guest") {
       try {
         await supabase
@@ -99,7 +158,61 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     }
   };
 
-  // Condition management
+  const refreshNotificationHistory = useCallback(() => {
+    setNotificationHistory(getTodaysNotificationHistory(user.id));
+  }, [user.id]);
+
+  useEffect(() => {
+    refreshNotificationHistory();
+    window.addEventListener("salud-notifications-updated", refreshNotificationHistory);
+    return () => {
+      window.removeEventListener("salud-notifications-updated", refreshNotificationHistory);
+    };
+  }, [refreshNotificationHistory]);
+
+  const unreadNotifications = notificationHistory.filter((notification) => !notification.read).length;
+
+  const handleOpenNotifications = () => {
+    refreshNotificationHistory();
+    setIsNotificationInboxOpen(true);
+  };
+
+  const handleMarkNotificationsRead = () => {
+    const updatedHistory = markTodaysNotificationsRead(user.id);
+    setNotificationHistory(
+      updatedHistory.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    );
+  };
+
+  const formatNotificationTime = (value: string) => {
+    try {
+      return new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return "--:--";
+    }
+  };
+
+  const getNotificationTypeLabel = (notification: AppNotificationRecord) => {
+    if (notification.source !== "announcement") return t('notifications');
+    if (notification.category === "alert") return t('announcementType_alert' as any);
+    if (notification.category === "promotion") return t('announcementType_promotion' as any);
+    return t('announcementType_banner' as any);
+  };
+
+  const getNotificationTone = (notification: AppNotificationRecord) => {
+    if (notification.source !== "announcement") {
+      return "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800 text-blue-600 dark:text-blue-300";
+    }
+    if (notification.category === "alert") {
+      return "bg-rose-50 dark:bg-rose-900/25 border-rose-100 dark:border-rose-800 text-rose-600 dark:text-rose-300";
+    }
+    if (notification.category === "promotion") {
+      return "bg-amber-50 dark:bg-amber-900/25 border-amber-100 dark:border-amber-800 text-amber-600 dark:text-amber-300";
+    }
+    return "bg-indigo-50 dark:bg-indigo-900/25 border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300";
+  };
+
+  
   const handleAddCondition = useCallback(() => {
     const trimmed = newCondition.trim();
     if (trimmed && !editConditions.includes(trimmed)) {
@@ -119,7 +232,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
   const handleAvatarClick = () => {
     if (user.id === "guest" || !user.id) {
-      alert("Los usuarios invitados no pueden cambiar su foto de perfil.");
+      alert(t('guestAvatarAlert'));
       return;
     }
     fileInputRef.current?.click();
@@ -140,11 +253,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         });
         await refreshProfile();
       } else {
-        alert(result.error || "Error al subir la imagen.");
+        alert(result.error || t('avatarUploadError'));
       }
     } catch (err) {
       console.error("Error upload avatar:", err);
-      alert("Ocurrió un error inesperado al subir el avatar.");
+      alert(t('avatarUnexpectedError'));
     } finally {
       setIsUploading(false);
     }
@@ -204,119 +317,119 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const downloadQRCode = () => {
     import("jspdf").then(({ default: jsPDF }) => {
       const doc = new jsPDF();
-      
-      // Colores de la app (Paleta Profesional)
-      const primaryColor = [30, 58, 138]; // slate-blue darker
-      const secondaryColor = [13, 148, 136]; // text-teal-600
-      const accentColor = [56, 189, 248]; // sky-400
-      const slateDark = [15, 23, 42]; // text-slate-900
-      const slateLight = [100, 116, 139]; // text-slate-500
-      const bgPage = [255, 255, 255]; // Fondo blanco limpio
-      const sectionBg = [248, 250, 252]; // Fondo muy tenue para secciones (slate-50)
 
-      // Función para pintar el diseño base en cada página
+      
+      const primaryColor = [30, 58, 138]; 
+      const secondaryColor = [13, 148, 136]; 
+      const accentColor = [56, 189, 248]; 
+      const slateDark = [15, 23, 42]; 
+      const slateLight = [100, 116, 139]; 
+      const bgPage = [255, 255, 255]; 
+      const sectionBg = [248, 250, 252]; 
+
+      
       const drawBackground = (pageDoc: any) => {
-        // Fondo blanco
+        
         pageDoc.setFillColor(bgPage[0], bgPage[1], bgPage[2]);
         pageDoc.rect(0, 0, 210, 297, 'F');
+
         
-        // Header (Banner principal azul oscuro)
         pageDoc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         pageDoc.rect(0, 0, 210, 35, 'F');
+
         
-        // Línea acento teal
         pageDoc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
         pageDoc.rect(0, 35, 210, 2, 'F');
 
-        // Línea decorativa lateral izquierda
+        
         pageDoc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
         pageDoc.rect(10, 45, 1.5, 240, 'F');
 
-        // Footer
-        pageDoc.setFillColor(241, 245, 249); // slate-100
+        
+        pageDoc.setFillColor(241, 245, 249); 
         pageDoc.rect(0, 285, 210, 12, 'F');
         pageDoc.setFontSize(8);
         pageDoc.setFont("helvetica", "italic");
         pageDoc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
-        pageDoc.text("Documento oficial clínico emitido por Salud-Conecta IA", 105, 292, { align: "center" });
+        pageDoc.text(t('pdfFooterText'), 105, 292, { align: "center" });
       };
 
       drawBackground(doc);
+
       
-      // Título en el Header
       doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(255, 255, 255);
-      doc.text("Tarjeta de Emergencia Médica", 15, 20);
-      
+      doc.text(t('pdfMedicalCard'), 15, 20);
+
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(200, 215, 255);
-      doc.text("Resumen Clínico Confidencial", 15, 28);
+      doc.text(t('pdfConfidential'), 15, 28);
 
-      // --- Info del paciente (General) ---
-      let yPos = 55;
       
-      // Rectángulo contenedor para Información Personal
+      let yPos = 55;
+
+      
       doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
       doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'F');
-      doc.setDrawColor(226, 232, 240); // slate-200
+      doc.setDrawColor(226, 232, 240); 
       doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'S');
 
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text("Información Personal", 20, yPos);
+      doc.text(t('pdfPersonalInfo'), 20, yPos);
       yPos += 8;
 
       doc.setFontSize(10);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
-      doc.text("Paciente:", 20, yPos);
+      doc.text(t('pdfPatient'), 20, yPos);
       doc.setFont("helvetica", "normal");
       doc.text(`${user.name}`, 40, yPos);
 
       doc.setFont("helvetica", "bold");
-      doc.text("Cédula:", 110, yPos);
+      doc.text(t('idCard').replace(" de Identidad", "") + ":", 110, yPos);
       doc.setFont("helvetica", "normal");
-      doc.text(`${localMedicalData.cedula || "No registrada"}`, 130, yPos);
+      doc.text(`${localMedicalData.cedula || t('pdfNotRegistered')}`, 130, yPos);
       yPos += 7;
-      
+
       doc.setFont("helvetica", "bold");
-      doc.text("Sangre:", 20, yPos);
+      doc.text(t('pdfBlood'), 20, yPos);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(225, 29, 72); // rose-600 para sangre
-      doc.text(`${localMedicalData.tipoSangre || editBloodType || user.bloodType || "No espec."}`, 40, yPos);
-      
+      doc.setTextColor(225, 29, 72); 
+      doc.text(`${localMedicalData.tipoSangre || editBloodType || user.bloodType || t('pdfNotSpecified')}`, 40, yPos);
+
       doc.setFont("helvetica", "bold");
       doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
-      doc.text("Contacto Emer.:", 110, yPos);
+      doc.text(t('pdfEmergContact'), 110, yPos);
       doc.setFont("helvetica", "normal");
       doc.text(`${localMedicalData.contactoEmergencia || user.emergencyPhone || "+505 8888-9999"}`, 140, yPos);
       yPos += 7;
 
       doc.setFont("helvetica", "bold");
-      doc.text("Peso:", 20, yPos);
+      doc.text(t('pdfWeight'), 20, yPos);
       doc.setFont("helvetica", "normal");
-      doc.text(`${localMedicalData.peso ? localMedicalData.peso + ' kg' : 'No reg.'}`, 40, yPos);
-      
+      doc.text(`${localMedicalData.peso ? localMedicalData.peso + ' kg' : t('pdfNotRegistered')}`, 40, yPos);
+
       doc.setFont("helvetica", "bold");
-      doc.text("Altura:", 110, yPos);
+      doc.text(t('pdfHeight'), 110, yPos);
       doc.setFont("helvetica", "normal");
-      doc.text(`${localMedicalData.altura ? localMedicalData.altura + ' cm' : 'No reg.'}`, 130, yPos);
+      doc.text(`${localMedicalData.altura ? localMedicalData.altura + ' cm' : t('pdfNotRegistered')}`, 130, yPos);
       yPos += 18;
 
-      // --- Datos Médicos Especializados ---
+      
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-      doc.text("Datos Médicos Especializados", 15, yPos);
+      doc.text(t('pdfSpecializedData'), 15, yPos);
       yPos += 8;
 
       doc.setFontSize(10);
-      
+
       const renderMedicalItem = (label: string, value: string) => {
-        // Cuadro para el item
+        
         doc.setFillColor(255, 255, 255);
         doc.roundedRect(15, yPos - 5, 180, 12, 2, 2, 'F');
         doc.setDrawColor(226, 232, 240);
@@ -325,28 +438,28 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.setFont("helvetica", "bold");
         doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
         doc.text(`${label}:`, 20, yPos + 2);
-        
+
         doc.setFont("helvetica", "normal");
         doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
+
         
-        // Manejar texto largo
-        const splitText = doc.splitTextToSize(value || "Ninguno registrado", 120);
+        const splitText = doc.splitTextToSize(value || t('pdfNoneRegistered'), 120);
         doc.text(splitText, 60, yPos + 2);
         yPos += (splitText.length * 5) + 8;
       };
 
-      renderMedicalItem("Enfermedades", localMedicalData.enfermedades);
-      renderMedicalItem("Alergias", localMedicalData.alergias);
-      renderMedicalItem("Tratamientos", localMedicalData.tratamientos);
-      renderMedicalItem("Pastillas", localMedicalData.pastillas);
-      renderMedicalItem("Vacunas", localMedicalData.vacunas);
+      renderMedicalItem(t('pdfDiseases'), localMedicalData.enfermedades);
+      renderMedicalItem(t('pdfAllergies'), localMedicalData.alergias);
+      renderMedicalItem(t('pdfTreatments'), localMedicalData.tratamientos);
+      renderMedicalItem(t('pdfPills'), localMedicalData.pastillas);
+      renderMedicalItem(t('pdfVaccines'), localMedicalData.vacunas);
 
-      // Condiciones de salud
+      
       if (user.healthConditions && user.healthConditions.length > 0) {
-        renderMedicalItem("Otras cond.", user.healthConditions.join(", "));
+        renderMedicalItem(t('pdfOtherCond'), user.healthConditions.join(", "));
       }
 
-      // --- QR Code ---
+      
       yPos += 5;
       if (yPos > 210) {
         doc.addPage();
@@ -354,7 +467,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         yPos = 55;
       }
 
-      // Contenedor del QR
+      
       doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
       doc.roundedRect(15, yPos, 180, 50, 3, 3, 'F');
       doc.setDrawColor(226, 232, 240);
@@ -363,17 +476,16 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text("Código QR de Emergencia", 85, yPos + 15);
-      
+      doc.text(t('pdfQrTitle'), 85, yPos + 15);
+
       doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
-      doc.text("Escanea este código para ver el perfil completo.", 85, yPos + 22);
-      doc.text("Acceso restringido para personal médico autorizado.", 85, yPos + 28);
-      
+      doc.text(t('pdfQrDesc'), 85, yPos + 22);
+
       doc.setFontSize(8);
-      doc.setTextColor(225, 29, 72); // rose
-      doc.text("En caso de emergencia, contactar inmediatamente a los familiares.", 85, yPos + 38);
+      doc.setTextColor(225, 29, 72); 
+      doc.text(t('pdfQrFooter'), 85, yPos + 38);
 
       const svg = qrRef.current?.querySelector("svg");
       if (svg) {
@@ -381,7 +493,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         const img = new Image();
-        
+
         img.onload = () => {
           canvas.width = 512;
           canvas.height = 512;
@@ -391,14 +503,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             ctx.drawImage(img, 0, 0, 512, 512);
           }
           const pngData = canvas.toDataURL("image/png");
-          // QR dentro de su caja
-          doc.addImage(pngData, 'PNG', 25, yPos + 5, 40, 40);
           
-          doc.save(`Info-Emergencia-${user.name}.pdf`);
+          doc.addImage(pngData, 'PNG', 25, yPos + 5, 40, 40);
+
+          doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
         };
         img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
       } else {
-        doc.save(`Info-Emergencia-${user.name}.pdf`);
+        doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
       }
     }).catch(err => {
       console.error("Error cargando jsPDF", err);
@@ -406,7 +518,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f3f8ff] dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex flex-col min-h-dvh bg-[#f3f8ff] dark:bg-slate-950 transition-colors duration-300">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-blue-200/55 dark:border-blue-900/30"></div>
         <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-blue-200/45 dark:border-blue-900/30"></div>
@@ -414,7 +526,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
       </div>
 
-      {/* Header */}
+      {}
       <header className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-6 pb-1 sm:pb-2">
         <div className="flex justify-between items-start w-full max-w-5xl mx-auto">
           <button
@@ -442,37 +554,36 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
           <button
             id="btn-profile-bell"
-            onClick={() => {
-              alert(t('noAlerts'));
-              setShowNotificationBadge(false);
-            }}
+            onClick={handleOpenNotifications}
             className="w-12 h-12 sm:w-20 sm:h-20 bg-white/95 dark:bg-slate-900/90 text-slate-950 dark:text-white rounded-full shadow-[0_18px_40px_rgba(37,99,235,0.12)] flex items-center justify-center relative hover:scale-105 active:scale-95 transition-all"
             title={t('notifications')}
           >
             <Bell className="w-6 h-6 sm:w-8 sm:h-8" />
-            {showNotificationBadge && (
-              <span className="absolute top-2 right-2 sm:top-4 sm:right-4 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-blue-500 border-[3px] sm:border-4 border-white dark:border-slate-900 rounded-full"></span>
+            {unreadNotifications > 0 && (
+              <span className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3 min-w-5 h-5 px-1 bg-blue-600 text-white border-[3px] border-white dark:border-slate-900 rounded-full text-[9px] font-black flex items-center justify-center leading-none">
+                {unreadNotifications > 9 ? "9+" : unreadNotifications}
+              </span>
             )}
           </button>
         </div>
       </header>
 
-      {/* Main Container */}
+      {}
       <main className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-8 flex-1 space-y-5 sm:space-y-7 max-w-5xl mx-auto w-full">
 
-        {/* Profile Card Header segment */}
+        {}
         <section className="grid grid-cols-1 md:grid-cols-[minmax(220px,0.9fr)_minmax(280px,1.1fr)] items-center gap-5 sm:gap-8 md:gap-12 md:min-h-[330px]">
 
-          {/* Area de Avatar con Etiqueta */}
+          {}
           <div className="flex justify-center md:justify-end">
             <div className="relative group shrink-0 select-none">
               <div className="absolute inset-[-1.75rem] sm:inset-[-3rem] rounded-full border border-blue-200/60 dark:border-blue-900/40"></div>
               <div className="absolute inset-[-1.1rem] sm:inset-[-2rem] rounded-full border border-blue-200/60 dark:border-blue-900/40"></div>
               <div className="absolute inset-[-0.55rem] sm:inset-[-1rem] rounded-full border border-blue-200/70 dark:border-blue-900/40"></div>
-              <div 
+              <div
                 onClick={handleAvatarClick}
                 className={`w-32 h-32 sm:w-56 sm:h-56 rounded-full p-1.5 sm:p-2.5 bg-gradient-to-tr from-blue-700 via-blue-500 to-cyan-300 shadow-[0_18px_36px_rgba(37,99,235,0.22)] sm:shadow-[0_26px_50px_rgba(37,99,235,0.28)] relative cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-95 active:opacity-85 ${user.id === "guest" ? "cursor-not-allowed opacity-90 hover:scale-100 active:scale-100 active:opacity-90" : ""}`}
-                title={user.id === "guest" ? "No disponible para invitados" : t('changePhoto')}
+                title={user.id === "guest" ? t('guestAvatarTitle') : t('changePhoto')}
               >
                 {user.avatarUrl ? (
                   <img
@@ -489,14 +600,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   </div>
                 )}
 
-                {/* Uploading overlay */}
+                {}
                 {isUploading && (
                   <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center rounded-full">
                     <Loader2 className="w-7 h-7 sm:w-9 sm:h-9 text-white animate-spin" />
                   </div>
                 )}
 
-                {/* Camera Icon Hover Overlay (only for non-guests, when not uploading) */}
+                {}
                 {user.id !== "guest" && !isUploading && (
                   <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-full">
                     <Camera className="w-7 h-7 sm:w-9 sm:h-9 text-white drop-shadow-md" />
@@ -504,7 +615,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 )}
               </div>
 
-              {/* Hidden File Input */}
+              {}
               {user.id !== "guest" && (
                 <input
                   type="file"
@@ -514,10 +625,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   className="hidden"
                 />
               )}
-              
+
               <span className="absolute bottom-2.5 right-2 sm:bottom-6 sm:right-4 w-7 h-7 sm:w-11 sm:h-11 bg-emerald-400 border-[5px] sm:border-[7px] border-white dark:border-slate-950 rounded-full shadow-lg"></span>
 
-              {/* Small floating Camera/Pencil Button in bottom-right corner */}
+              {}
               {user.id !== "guest" && (
                 <button
                   type="button"
@@ -540,7 +651,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
 
           <div className="text-center md:text-left space-y-3 sm:space-y-5">
-            <h3 className="font-display font-bold text-4xl sm:text-7xl text-slate-950 dark:text-white tracking-tight leading-[0.95]">
+            <h3 className="font-display font-bold text-4xl sm:text-7xl text-slate-950 dark:text-white tracking-tight leading-[0.95] break-words">
               {displayName}<span className="text-blue-600">.</span>
             </h3>
             <div className="space-y-2.5 sm:space-y-3.5">
@@ -558,7 +669,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </p>
             </div>
 
-            {/* Quick info badges */}
+            {}
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-1">
               {user.emergencyPhone && (
                 <span className="inline-flex items-center gap-1.5 bg-slate-100/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200/60 dark:border-slate-700">
@@ -582,15 +693,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </section>
 
-        {/* QR Code section segment card */}
+        {}
         <section className="bg-white/95 dark:bg-slate-900/95 rounded-[1.5rem] sm:rounded-[2.75rem] p-3.5 sm:p-8 border border-white/80 dark:border-slate-800 shadow-[0_18px_46px_rgba(37,99,235,0.1)] sm:shadow-[0_24px_70px_rgba(37,99,235,0.12)]">
           <div className="flex flex-row items-center gap-3 sm:gap-8 justify-between">
-            {/* Lado Izquierdo: Info */}
+            {}
             <div className="flex flex-col gap-2 flex-1 min-w-0 text-left">
               <div className="flex items-center gap-2 sm:gap-5">
-                <div className="w-10 h-10 sm:w-24 sm:h-24 rounded-xl sm:rounded-full bg-blue-500 text-white flex items-center justify-center shadow-md shrink-0">
-                  <QrCode className="w-5 h-5 sm:w-12 sm:h-12" />
-                </div>
                 <h4 className="font-display font-bold text-slate-950 dark:text-white text-base sm:text-3xl leading-tight truncate">
                   {t('shareProfile')}
                 </h4>
@@ -598,16 +706,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               <p className="hidden sm:block text-slate-600 dark:text-slate-300 text-sm sm:text-lg leading-relaxed max-w-md">
                 {t('emergencyDesc')}
               </p>
-
-              <div className="flex">
-                <span className="inline-flex items-center gap-1.5 bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[10px] sm:text-sm px-2.5 py-1.5 rounded-xl font-bold">
-                  <Lock className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
-                  <span>{t('authorizedOnly')}</span>
-                </span>
-              </div>
             </div>
 
-            {/* Lado Derecho: QR más pequeño y lateral */}
+            {}
             <div className="flex flex-col items-center gap-2 sm:gap-5 shrink-0">
               <div
                 ref={qrRef}
@@ -645,12 +746,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </section>
 
-        {/* ACCOUNT MANAGE LIST SEGMENT */}
+        {}
         <div className="space-y-3">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('accountManagement')}</h4>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            {/* Menu Option items collapsible blocks */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start md:max-h-[50vh] md:overflow-y-auto md:pr-2">
+            {}
             {[
               {
                 id: "personal",
@@ -675,8 +776,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               },
               {
                 id: "datos_medicos",
-                title: "Datos Médicos",
-                subtitle: "Información clínica especializada",
+                title: t('medicalData'),
+                subtitle: t('medicalDataSubtitle'),
                 icon: Activity,
                 color: "text-teal-600 bg-teal-50 border border-teal-100",
               },
@@ -703,7 +804,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                     <ChevronRight className={`w-5 h-5 text-slate-400 transform transition-transform ${isOpen ? "rotate-90 text-blue-600" : ""}`} />
                   </button>
 
-                  {/* Collapsed Nested Details Screen panel */}
+                  {}
                   <AnimatePresence>
                     {isOpen && (
                       <motion.div
@@ -714,7 +815,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       >
                         <div className="p-5 text-xs text-slate-600 space-y-4">
 
-                          {/* Nested Personal info update Form */}
+                          {}
                           {item.id === "personal" && (
                             <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
@@ -759,7 +860,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
-                                    <Globe className="w-3 h-3" /> País
+                                    <Globe className="w-3 h-3" /> {t('country')}
                                   </label>
                                   <input
                                     type="text"
@@ -789,54 +890,53 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
                               >
                                 <Save className="w-3.5 h-3.5" />
-                                {t('saveProfileChanges' as any)}
+                                {t('saveProfileChanges')}
                               </button>
                             </form>
                           )}
 
-                          {/* Nested secure privacy content panel */}
+                          {}
                           {item.id === "seguridad" && (
                             <div className="space-y-3 text-left">
                               <p className="text-slate-500 dark:text-slate-400 leading-normal text-[13px]">
-                                Configuración de seguridad y acceso a la cuenta.
+                                {t('securityConfigDesc')}
                               </p>
                               <div className="flex flex-col gap-3 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
                                 <div className="flex items-center gap-3">
                                   <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center p-2">
                                     <svg viewBox="0 0 24 24" className="w-full h-full">
-                                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                                     </svg>
                                   </div>
                                   <div className="flex-1">
-                                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">Cuenta de Google</h4>
-                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Has iniciado sesión con tu cuenta de Google</p>
+                                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">{t('googleAccount')}</h4>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{t('googleAccountDesc')}</p>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           )}
 
-                          {/* Nested alert notifications checker options */}
+                          {}
                           {item.id === "notificaciones" && (
                             <div className="space-y-2.5 text-left">
-                              <p className="text-[11px] text-slate-500 mb-2">Selecciona qué tipo de notificaciones deseas recibir:</p>
+                              <p className="text-[11px] text-slate-500 mb-2">{t('notifSelectDesc')}</p>
                               {[
-                                { value: "consejo", label: "Consejo del día", desc: "Tips diarios para mejorar tu salud" },
-                                { value: "recordatorio", label: "Recordatorios", desc: "Avisos sobre tu estado de salud y citas" },
-                                { value: "ninguna", label: "Silenciar ambas", desc: "No recibir notificaciones push" },
+                                { value: "consejo", label: t('notifTip'), desc: t('notifTipDesc') },
+                                { value: "recordatorio", label: t('notifReminder'), desc: t('notifReminderDesc') },
+                                { value: "ninguna", label: t('notifMute'), desc: t('notifMuteDesc') },
                               ].map((opt) => {
                                 const isSelected = notifPreference.includes(opt.value);
                                 return (
                                   <div
                                     key={opt.value}
-                                    className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-colors ${
-                                      isSelected 
-                                        ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' 
-                                        : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50'
-                                    }`}
+                                    className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-colors ${isSelected
+                                      ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
+                                      : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                                      }`}
                                     onClick={() => handleNotifChange(opt.value)}
                                   >
                                     <div className="flex-1 min-w-0 mr-3">
@@ -845,9 +945,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                       </span>
                                       <span className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">{opt.desc}</span>
                                     </div>
-                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                                      isSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-300 dark:border-slate-600'
-                                    }`}>
+                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-300 dark:border-slate-600'
+                                      }`}>
                                       {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
                                     </div>
                                   </div>
@@ -856,44 +955,44 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </div>
                           )}
 
-                          {/* Nested Datos Medicos Form */}
+                          {}
                           {item.id === "datos_medicos" && (
                             <form onSubmit={handleUpdateMedicalData} className="space-y-4 text-left">
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Enfermedades que padece
+                                    {t('diseases')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.enfermedades}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, enfermedades: e.target.value})}
-                                    placeholder="Ej: Diabetes, Hipertensión"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, enfermedades: e.target.value })}
+                                    placeholder={t('diseasesPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Alergias
+                                    {t('allergies')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.alergias}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, alergias: e.target.value})}
-                                    placeholder="Ej: Penicilina, Nueces"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, alergias: e.target.value })}
+                                    placeholder={t('allergiesPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Tipo de Sangre
+                                    {t('bloodType')}
                                   </label>
                                   <select
                                     value={localMedicalData.tipoSangre}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, tipoSangre: e.target.value})}
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, tipoSangre: e.target.value })}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   >
-                                    <option value="">Seleccione...</option>
+                                    <option value="">{t('selectOption')}</option>
                                     <option value="A+">A+</option>
                                     <option value="A-">A-</option>
                                     <option value="B+">B+</option>
@@ -906,96 +1005,123 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Tratamientos actuales
+                                    {t('currentTreatments')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.tratamientos}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, tratamientos: e.target.value})}
-                                    placeholder="Ej: Fisioterapia"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, tratamientos: e.target.value })}
+                                    placeholder={t('treatmentsPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Pastillas que toma
+                                    {t('pills')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.pastillas}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, pastillas: e.target.value})}
-                                    placeholder="Ej: Losartán 50mg"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, pastillas: e.target.value })}
+                                    placeholder={t('pillsPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Vacunas aplicadas
+                                    {t('vaccines')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.vacunas}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, vacunas: e.target.value})}
-                                    placeholder="Ej: COVID-19, Tétanos"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, vacunas: e.target.value })}
+                                    placeholder={t('vaccinesPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Peso (kg)
+                                    {t('weight')}
                                   </label>
                                   <input
                                     type="number"
                                     value={localMedicalData.peso}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, peso: e.target.value})}
-                                    placeholder="Ej: 70"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, peso: e.target.value })}
+                                    placeholder={t('weightPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Altura (cm)
+                                    {t('height')}
                                   </label>
                                   <input
                                     type="number"
                                     value={localMedicalData.altura}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, altura: e.target.value})}
-                                    placeholder="Ej: 175"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, altura: e.target.value })}
+                                    placeholder={t('heightPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Cédula de Identidad
+                                    {t('idCard')}
                                   </label>
                                   <input
                                     type="text"
                                     value={localMedicalData.cedula}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, cedula: e.target.value})}
-                                    placeholder="000-000000-0000A"
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, cedula: e.target.value })}
+                                    placeholder={t('idCardPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    Contacto de Emergencia
+                                    {t('emergencyPhone')}
                                   </label>
                                   <input
                                     type="tel"
                                     value={localMedicalData.contactoEmergencia}
-                                    onChange={(e) => setLocalMedicalData({...localMedicalData, contactoEmergencia: e.target.value})}
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, contactoEmergencia: e.target.value })}
                                     placeholder="+505 0000-0000"
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                               </div>
 
+                              {/* Sync status indicator */}
+                              {medicalSyncSource !== "none" && (
+                                <div className={`flex items-center gap-2 text-[10px] font-semibold py-1.5 px-3 rounded-lg mb-1 ${
+                                  medicalSyncSource === "fhir"
+                                    ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40"
+                                    : "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/40"
+                                }`}>
+                                  {medicalSyncSource === "fhir" ? (
+                                    <><Cloud className="w-3 h-3" /> Sincronizado con Google Cloud FHIR</>
+                                  ) : (
+                                    <><CloudOff className="w-3 h-3" /> Datos guardados localmente</>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Error message */}
+                              {medicalSaveError && (
+                                <div className="flex items-center gap-2 text-[10px] font-semibold py-1.5 px-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 mb-1">
+                                  <AlertTriangle className="w-3 h-3 shrink-0" />
+                                  <span>{medicalSaveError}</span>
+                                </div>
+                              )}
+
                               <button
                                 type="submit"
-                                className="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
+                                disabled={isSavingMedical}
+                                className="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                               >
-                                <Save className="w-3.5 h-3.5" />
-                                Guardar Datos Médicos
+                                {isSavingMedical ? (
+                                  <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Guardando...</>
+                                ) : (
+                                  <><Save className="w-3.5 h-3.5" /> {t('saveMedicalData')}</>
+                                )}
                               </button>
                             </form>
                           )}
@@ -1012,7 +1138,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </div>
 
-        {/* Protection standard banner at end */}
+        {}
         <div className="bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl p-4.5 border border-slate-200/50 dark:border-slate-800 flex items-center space-x-3.5 mt-4">
           <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/50">
             <Shield className="w-5 h-5 text-blue-600" />
@@ -1027,7 +1153,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </div>
 
-        {/* Admin Panel Button */}
+        {}
         {onGoToAdmin && (
           <button
             onClick={onGoToAdmin}
@@ -1038,15 +1164,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </button>
         )}
 
-        {/* Logout Button */}
+        {}
         {onLogout && (
           <button
             id="btn-profile-logout"
-            onClick={() => {
-              if (window.confirm(t('logoutConfirm'))) {
-                onLogout();
-              }
-            }}
+            onClick={onLogout}
             className="w-full mt-5 bg-red-50 dark:bg-red-900/10 hover:bg-red-100/80 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200/85 dark:border-red-900/30 rounded-2xl py-3.5 px-5 font-bold text-xs flex items-center justify-center space-x-2 transition-all active:scale-[0.98] cursor-pointer"
           >
             <LogOut className="w-4.5 h-4.5 text-red-500 shrink-0" />
@@ -1056,7 +1178,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
       </main>
 
-      {/* Floating Save Success Toast */}
+      {}
       <AnimatePresence>
         {isSavedAlertOpen && (
           <motion.div
@@ -1072,7 +1194,119 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         )}
       </AnimatePresence>
 
-      {/* QR Modal - Fullscreen View */}
+      {}
+      <AnimatePresence>
+        {isNotificationInboxOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] bg-slate-950/55 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 sm:p-6"
+            onClick={() => setIsNotificationInboxOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 360, damping: 28 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md mt-16 sm:mt-0 bg-white dark:bg-slate-900 rounded-[28px] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden"
+            >
+              <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 flex items-center justify-center border border-blue-100 dark:border-blue-800 shrink-0">
+                    <Bell className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white">{t('todayNotifications')}</h3>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-normal">{t('todayNotificationsDesc')}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsNotificationInboxOpen(false)}
+                  className="p-2 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-full px-2.5 py-1">
+                  {notificationHistory.length} {t('notifications')}
+                </span>
+                {unreadNotifications > 0 && (
+                  <button
+                    onClick={handleMarkNotificationsRead}
+                    className="text-[10px] font-black text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full px-3 py-1.5 transition-colors"
+                  >
+                    {t('markAllRead')}
+                  </button>
+                )}
+              </div>
+
+              <div className="max-h-[60vh] overflow-y-auto">
+                {notificationHistory.length > 0 ? (
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {notificationHistory.map((notification) => {
+                      const TypeIcon = notification.source === "announcement"
+                        ? notification.category === "alert"
+                          ? AlertTriangle
+                          : notification.category === "promotion"
+                            ? Star
+                            : Megaphone
+                        : BellRing;
+
+                      return (
+                        <div key={notification.id} className="p-4 flex items-start gap-3">
+                          <div className={`mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
+                            notification.read
+                              ? "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300"
+                              : getNotificationTone(notification)
+                          }`}>
+                            <TypeIcon className="w-4.5 h-4.5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <span className="inline-flex mb-1 text-[9px] font-black uppercase tracking-wide rounded-full px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                                  {getNotificationTypeLabel(notification)}
+                                </span>
+                                <h5 className="text-xs font-black text-slate-800 dark:text-white leading-snug">{notification.title}</h5>
+                              </div>
+                              <span className={`text-[9px] font-black rounded-full px-2 py-1 shrink-0 ${
+                                notification.read
+                                  ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
+                                  : "bg-blue-600 text-white"
+                              }`}>
+                                {notification.read ? t('read') : t('unread')}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[11px] leading-normal text-slate-500 dark:text-slate-400">{notification.body}</p>
+                            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500">
+                              <Clock className="w-3 h-3" />
+                              <span>{formatNotificationTime(notification.createdAt)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="px-6 py-10 text-center">
+                    <div className="mx-auto w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 mb-3">
+                      <Bell className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm font-black text-slate-800 dark:text-white">{t('noNotificationsToday')}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal">{t('noNotificationsTodayDesc')}</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {}
       <AnimatePresence>
         {showQRModal && (
           <motion.div
@@ -1089,7 +1323,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl"
             >
-              {/* Modal Header */}
+              {}
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-display font-bold text-2xl sm:text-3xl text-slate-950 dark:text-white">
                   {t('shareProfile')}
@@ -1102,9 +1336,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 </button>
               </div>
 
-              {/* Modal Content */}
+              {}
               <div className="flex flex-col items-center space-y-6">
-                {/* Large QR Code */}
+                {}
                 <div
                   ref={qrRef}
                   className="w-72 h-72 sm:w-96 sm:h-96 border-4 border-blue-300 dark:border-blue-700 p-6 sm:p-8 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center shadow-lg"
@@ -1117,18 +1351,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   />
                 </div>
 
-                {/* QR Info */}
+                {}
                 <div className="w-full space-y-3 text-center">
                   <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                     {t('emergencyDesc')}
                   </p>
-                  <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs px-3 py-2 rounded-xl font-bold">
-                    <Lock className="w-4 h-4" />
-                    <span>{t('authorizedOnly')}</span>
-                  </div>
                 </div>
 
-                {/* Action Buttons */}
+                {}
                 <div className="flex gap-3 w-full pt-4 border-t border-slate-200 dark:border-slate-700">
                   <button
                     onClick={downloadQRCode}

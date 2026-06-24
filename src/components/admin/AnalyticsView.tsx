@@ -10,7 +10,7 @@ const AnalyticsView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Real Database Stats
+  
   const [stats, setStats] = useState({
     totalUsers: 0,
     premiumUsers: 0,
@@ -20,7 +20,7 @@ const AnalyticsView: React.FC = () => {
     recentUsers: [] as any[]
   });
 
-  // Check if user is admin
+  
   const isAdmin = (profile as any)?.role === "admin";
 
   useEffect(() => {
@@ -28,24 +28,24 @@ const AnalyticsView: React.FC = () => {
       if (!isAdmin) return;
       
       try {
-        // 1. Total Users
+        
         const { count: totalUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
         
-        // 2. Premium Users
+        
         const { count: premiumUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_premium', true);
         
-        // 3. New Users this week
+        
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         const { count: newUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', oneWeekAgo.toISOString());
         
-        // 4. Centers Modified
+        
         const { count: overriddenCenters } = await supabase.from('health_center_overrides').select('*', { count: 'exact', head: true });
         
-        // 5. Active Announcements
+        
         const { count: activeAnnouncements } = await supabase.from('admin_announcements').select('*', { count: 'exact', head: true }).eq('activo', true);
         
-        // 6. Recent Registrations (for activity feed)
+        
         const { data: recentUsers } = await supabase.from('profiles').select('id, nombre, created_at, avatar_url, role').order('created_at', { ascending: false }).limit(5);
 
         setStats({
@@ -93,7 +93,7 @@ const AnalyticsView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('analytics')}</h2>
@@ -104,9 +104,9 @@ const AnalyticsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats Overview */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Users */}
+        {}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
@@ -124,7 +124,7 @@ const AnalyticsView: React.FC = () => {
           </div>
         </div>
 
-        {/* Premium Users */}
+        {}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
@@ -141,7 +141,7 @@ const AnalyticsView: React.FC = () => {
           </div>
         </div>
 
-        {/* Modified Centers */}
+        {}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
@@ -158,7 +158,7 @@ const AnalyticsView: React.FC = () => {
           </div>
         </div>
 
-        {/* Active Announcements */}
+        {}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
@@ -177,10 +177,10 @@ const AnalyticsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Charts & Lists Area */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         
-        {/* Recent Registrations (Real Data) */}
+        {}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
           <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
             <Users className="w-4 h-4 text-blue-500" /> Nuevos Usuarios Registrados
@@ -212,7 +212,7 @@ const AnalyticsView: React.FC = () => {
           </div>
         </div>
 
-        {/* Mock Chart Area (Simulando tabla de eventos de consultas) */}
+        {}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -227,7 +227,7 @@ const AnalyticsView: React.FC = () => {
               <div className="border-t border-slate-400 w-full"></div>
               <div className="border-t border-slate-400 w-full"></div>
             </div>
-            {/* Mock bars */}
+            {}
             {[35, 60, 45, 80, 50, 90, 75].map((val, idx) => (
               <div key={idx} className="w-full bg-emerald-500/20 hover:bg-emerald-500/40 rounded-t-lg relative group transition-colors" style={{ height: `${val}%` }}>
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
