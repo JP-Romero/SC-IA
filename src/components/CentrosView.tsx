@@ -104,6 +104,17 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
   const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
 
+  const watchIdRef = React.useRef<number | null>(null);
+  const forceCenterNextRef = React.useRef(false);
+
+  useEffect(() => {
+    return () => {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setIsDarkMode(document.documentElement.classList.contains("dark"));
@@ -234,35 +245,63 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       setLocationMode("manual");
       return;
     }
+
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+
     setGeoStatus("loading");
-    navigator.geolocation.getCurrentPosition(
+    forceCenterNextRef.current = true;
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
       (position) => {
         const userLoc = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           accuracy: position.coords.accuracy,
         };
-        setUserLocation(userLoc);
+
+        setUserLocation((prevLoc) => {
+          if (!prevLoc || userLoc.accuracy <= prevLoc.accuracy || Math.abs(userLoc.latitude - prevLoc.latitude) > 0.0001 || Math.abs(userLoc.longitude - prevLoc.longitude) > 0.0001) {
+            return userLoc;
+          }
+          return prevLoc;
+        });
+
         setGeoStatus("ready");
         setGeoError("");
         setLocationMode("nearby");
 
-        const nearestCenter = mergedCenters
-          .filter((center) => center.latitude && center.longitude)
-          .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-          .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+        if (forceCenterNextRef.current) {
+          const nearestCenter = mergedCenters
+            .filter((center) => center.latitude && center.longitude)
+            .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
+            .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
-        if (nearestCenter) {
-          setActiveFilter("centro");
-          setSelectedCenter(nearestCenter);
+          if (nearestCenter) {
+            setActiveFilter("centro");
+            setSelectedCenter(nearestCenter);
+          }
         }
       },
       (error) => {
+        let errorMsg = "No se pudo obtener tu ubicación.";
+        if (error.code === error.PERMISSION_DENIED) {
+          errorMsg = "Permiso denegado. Por favor, activa el acceso a la ubicación para encontrar centros cercanos.";
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          errorMsg = "La información de ubicación no está disponible en este dispositivo.";
+        } else if (error.code === error.TIMEOUT) {
+          errorMsg = "Se agotó el tiempo de espera para obtener la ubicación.";
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
+
         setGeoStatus("error");
-        setGeoError(error.message || "No se pudo obtener tu ubicación.");
+        setGeoError(errorMsg);
         setLocationMode("manual");
       },
-      { enableHighAccuracy: true, maximumAge: 30000, timeout: 12000 }
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
     );
   }, [mergedCenters]);
 
@@ -452,8 +491,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const handleRecenter = () => {
-    if (userLocation) {
-      iframeRef.current?.contentWindow?.postMessage({
+    requestCurrentLocation();
+    if (userLocation && iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({
         type: "UPDATE_DATA",
         centers: filteredCenters
           .filter((c) => c.latitude && c.longitude)
@@ -469,8 +509,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         userLocation: userLocation,
         forceCenterOnUser: true,
       }, "*");
-    } else {
-      requestCurrentLocation();
     }
   };
 
@@ -512,6 +550,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       centerOnId: selectedCenter?.id || null,
       zoomLevel: selectedCenter?.latitude && selectedCenter?.longitude ? 15 : undefined,
       isDark: isDarkMode,
+      forceCenterOnUser: forceCenterNextRef.current,
     };
 
     const sendUpdate = () => {
@@ -521,6 +560,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     };
 
     sendUpdate();
+    forceCenterNextRef.current = false;
 
     iframe.addEventListener("load", sendUpdate);
     return () => {
@@ -587,6 +627,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             let map;
             let markersMap = new Map();
             let userLocationMarker = null;
+            let userAccuracyCircle = null;
             let currentSelectedId = null;
             let pendingMessage = null;
 
@@ -621,6 +662,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 userLocationMarker.map = null;
                 userLocationMarker = null;
               }
+              if (userAccuracyCircle) {
+                userAccuracyCircle.setMap(null);
+                userAccuracyCircle = null;
+              }
               if (msg.userLocation && msg.userLocation.latitude && msg.userLocation.longitude) {
                 const userPinContainer = document.createElement('div');
                 userPinContainer.style.width = '0px';
@@ -639,6 +684,19 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                   content: userPinContainer,
                   title: "Tu ubicación"
                 });
+
+                if (msg.userLocation.accuracy && msg.userLocation.accuracy > 0) {
+                  userAccuracyCircle = new google.maps.Circle({
+                    strokeColor: '#3b82f6',
+                    strokeOpacity: 0.4,
+                    strokeWeight: 1,
+                    fillColor: '#3b82f6',
+                    fillOpacity: 0.15,
+                    map: map,
+                    center: { lat: msg.userLocation.latitude, lng: msg.userLocation.longitude },
+                    radius: msg.userLocation.accuracy
+                  });
+                }
               }
 
               // Update markers
@@ -755,6 +813,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
           let markersGroup = L.layerGroup().addTo(map);
           let userLocationMarker = null;
+          let userAccuracyCircle = null;
           let markersMap = new Map();
 
           function updateMarkers(centers, selectedId) {
@@ -796,6 +855,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               map.removeLayer(userLocationMarker);
               userLocationMarker = null;
             }
+            if (userAccuracyCircle) {
+              map.removeLayer(userAccuracyCircle);
+              userAccuracyCircle = null;
+            }
             if (loc && loc.latitude && loc.longitude) {
               const userIcon = L.divIcon({
                 html: '<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 10px rgba(59,130,246,0.6); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
@@ -804,6 +867,16 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 iconAnchor: [7, 7]
               });
               userLocationMarker = L.marker([loc.latitude, loc.longitude], { icon: userIcon }).addTo(map);
+
+              if (loc.accuracy && loc.accuracy > 0) {
+                userAccuracyCircle = L.circle([loc.latitude, loc.longitude], {
+                  radius: loc.accuracy,
+                  color: '#3b82f6',
+                  fillColor: '#3b82f6',
+                  fillOpacity: 0.15,
+                  weight: 1
+                }).addTo(map);
+              }
             }
           }
 
