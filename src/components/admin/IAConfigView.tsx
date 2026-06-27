@@ -290,7 +290,6 @@ const IAConfigView: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Configs List Card */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
         <div className="px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-800">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('aiConfigurationsList')} ({aiConfigs.length})</h3>
@@ -326,7 +325,7 @@ const IAConfigView: React.FC = () => {
                         description: config.description || ''
                       });
                     }}
-                    className="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-1 transition-colors"
+                    className="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-medium bg-brand-600 hover:bg-brand-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-brand-600 flex items-center gap-1 transition-colors"
                   >
                     {t('edit')}
                   </button>
@@ -447,7 +446,7 @@ const IAConfigView: React.FC = () => {
               <div className="space-y-3">
                 {testMessages.map((msg, idx) => (
                   <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] px-3 py-2 rounded-lg text-sm ${msg.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white'}`}>
+                    <div className={`max-w-[85%] px-3 py-2 rounded-lg text-sm ${msg.sender === 'user' ? 'bg-brand-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white'}`}>
                       {msg.text}
                     </div>
                   </div>

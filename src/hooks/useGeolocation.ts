@@ -139,6 +139,50 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
         }
       },
       (geoError) => {
+        // Fallback: Si falla la alta precisión por timeout o falta de hardware GPS, reintentar con precisión estándar (útil en computadoras de escritorio)
+        if (enableHighAccuracy && (geoError.code === geoError.TIMEOUT || geoError.code === geoError.POSITION_UNAVAILABLE)) {
+          console.warn("La geolocalización de alta precisión falló. Reintentando con precisión estándar...");
+          if (watchIdRef.current !== null) {
+            navigator.geolocation.clearWatch(watchIdRef.current);
+          }
+          watchIdRef.current = navigator.geolocation.watchPosition(
+            (pos) => {
+              const { latitude, longitude, accuracy, speed, heading } = pos.coords;
+              const newLoc: UserLocation = {
+                latitude,
+                longitude,
+                accuracy,
+                speed,
+                heading,
+                timestamp: pos.timestamp,
+              };
+              lastLocationRef.current = newLoc;
+              setLocation(newLoc);
+              setError("");
+              setStatus("ready");
+              try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(newLoc));
+              } catch (e) {
+                console.error("Failed to cache location", e);
+              }
+            },
+            (err) => {
+              let errorMsg = "No se pudo obtener la ubicación en tiempo real.";
+              if (err.code === err.PERMISSION_DENIED) {
+                errorMsg = "Permiso denegado. Activa el acceso al GPS para recibir indicaciones de ruta.";
+              }
+              setError(errorMsg);
+              setStatus("error");
+            },
+            {
+              enableHighAccuracy: false,
+              timeout: 10000,
+              maximumAge: 10000,
+            }
+          );
+          return;
+        }
+
         let errorMsg = "No se pudo obtener la ubicación en tiempo real.";
         if (geoError.code === geoError.PERMISSION_DENIED) {
           errorMsg = "Permiso denegado. Activa el acceso al GPS para recibir indicaciones de ruta.";

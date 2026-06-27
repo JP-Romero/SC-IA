@@ -559,15 +559,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             title={t('notifications')}
           >
             <Bell className="w-6 h-6 sm:w-8 sm:h-8" />
-<<<<<<< HEAD
-            {showNotificationBadge && (
-              <span className="absolute top-2 right-2 sm:top-4 sm:right-4 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-brand-600 border-[3px] sm:border-4 border-white dark:border-slate-900 rounded-full"></span>
-=======
             {unreadNotifications > 0 && (
               <span className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3 min-w-5 h-5 px-1 bg-blue-600 text-white border-[3px] border-white dark:border-slate-900 rounded-full text-[9px] font-black flex items-center justify-center leading-none">
                 {unreadNotifications > 9 ? "9+" : unreadNotifications}
               </span>
->>>>>>> 0984c8002e816d6e1391c1596590790e48656fa6
             )}
           </button>
         </div>
