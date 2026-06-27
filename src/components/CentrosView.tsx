@@ -458,9 +458,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const getGoogleMapsSearchUrl = (center: HealthCenter | null) => {
     if (!center) return "";
     
-    // Usar exclusivamente coordenadas numéricas para evitar resolución por texto
-    const lat = center.latitude ?? center.lat;
-    const lng = center.longitude ?? center.lng;
+    // Usar exclusivamente coordenadas numéricas geográficas reales
+    const lat = center.latitude;
+    const lng = center.longitude;
     
     if (!lat || !lng) return "";
 
@@ -840,6 +840,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           let userAccuracyCircle = null;
           let markersMap = new Map();
           let routingControl = null;
+          let routingLine = null;
 
           function updateMarkers(centers, selectedId) {
             markersGroup.clearLayers();
@@ -934,27 +935,47 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 map.removeControl(routingControl);
                 routingControl = null;
               }
+              if (routingLine) {
+                map.removeLayer(routingLine);
+                routingLine = null;
+              }
 
               if (msg.selectedId && msg.userLocation && msg.userLocation.latitude && msg.userLocation.longitude) {
                 const selectedCenter = msg.centers.find(c => c.id === msg.selectedId);
                 if (selectedCenter && selectedCenter.lat && selectedCenter.lng) {
-                  routingControl = L.Routing.control({
-                    waypoints: [
-                      L.latLng(msg.userLocation.latitude, msg.userLocation.longitude),
-                      L.latLng(selectedCenter.lat, selectedCenter.lng)
-                    ],
-                    router: L.Routing.osrmv1({
-                      serviceUrl: 'https://router.project-osrm.org/route/v1'
-                    }),
-                    lineOptions: {
-                      styles: [{ color: '#10b981', opacity: 0.8, weight: 5 }]
-                    },
-                    createMarker: function() { return null; },
-                    show: false,
-                    addWaypoints: false,
-                    draggableWaypoints: false,
-                    fitSelectedRoutes: false
-                  }).addTo(map);
+                  try {
+                    if (typeof L.Routing !== 'undefined') {
+                      routingControl = L.Routing.control({
+                        waypoints: [
+                          L.latLng(msg.userLocation.latitude, msg.userLocation.longitude),
+                          L.latLng(selectedCenter.lat, selectedCenter.lng)
+                        ],
+                        router: L.Routing.osrmv1({
+                          serviceUrl: 'https://router.project-osrm.org/route/v1'
+                        }),
+                        lineOptions: {
+                          styles: [{ color: '#10b981', opacity: 0.8, weight: 5 }]
+                        },
+                        createMarker: function() { return null; },
+                        show: false,
+                        addWaypoints: false,
+                        draggableWaypoints: false,
+                        fitSelectedRoutes: false
+                      }).addTo(map);
+                    } else {
+                      throw new Error("L.Routing is undefined");
+                    }
+                  } catch (e) {
+                    console.warn("Leaflet Routing Machine failed, using Polyline fallback:", e);
+                    routingLine = L.polyline([
+                      [msg.userLocation.latitude, msg.userLocation.longitude],
+                      [selectedCenter.lat, selectedCenter.lng]
+                    ], {
+                      color: '#3b82f6',
+                      weight: 4,
+                      dashArray: '5, 10'
+                    }).addTo(map);
+                  }
                 }
               }
             }
