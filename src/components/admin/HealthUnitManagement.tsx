@@ -481,11 +481,7 @@ const HealthUnitManagement: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleEditUnit(unit)}
-<<<<<<< HEAD
-                        className="px-3 py-1.5 text-xs font-medium bg-brand-600 hover:bg-brand-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-brand-600"
-=======
-                        className="px-3 py-1.5 text-xs font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shrink-0"
->>>>>>> 0984c8002e816d6e1391c1596590790e48656fa6
+                        className="px-3 py-1.5 text-xs font-medium bg-brand-600 hover:bg-brand-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-brand-600 shrink-0"
                       >
                         {t('edit')}
                       </button>

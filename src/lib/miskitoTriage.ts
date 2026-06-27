@@ -9,7 +9,8 @@
 import { MISKITO_TRIAGE_DATABASE, MiskitoTriageRecord } from "../data/miskitoTriageDatabase";
 import { UserProfile } from "../types";
 
-function normalize(str: stringreplace(/[\u0300-\u036f]/g, "").toLowerCase();
+function normalize(str: string): string {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
 /**
