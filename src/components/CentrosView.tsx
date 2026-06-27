@@ -483,10 +483,27 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const googleMapsEmbedUrl = googleMapsApiKey
     ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(googleMapsApiKey)}&q=${encodeURIComponent(selectedCenterMapQuery)}&zoom=15`
     : "";
-  const googleMapsSearchUrl =
-    userLocation && selectedCenter?.latitude && selectedCenter?.longitude
-      ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${selectedCenter.latitude},${selectedCenter.longitude}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
+  const getGoogleMapsSearchUrl = (center: HealthCenter | null) => {
+    if (!center) return "";
+    const centerSearch = [
+      center.name,
+      center.locality,
+      center.municipality,
+      center.department,
+      "Nicaragua",
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    const destination = center.latitude && center.longitude
+      ? `${center.latitude},${center.longitude}`
+      : centerSearch;
+
+    if (userLocation && userLocation.latitude && userLocation.longitude) {
+      return `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${encodeURIComponent(destination)}`;
+    }
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+  };
 
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
@@ -1208,7 +1225,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                             {}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1.5">
                               <a
-                                href={googleMapsSearchUrl}
+                                href={getGoogleMapsSearchUrl(hc)}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
@@ -1372,7 +1389,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <a
-                    href={googleMapsSearchUrl}
+                    href={getGoogleMapsSearchUrl(selectedCenter)}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
