@@ -71,7 +71,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
   const currentLabel = sections.find(s => s.id === activeSection)?.label;
 
   return (
-    <div className="flex h-dvh bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans antialiased relative">
+    <div className="flex h-dvh bg-white dark:bg-slate-950 overflow-hidden font-sans antialiased relative">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
         <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>

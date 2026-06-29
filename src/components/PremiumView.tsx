@@ -56,7 +56,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
   };
 
   return (
-    <div className="flex flex-col min-h-dvh bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
+    <div className="flex flex-col min-h-dvh bg-white dark:bg-slate-950 relative overflow-hidden">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
         <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>

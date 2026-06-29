@@ -935,7 +935,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   }, [googleMapsApiKey]);
 
   return (
-    <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
+    <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-white dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
 
       { }
       <div className={`w-full md:w-[380px] lg:w-[420px] flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20 transition-all duration-300 ${mobileView === "list" ? "h-full flex" : "hidden md:flex md:h-full"}`}>
