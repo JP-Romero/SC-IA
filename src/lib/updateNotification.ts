@@ -140,7 +140,7 @@ const CSS_STYLES = `
 
     .un-close-btn:hover {
       background: rgb(6, 174, 246)51);
-      color: var(--color-secundario-celeste-oscuro, #2563eb);
+      color: var(--color-secundario-celeste, #3b82f6);
     }
   }
 
@@ -159,7 +159,7 @@ const CSS_STYLES = `
 
   html.dark .un-close-btn:hover {
     background: rgba(255, 255, 255, 0.08);
-    color: #f1f5f9;
+    color: var(--color-principal-texto, #f1f5f9);
   }
 
   /* Tipografía y Textos */

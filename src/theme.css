@@ -22,3 +22,23 @@
   --color-texto-secundario: #64748b; /* Gris para descripciones */
   --color-borde: rgba(203, 213, 225, 0.8); /* Gris claro para bordes */
 }
+
+/* 
+  Paleta para Modo Oscuro (Dark Mode)
+  Se activa cuando el tag <html> tiene la clase "dark".
+*/
+html.dark {
+  /* Colores Principales (Oscuros) */
+  --color-principal-bg: #0f172a; /* Fondo azul marino muy oscuro */
+  --color-principal-texto: #f1f5f9; /* Texto blanco hueso */
+
+  /* Colores Secundarios (Brillantes para contraste) */
+  --color-secundario-verde: #10b981; /* Mismo verde, resalta bien */
+  --color-secundario-verde-oscuro: #059669;
+  --color-secundario-celeste: #3b82f6; /* Mismo celeste, resalta bien */
+  --color-secundario-celeste-oscuro: #2563eb;
+
+  /* Colores de Acento y Neutros (Adaptados para oscuridad) */
+  --color-texto-secundario: #94a3b8; /* Gris más claro para descripciones */
+  --color-borde: rgba(51, 65, 85, 0.8); /* Borde oscuro y sutil */
+}
