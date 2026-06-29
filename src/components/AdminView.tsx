@@ -71,13 +71,8 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
   const currentLabel = sections.find(s => s.id === activeSection)?.label;
 
   return (
-    <div className="flex h-dvh bg-white dark:bg-slate-950 overflow-hidden font-sans antialiased relative">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
-        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>
-        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-brand-100/45 dark:bg-brand-900/30 blur-3xl"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
-      </div>
+    <div className="health-app-bg flex h-dvh overflow-hidden font-sans antialiased relative">
+      <div className="health-background-motifs" />
 
       {}
       <AnimatePresence>

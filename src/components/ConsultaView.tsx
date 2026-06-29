@@ -524,20 +524,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   };
 
   return (
-    <div className="flex flex-col min-h-dvh relative overflow-hidden font-sans bg-white dark:bg-slate-950 transition-colors duration-300">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
-        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>
-        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-brand-100/45 dark:bg-brand-900/30 blur-3xl"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
-      </div>
-
-      {}
-      <div className="absolute pointer-events-none z-0" style={{ top: "-8%", right: "-15%", width: "420px", height: "420px", background: "radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.03) 50%, transparent 75%)", borderRadius: "55% 45% 60% 40% / 45% 55% 40% 60%", filter: "blur(40px)" }} />
-      <div className="absolute pointer-events-none z-0" style={{ top: "5%", left: "-8%", width: "220px", height: "220px", background: "radial-gradient(ellipse at center, rgba(99,102,241,0.06) 0%, transparent 70%)", borderRadius: "40% 60% 55% 45% / 55% 45% 60% 40%", filter: "blur(35px)" }} />
-      <div className="absolute pointer-events-none z-0" style={{ top: "35%", right: "-5%", width: "280px", height: "280px", background: "radial-gradient(ellipse at center, rgba(37,99,235,0.04) 0%, transparent 70%)", borderRadius: "50% 50% 40% 60% / 60% 40% 50% 50%", filter: "blur(50px)" }} />
-      <div className="absolute pointer-events-none z-0" style={{ bottom: "15%", left: "-12%", width: "350px", height: "350px", background: "radial-gradient(ellipse at center, rgba(147,197,253,0.07) 0%, transparent 70%)", borderRadius: "60% 40% 45% 55% / 45% 55% 50% 50%", filter: "blur(45px)" }} />
-      <div className="absolute pointer-events-none z-0" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "500px", height: "500px", background: "radial-gradient(ellipse at center, rgba(219,234,254,0.15) 0%, transparent 60%)", borderRadius: "50%", filter: "blur(60px)" }} />
+    <div className="health-app-bg flex flex-col min-h-dvh relative overflow-hidden font-sans transition-colors duration-300">
+      <div className="health-background-motifs" />
 
       {}
       <motion.header

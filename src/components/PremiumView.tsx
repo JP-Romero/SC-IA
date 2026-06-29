@@ -56,13 +56,8 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
   };
 
   return (
-    <div className="flex flex-col min-h-dvh bg-white dark:bg-slate-950 relative overflow-hidden">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
-        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>
-        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-brand-100/45 dark:bg-brand-900/30 blur-3xl"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
-      </div>
+    <div className="health-app-bg flex flex-col min-h-dvh relative overflow-hidden">
+      <div className="health-background-motifs" />
       {}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[500px] bg-brand-600/10 dark:bg-brand-600/10 blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyan-400/10 dark:bg-cyan-500/10 blur-[100px] pointer-events-none"></div>

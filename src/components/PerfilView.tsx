@@ -518,13 +518,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   return (
-    <div className="flex flex-col min-h-dvh bg-white dark:bg-slate-950 transition-colors duration-300">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
-        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>
-        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-brand-100/45 dark:bg-brand-900/30 blur-3xl"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
-      </div>
+    <div className="health-app-bg flex flex-col min-h-dvh transition-colors duration-300 relative overflow-hidden">
+      <div className="health-background-motifs" />
 
       {}
       <header className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-6 pb-1 sm:pb-2">

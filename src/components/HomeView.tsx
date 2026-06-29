@@ -16,39 +16,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
   const firstName = isGuest ? t('guest') : user.name.split(" ")[0];
 
   return (
-    <div className="flex flex-col min-h-dvh relative overflow-x-hidden bg-white dark:bg-slate-950 transition-colors duration-300">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
-        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>
-        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-emerald-100/55 dark:bg-emerald-900/20 blur-3xl"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(15,159,143,0.06),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(15,159,143,0.06)_60%,transparent_78%)]"></div>
-      </div>
-
-      {}
-      <div
-        className="absolute pointer-events-none z-0"
-        style={{
-          top: "-5%",
-          right: "-10%",
-          width: "400px",
-          height: "400px",
-          background: "radial-gradient(ellipse at center, rgba(15,159,143,0.1) 0%, transparent 70%)",
-          borderRadius: "50%",
-          filter: "blur(40px)",
-        }}
-      />
-      <div
-        className="absolute pointer-events-none z-0"
-        style={{
-          bottom: "10%",
-          left: "-10%",
-          width: "450px",
-          height: "450px",
-          background: "radial-gradient(ellipse at center, rgba(15,181,159,0.1) 0%, transparent 70%)",
-          borderRadius: "50%",
-          filter: "blur(50px)",
-        }}
-      />
+    <div className="health-app-bg flex flex-col min-h-dvh relative overflow-x-hidden transition-colors duration-300">
+      <div className="health-background-motifs" />
 
       {}
       <header className="flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-4 z-30 relative bg-transparent w-full max-w-6xl mx-auto">
