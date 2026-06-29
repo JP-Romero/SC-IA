@@ -95,7 +95,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
           {}
           <div className="flex flex-col items-center shrink-0 relative z-10 ml-2">
             {}
-            <div className="health-avatar-ring w-[84px] h-[84px] sm:w-[104px] sm:h-[104px] md:w-[120px] md:h-[120px] rounded-full p-[3px] sm:p-[4px] flex items-center justify-center relative">
+            <div className="health-avatar-ring w-[84px] h-[84px] sm:w-[104px] sm:h-[104px] md:w-[120px] md:h-[120px] rounded-full p-[5px] sm:p-[6px] flex items-center justify-center relative">
               {user.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
