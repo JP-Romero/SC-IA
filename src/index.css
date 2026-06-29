@@ -8,30 +8,30 @@
   /* === Paleta de Colores: Blanco, Celeste y Verde Médico === */
 
   /* Primarios (Celeste) */
-  --color-primary: var(--color-secundario-celeste); /* #3b82f6 */
-  --color-primary-dark: var(--color-secundario-celeste-oscuro); /* #2563eb */
-  --color-primary-light: #EBF5FF; /* Celeste muy claro para fondos suaves */
+  --color-primary: var(--color-secundario-celeste, #3b82f6);
+  --color-primary-dark: var(--color-secundario-celeste-oscuro, #2563eb);
+  --color-primary-light: #EBF5FF;
 
   /* Verde Médico (Salud y Éxito) */
-  --color-health: var(--color-secundario-verde); /* #10b981 */
-  --color-health-dark: var(--color-secundario-verde-oscuro); /* #059669 */
-  --color-health-light: #DCFCE7; /* Verde claro para fondos de éxito */
+  --color-health: var(--color-secundario-verde, #10b981);
+  --color-health-dark: var(--color-secundario-verde-oscuro, #059669);
+  --color-health-light: #DCFCE7;
 
   /* Superficies y Fondos */
-  --color-background: var(--color-principal-bg); /* #FFFFFF */
-  --color-surface-soft: #F8FAFC; /* Gris muy claro para contraste sutil */
-  --color-card: var(--color-principal-bg); /* #FFFFFF */
+  --color-background: var(--color-principal-bg, #ffffff);
+  --color-surface-soft: #F8FAFC;
+  --color-card: var(--color-principal-bg, #ffffff);
 
   /* Estados */
-  --color-success: var(--color-secundario-verde);
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
-  --color-info: var(--color-secundario-celeste);
+  --color-success: var(--color-secundario-verde, #10b981);
+  --color-warning: var(--color-acento-amarillo, #F59E0B);
+  --color-error: var(--color-acento-rojo, #EF4444);
+  --color-info: var(--color-secundario-celeste, #3b82f6);
 
   /* Textos y Bordes */
-  --color-text-main: var(--color-principal-texto);
-  --color-text-secondary: var(--color-texto-secundario);
-  --color-border: var(--color-borde);
+  --color-text-main: var(--color-principal-texto, #0f172a);
+  --color-text-secondary: var(--color-texto-secundario, #64748b);
+  --color-border: var(--color-borde, rgba(203, 213, 225, 0.8));
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -133,4 +133,6 @@
 }
 
 
-.no-scrollbar::-webkit-scro
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

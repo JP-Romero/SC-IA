@@ -200,7 +200,7 @@ const CSS_STYLES = `
 
   /* Icono de Campana / Sparkle */
   .un-icon {
-    color: var(--color-secundario-celeste-oscuro, #2563eb); /* Celeste para el icono */
+    color: var(--color-secundario-celeste, #3b82f6);
     animation: un-bounce 2s infinite;
     display: inline-flex;
     align-items: center;
@@ -262,7 +262,7 @@ const CSS_STYLES = `
 
   .un-btn-secondary:hover {
     background: rgba(0, 0, 0, 0.03);
-    color: var(--color-principal-texto, #0f172a);    
+    color: var(--color-principal-texto, #0f172a);
     border-color: var(--color-borde, rgba(148, 163, 184, 0.8));
   }
 
