@@ -17,13 +17,13 @@
   --color-brand-300: #5BD4C0;
   --color-brand-400: #2EE8B7;
   --color-brand-500: #00D4AA;
-  --color-brand-600: #00D4AA; /* Force vibrant teal globally */
+  --color-brand-600: var(--color-antigravity); /* Force Antigravity brand globally */
   --color-brand-700: #00B4A0;
   --color-brand-800: #008F7A;
   --color-brand-900: #005F50;
 
-  /* ── Primario (Teal principal) ─────────────────────────────── */
-  --color-primary: var(--color-teal, #00B4A0);
+  /* ── Primario (Antigravity) ─────────────────────────────── */
+  --color-primary: var(--color-antigravity);
   --color-primary-dark: var(--color-teal-deep, #008F7A);
   --color-primary-light: var(--color-teal-light, #E0FFF5);
   --color-primary-border: var(--color-teal-border, #A0E8D8);
@@ -463,20 +463,20 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--color-teal, #00B4A0) !important;
+  border-color: var(--color-antigravity) !important;
   box-shadow:
-    0 0 0 3px rgba(0, 212, 170, 0.15),
-    0 0 12px rgba(0, 180, 160, 0.08);
+    0 0 0 3px rgba(0, 82, 255, 0.15),
+    0 0 12px rgba(0, 82, 255, 0.08);
   transition: border-color 200ms ease, box-shadow 200ms ease;
 }
 
 html.dark input:focus,
 html.dark textarea:focus,
 html.dark select:focus {
-  border-color: var(--color-neon, #2EE8B7) !important;
+  border-color: var(--color-antigravity) !important;
   box-shadow:
-    0 0 0 3px rgba(46, 232, 183, 0.2),
-    0 0 16px rgba(46, 232, 183, 0.1);
+    0 0 0 3px rgba(51, 119, 255, 0.2),
+    0 0 16px rgba(51, 119, 255, 0.1);
 }
 
 /* ═══════════════════════════════════════════════════════════════
