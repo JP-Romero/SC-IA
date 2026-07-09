@@ -271,48 +271,60 @@ html.dark .health-app-bg {
 .health-background-motifs::before {
   content: "";
   position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 15% 20%, rgba(43, 94, 167, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 15%, rgba(0, 180, 160, 0.05) 0%, transparent 45%),
-    radial-gradient(ellipse at 75% 75%, rgba(0, 212, 170, 0.04) 0%, transparent 40%),
-    radial-gradient(ellipse at 10% 70%, rgba(43, 94, 167, 0.05) 0%, transparent 35%);
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 85%);
-  animation: health-bg-drift 18s ease-in-out infinite alternate;
+  top: 5%;
+  left: -5%;
+  width: 45vw;
+  height: 45vw;
+  max-width: 600px;
+  max-height: 600px;
+  background: linear-gradient(135deg, var(--color-antigravity), transparent);
+  opacity: 0.08;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  filter: blur(40px);
+  animation: blob-morph 18s ease-in-out infinite alternate;
 }
 
 .health-background-motifs::after {
   content: "";
   position: absolute;
-  inset: -5%;
-  background:
-    radial-gradient(circle at 8% 92%, rgba(0, 180, 160, 0.04) 0 1px, transparent 2px),
-    radial-gradient(circle at 92% 8%, rgba(43, 94, 167, 0.04) 0 1px, transparent 2px),
-    radial-gradient(circle at 50% 50%, rgba(0, 212, 170, 0.03) 0 2px, transparent 3px);
-  background-size: 140px 140px, 120px 120px, 180px 180px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 90%);
+  bottom: 0%;
+  right: -5%;
+  width: 40vw;
+  height: 40vw;
+  max-width: 500px;
+  max-height: 500px;
+  background: linear-gradient(135deg, transparent, var(--color-antigravity));
+  opacity: 0.12;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  filter: blur(50px);
+  animation: blob-morph 22s ease-in-out infinite alternate-reverse;
 }
 
 html.dark .health-background-motifs::before {
-  background:
-    radial-gradient(ellipse at 15% 20%, rgba(59, 111, 196, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 15%, rgba(0, 212, 170, 0.07) 0%, transparent 45%),
-    radial-gradient(ellipse at 75% 75%, rgba(46, 232, 183, 0.06) 0%, transparent 40%),
-    radial-gradient(ellipse at 10% 70%, rgba(59, 111, 196, 0.08) 0%, transparent 35%);
+  opacity: 0.15;
 }
 
 html.dark .health-background-motifs::after {
-  background:
-    radial-gradient(circle at 8% 92%, rgba(0, 212, 170, 0.06) 0 1px, transparent 2px),
-    radial-gradient(circle at 92% 8%, rgba(59, 111, 196, 0.05) 0 1px, transparent 2px),
-    radial-gradient(circle at 50% 50%, rgba(46, 232, 183, 0.04) 0 2px, transparent 3px);
+  opacity: 0.2;
 }
 
-@keyframes health-bg-drift {
-  0% { transform: translate(0%, 0%) scale(1); }
-  33% { transform: translate(2%, -1.5%) scale(1.02); }
-  66% { transform: translate(-1.5%, 1%) scale(0.98); }
-  100% { transform: translate(1%, 0.5%) scale(1.01); }
+@keyframes blob-morph {
+  0% {
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  33% {
+    border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+    transform: translate(3%, 5%) rotate(10deg) scale(1.05);
+  }
+  66% {
+    border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%;
+    transform: translate(-2%, 8%) rotate(-5deg) scale(0.95);
+  }
+  100% {
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
