@@ -278,7 +278,7 @@ html.dark .health-app-bg {
   max-width: 600px;
   max-height: 600px;
   background: linear-gradient(135deg, var(--color-antigravity), transparent);
-  opacity: 0.08;
+  opacity: 0.18;
   border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
   filter: blur(40px);
   animation: blob-morph 18s ease-in-out infinite alternate;
@@ -294,18 +294,18 @@ html.dark .health-app-bg {
   max-width: 500px;
   max-height: 500px;
   background: linear-gradient(135deg, transparent, var(--color-antigravity));
-  opacity: 0.12;
+  opacity: 0.22;
   border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
   filter: blur(50px);
   animation: blob-morph 22s ease-in-out infinite alternate-reverse;
 }
 
 html.dark .health-background-motifs::before {
-  opacity: 0.15;
+  opacity: 0.25;
 }
 
 html.dark .health-background-motifs::after {
-  opacity: 0.2;
+  opacity: 0.3;
 }
 
 @keyframes blob-morph {
