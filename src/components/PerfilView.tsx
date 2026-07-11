@@ -466,28 +466,36 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(14);
       doc.text("*", cardX + cardW - 20, cardY + 26, { align: "center" });
 
-      const photoX = cardX + bandW + 9;
-      const photoY = cardY + 49;
+      const photoX = cardX + bandW + 10;
+      const photoY = cardY + 51;
+      const qrBoxX = cardX + cardW - 76;
+      const qrBoxY = cardY + 46;
+
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(photoX - 4, photoY - 6, qrBoxX - photoX - 8, 98, 4, 4, "F");
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(photoX - 4, photoY - 6, qrBoxX - photoX - 8, 98, 4, 4, "S");
+
       doc.setFillColor(226, 232, 240);
-      doc.roundedRect(photoX, photoY, 43, 54, 2, 2, "F");
+      doc.roundedRect(photoX, photoY, 38, 48, 2, 2, "F");
       if (avatarPng) {
-        doc.addImage(avatarPng, "PNG", photoX, photoY, 43, 54);
+        doc.addImage(avatarPng, "PNG", photoX, photoY, 38, 48);
       } else {
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(28);
+        doc.setFontSize(24);
         doc.setTextColor(100, 116, 139);
-        doc.text(getInitials(user.name), photoX + 21.5, photoY + 33, { align: "center" });
+        doc.text(getInitials(user.name), photoX + 19, photoY + 30, { align: "center" });
       }
 
-      const dataX = photoX + 48;
+      const dataX = photoX + 47;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
       doc.setTextColor(navy[0], navy[1], navy[2]);
       doc.setCharSpace(1);
       doc.text("NOMBRE COMPLETO", dataX, photoY + 8);
       doc.setCharSpace(0);
-      doc.setFontSize(24);
-      const nameLines = doc.splitTextToSize(user.name || displayName, 82).slice(0, 3);
+      doc.setFontSize(20);
+      const nameLines = doc.splitTextToSize(user.name || displayName, qrBoxX - dataX - 13).slice(0, 3);
       doc.text(nameLines, dataX, photoY + 21);
 
       const field = (label: string, value: string, x: number, y: number, width = 46) => {
@@ -503,14 +511,15 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.text(lines, x, y + 7);
       };
 
-      field("Fecha de emision", shortDate, photoX + 4, cardY + 116, 42);
-      field("Lugar", city.toUpperCase(), photoX + 59, cardY + 116, 52);
-      field("Sexo", "-", photoX + 4, cardY + 135, 25);
-      field("Numero de identidad", idNumber, photoX + 38, cardY + 135, 65);
-      field("Tipo de sangre", bloodType, photoX + 113, cardY + 135, 35);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(photoX, cardY + 107, qrBoxX - 14, cardY + 107);
+      field("Fecha de emision", shortDate, photoX, cardY + 118, 36);
+      field("Lugar", city.toUpperCase(), photoX + 45, cardY + 118, 42);
+      field("Contacto", emergencyPhone, photoX + 91, cardY + 118, 37);
+      field("Numero de identidad", idNumber, photoX, cardY + 138, 58);
+      field("Tipo de sangre", bloodType, photoX + 68, cardY + 138, 28);
+      field("Pais", country.toUpperCase(), photoX + 103, cardY + 138, 28);
 
-      const qrBoxX = cardX + cardW - 78;
-      const qrBoxY = cardY + 46;
       doc.setFillColor(248, 250, 252);
       doc.roundedRect(qrBoxX, qrBoxY, 66, 86, 6, 6, "F");
       doc.setDrawColor(114, 125, 139);
@@ -534,29 +543,33 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setTextColor(255, 255, 255);
       doc.text(["ESCANEAR PARA", "DATOS MEDICOS"], qrBoxX + 25, qrBoxY + 72);
 
+      doc.setFillColor(248, 250, 252);
+      doc.roundedRect(photoX - 4, cardY + 150, 78, 24, 3, 3, "F");
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(photoX - 4, cardY + 150, 78, 24, 3, 3, "S");
       doc.setDrawColor(blue[0], blue[1], blue[2]);
       doc.setLineWidth(1);
-      doc.line(photoX + 6, cardY + 151, photoX + 15, cardY + 151);
-      doc.line(photoX + 10.5, cardY + 146, photoX + 10.5, cardY + 156);
+      doc.line(photoX + 6, cardY + 162, photoX + 15, cardY + 162);
+      doc.line(photoX + 10.5, cardY + 157, photoX + 10.5, cardY + 167);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8);
       doc.setTextColor(navy[0], navy[1], navy[2]);
-      doc.text(["USO EXCLUSIVO EN", "SITUACIONES DE EMERGENCIA"], photoX + 24, cardY + 148);
+      doc.text(["USO EXCLUSIVO EN", "SITUACIONES DE EMERGENCIA"], photoX + 24, cardY + 160);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7);
       doc.setTextColor(muted[0], muted[1], muted[2]);
-      doc.text("Este documento no sustituye la cedula de identidad.", photoX + 24, cardY + 159);
+      doc.text("No sustituye la cedula de identidad.", photoX + 24, cardY + 171);
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8);
       doc.setTextColor(navy[0], navy[1], navy[2]);
-      doc.text("SALUD QUE TE CONECTA, VIDA QUE TE ACOMPANA", cardX + 174, cardY + 145, { align: "center" });
+      doc.text("SALUD QUE TE CONECTA, VIDA QUE TE ACOMPANA", cardX + 172, cardY + 156, { align: "center" });
       doc.setFontSize(10);
       doc.setTextColor(blue[0], blue[1], blue[2]);
-      doc.text("SALUD CONECTA", cardX + 174, cardY + 157, { align: "center" });
+      doc.text("SALUD CONECTA", cardX + 172, cardY + 168, { align: "center" });
       doc.setDrawColor(teal[0], teal[1], teal[2]);
-      doc.line(cardX + 151, cardY + 156, cardX + 128, cardY + 156);
-      doc.line(cardX + 197, cardY + 156, cardX + 220, cardY + 156);
+      doc.line(cardX + 149, cardY + 167, cardX + 128, cardY + 167);
+      doc.line(cardX + 195, cardY + 167, cardX + 216, cardY + 167);
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7);
