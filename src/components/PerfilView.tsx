@@ -317,12 +317,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const downloadQRCode = () => {
     import("jspdf").then(async ({ default: jsPDF }) => {
       const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-      const navy = [15, 23, 42];
-      const blue = [14, 89, 169];
-      const teal = [0, 139, 127];
-      const paleBlue = [226, 242, 250];
-      const muted = [88, 102, 122];
-      const border = [199, 210, 224];
+      const navy = [14, 31, 54];
+      const blue = [28, 89, 164];
+      const teal = [0, 166, 145];
+      const paleBlue = [232, 245, 249];
+      const muted = [82, 96, 116];
+      const border = [177, 192, 210];
       const emergencyPhone = localMedicalData.contactoEmergencia || user.emergencyPhone || "+505 8888-9999";
       const bloodType = localMedicalData.tipoSangre || editBloodType || user.bloodType || t('pdfNotSpecified');
       const city = user.city || t('pdfNotRegistered');
@@ -395,29 +395,29 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         toDataUrl("/app-logo-v2.jpg"),
       ]);
 
-      doc.setFillColor(236, 243, 248);
+      doc.setFillColor(229, 237, 244);
       doc.rect(0, 0, 297, 210, "F");
 
-      const cardX = 14;
-      const cardY = 18;
-      const cardW = 269;
-      const cardH = 174;
+      const cardX = 16;
+      const cardY = 20;
+      const cardW = 265;
+      const cardH = 170;
       const pad = 10;
       const innerX = cardX + pad;
       const innerY = cardY + pad;
       const innerRight = cardX + cardW - pad;
       const innerBottom = cardY + cardH - pad;
-      const qrBoxW = 58;
+      const qrBoxW = 56;
       const qrBoxH = 72;
       const qrBoxX = innerRight - qrBoxW;
       const qrBoxY = cardY + 50;
       const mainRight = qrBoxX - 8;
       const photoX = innerX;
-      const photoY = cardY + 50;
+      const photoY = cardY + 53;
       const photoW = 37;
       const photoH = 45;
       const nameX = photoX + photoW + 9;
-      const medicalTop = cardY + 116;
+      const medicalTop = cardY + 118;
 
       const clipText = (value: string, maxChars = 80) => {
         const clean = (value || t('pdfNoneRegistered')).replace(/\s+/g, " ").trim();
@@ -425,21 +425,25 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       };
 
       const drawPanel = (x: number, y: number, w: number, h: number) => {
-        doc.setFillColor(255, 255, 255);
-        doc.roundedRect(x, y, w, h, 4, 4, "F");
-        doc.setDrawColor(222, 230, 238);
-        doc.roundedRect(x, y, w, h, 4, 4, "S");
+        doc.setFillColor(252, 254, 255);
+        doc.roundedRect(x, y, w, h, 2.2, 2.2, "F");
+        doc.setDrawColor(205, 216, 229);
+        doc.setLineWidth(0.22);
+        doc.roundedRect(x, y, w, h, 2.2, 2.2, "S");
       };
 
       const drawField = (label: string, value: string, x: number, y: number, w: number) => {
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(6.8);
+        doc.setFontSize(6.6);
         doc.setTextColor(blue[0], blue[1], blue[2]);
         doc.text(label.toUpperCase(), x, y);
-        doc.setFontSize(8.8);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.5);
         doc.setTextColor(navy[0], navy[1], navy[2]);
         const lines = doc.splitTextToSize(clipText(value, 42), w).slice(0, 2);
         doc.text(lines, x, y + 5.5);
+        doc.setDrawColor(225, 232, 240);
+        doc.line(x, y + 14, x + w, y + 14);
       };
 
       const drawMedicalField = (label: string, value: string, x: number, y: number, w: number) => {
@@ -455,48 +459,62 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       };
 
       doc.setFillColor(255, 255, 255);
-      doc.roundedRect(cardX, cardY, cardW, cardH, 8, 8, "F");
+      doc.roundedRect(cardX, cardY, cardW, cardH, 5, 5, "F");
       doc.setDrawColor(border[0], border[1], border[2]);
-      doc.setLineWidth(0.35);
-      doc.roundedRect(cardX, cardY, cardW, cardH, 8, 8, "S");
+      doc.setLineWidth(0.45);
+      doc.roundedRect(cardX, cardY, cardW, cardH, 5, 5, "S");
 
-      doc.setFillColor(245, 250, 252);
-      doc.roundedRect(cardX + 2, cardY + 2, cardW - 4, cardH - 4, 7, 7, "F");
+      doc.setFillColor(247, 251, 253);
+      doc.roundedRect(cardX + 2, cardY + 2, cardW - 4, cardH - 4, 4, 4, "F");
       doc.setFillColor(255, 255, 255);
-      doc.roundedRect(cardX + 4, cardY + 4, cardW - 8, cardH - 8, 6, 6, "F");
+      doc.roundedRect(cardX + 4, cardY + 4, cardW - 8, cardH - 8, 3, 3, "F");
 
       doc.setFillColor(paleBlue[0], paleBlue[1], paleBlue[2]);
-      doc.circle(cardX + cardW - 78, cardY + 101, 55, "F");
-      doc.setDrawColor(190, 220, 232);
-      doc.setLineWidth(0.12);
-      for (let i = 0; i < 8; i += 1) {
-        doc.ellipse(cardX + cardW - 78, cardY + 101, 52 - i * 5, 18 + i * 2, "S");
+      doc.circle(cardX + cardW - 75, cardY + 101, 56, "F");
+      doc.setDrawColor(188, 219, 231);
+      doc.setLineWidth(0.1);
+      for (let i = 0; i < 10; i += 1) {
+        doc.ellipse(cardX + cardW - 75, cardY + 101, 54 - i * 4.8, 16 + i * 2.2, "S");
+      }
+      doc.setDrawColor(224, 236, 242);
+      for (let x = cardX + 12; x < cardX + cardW - 12; x += 12) {
+        doc.line(x, cardY + 33, x - 18, cardY + cardH - 15);
       }
 
-      doc.setFillColor(14, 89, 169);
-      doc.roundedRect(cardX, cardY, cardW, 25, 8, 8, "F");
-      doc.setFillColor(0, 139, 127);
-      doc.rect(cardX, cardY + 20, cardW, 5, "F");
+      doc.setFillColor(navy[0], navy[1], navy[2]);
+      doc.roundedRect(cardX, cardY, cardW, 27, 5, 5, "F");
+      doc.setFillColor(blue[0], blue[1], blue[2]);
+      doc.rect(cardX, cardY + 21, cardW, 4, "F");
+      doc.setFillColor(teal[0], teal[1], teal[2]);
+      doc.rect(cardX, cardY + 25, cardW, 2, "F");
 
       if (logoPng) {
-        doc.addImage(logoPng, "PNG", innerX, innerY - 2, 17, 17);
+        doc.addImage(logoPng, "PNG", innerX, innerY - 3, 18, 18);
       }
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
+      doc.setFontSize(10.5);
       doc.setTextColor(255, 255, 255);
-      doc.text("SALUD CONECTA", innerX + 21, innerY + 5);
-      doc.setFontSize(18);
+      doc.text("SALUD CONECTA", innerX + 22, innerY + 4);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.5);
+      doc.text("IDENTIFICACION MEDICA DIGITAL", innerX + 22, innerY + 12);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(17);
       doc.text("DOCUMENTO DE EMERGENCIA", cardX + 135, innerY + 5, { align: "center" });
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
+      doc.setFontSize(7.5);
       doc.text("ACCESO INMEDIATO A INFORMACION MEDICA", cardX + 135, innerY + 14, { align: "center" });
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(18);
-      doc.text("+", innerRight - 6, innerY + 10, { align: "center" });
+      doc.setFontSize(7);
+      doc.text(`FOLIO: SC-${(user.id || "GUEST").slice(0, 8).toUpperCase()}`, innerRight, innerY + 4, { align: "right" });
+      doc.setFontSize(15);
+      doc.text("+", innerRight - 9, innerY + 15, { align: "center" });
 
-      drawPanel(innerX, cardY + 38, mainRight - innerX, 70);
-      doc.setFillColor(226, 232, 240);
+      drawPanel(innerX, cardY + 39, mainRight - innerX, 69);
+      doc.setFillColor(232, 238, 245);
       doc.roundedRect(photoX + 5, photoY, photoW, photoH, 2, 2, "F");
+      doc.setDrawColor(176, 191, 209);
+      doc.roundedRect(photoX + 5, photoY, photoW, photoH, 2, 2, "S");
       if (avatarPng) {
         doc.addImage(avatarPng, "PNG", photoX + 5, photoY, photoW, photoH);
       } else {
@@ -505,12 +523,18 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.setTextColor(100, 116, 139);
         doc.text(getInitials(user.name), photoX + 5 + photoW / 2, photoY + 28, { align: "center" });
       }
+      doc.setFillColor(navy[0], navy[1], navy[2]);
+      doc.rect(photoX + 5, photoY + photoH - 5, photoW, 5, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(5.6);
+      doc.setTextColor(255, 255, 255);
+      doc.text("TITULAR", photoX + 5 + photoW / 2, photoY + photoH - 1.6, { align: "center" });
 
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(7.5);
+      doc.setFontSize(7);
       doc.setTextColor(blue[0], blue[1], blue[2]);
       doc.text("NOMBRE COMPLETO", nameX, photoY + 6);
-      doc.setFontSize(17);
+      doc.setFontSize(16);
       doc.setTextColor(navy[0], navy[1], navy[2]);
       doc.text(doc.splitTextToSize(user.name || displayName, mainRight - nameX - 4).slice(0, 2), nameX, photoY + 18);
 
@@ -524,6 +548,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       drawField("Peso / Altura", `${localMedicalData.peso || "-"} kg / ${localMedicalData.altura || "-"} cm`, photoX + 143, cardY + 101, 40);
 
       drawPanel(qrBoxX, qrBoxY, qrBoxW, qrBoxH);
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(qrBoxX + 5, qrBoxY + 5, qrBoxW - 10, 48, 2, 2, "F");
       if (qrPng) {
         doc.addImage(qrPng, "PNG", qrBoxX + 7, qrBoxY + 6, 44, 44);
       } else {
@@ -532,7 +558,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.setTextColor(muted[0], muted[1], muted[2]);
         doc.text("QR no disponible", qrBoxX + qrBoxW / 2, qrBoxY + 30, { align: "center" });
       }
-      doc.setFillColor(14, 89, 169);
+      doc.setFillColor(navy[0], navy[1], navy[2]);
       doc.roundedRect(qrBoxX + 5, qrBoxY + 54, qrBoxW - 10, 13, 3, 3, "F");
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7.3);
@@ -542,8 +568,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       drawPanel(innerX, medicalTop, cardW - pad * 2, 49);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
-      doc.setTextColor(teal[0], teal[1], teal[2]);
+      doc.setTextColor(navy[0], navy[1], navy[2]);
       doc.text("INFORMACION MEDICA", innerX + 6, medicalTop + 8);
+      doc.setFillColor(teal[0], teal[1], teal[2]);
+      doc.rect(innerX + 6, medicalTop + 10, 31, 1, "F");
       doc.setDrawColor(226, 232, 240);
       doc.line(innerX + 6, medicalTop + 12, innerRight - 6, medicalTop + 12);
 
