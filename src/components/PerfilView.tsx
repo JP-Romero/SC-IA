@@ -399,25 +399,28 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.rect(0, 0, 297, 210, "F");
 
       const cardX = 16;
-      const cardY = 20;
+      const cardY = 14;
       const cardW = 265;
-      const cardH = 170;
+      const cardH = 182;
       const pad = 10;
       const innerX = cardX + pad;
       const innerY = cardY + pad;
       const innerRight = cardX + cardW - pad;
       const innerBottom = cardY + cardH - pad;
       const qrBoxW = 56;
-      const qrBoxH = 72;
+      const qrBoxH = 68;
       const qrBoxX = innerRight - qrBoxW;
-      const qrBoxY = cardY + 50;
+      const qrBoxY = cardY + 52;
       const mainRight = qrBoxX - 8;
       const photoX = innerX;
-      const photoY = cardY + 53;
+      const photoY = cardY + 54;
       const photoW = 37;
       const photoH = 45;
       const nameX = photoX + photoW + 9;
-      const medicalTop = cardY + 118;
+      const identityTop = cardY + 39;
+      const identityH = 78;
+      const medicalTop = cardY + 124;
+      const footerY = cardY + cardH - 8;
 
       const clipText = (value: string, maxChars = 80) => {
         const clean = (value || t('pdfNoneRegistered')).replace(/\s+/g, " ").trim();
@@ -470,11 +473,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.roundedRect(cardX + 4, cardY + 4, cardW - 8, cardH - 8, 3, 3, "F");
 
       doc.setFillColor(paleBlue[0], paleBlue[1], paleBlue[2]);
-      doc.circle(cardX + cardW - 75, cardY + 101, 56, "F");
+      doc.circle(cardX + cardW - 75, cardY + 101, 52, "F");
       doc.setDrawColor(188, 219, 231);
       doc.setLineWidth(0.1);
       for (let i = 0; i < 10; i += 1) {
-        doc.ellipse(cardX + cardW - 75, cardY + 101, 54 - i * 4.8, 16 + i * 2.2, "S");
+        doc.ellipse(cardX + cardW - 75, cardY + 101, 50 - i * 4.6, 15 + i * 2.1, "S");
       }
       doc.setDrawColor(224, 236, 242);
       for (let x = cardX + 12; x < cardX + cardW - 12; x += 12) {
@@ -510,7 +513,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(15);
       doc.text("+", innerRight - 9, innerY + 15, { align: "center" });
 
-      drawPanel(innerX, cardY + 39, mainRight - innerX, 69);
+      drawPanel(innerX, identityTop, mainRight - innerX, identityH);
       doc.setFillColor(232, 238, 245);
       doc.roundedRect(photoX + 5, photoY, photoW, photoH, 2, 2, "F");
       doc.setDrawColor(176, 191, 209);
@@ -538,20 +541,21 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setTextColor(navy[0], navy[1], navy[2]);
       doc.text(doc.splitTextToSize(user.name || displayName, mainRight - nameX - 4).slice(0, 2), nameX, photoY + 18);
 
-      drawField("Cedula", idNumber, nameX, photoY + 42, 45);
-      drawField("Sangre", bloodType, nameX + 52, photoY + 42, 22);
-      drawField("Contacto emergencia", emergencyPhone, nameX + 82, photoY + 42, mainRight - nameX - 84);
+      drawField("Cedula", idNumber, nameX, identityTop + 51, 42);
+      drawField("Sangre", bloodType, nameX + 49, identityTop + 51, 22);
+      drawField("Contacto emergencia", emergencyPhone, nameX + 78, identityTop + 51, mainRight - nameX - 80);
 
-      drawField("Fecha de emision", shortDate, photoX + 5, cardY + 101, 32);
-      drawField("Lugar", city.toUpperCase(), photoX + 47, cardY + 101, 45);
-      drawField("Pais", country.toUpperCase(), photoX + 100, cardY + 101, 36);
-      drawField("Peso / Altura", `${localMedicalData.peso || "-"} kg / ${localMedicalData.altura || "-"} cm`, photoX + 143, cardY + 101, 40);
+      const identitySecondRowY = identityTop + 63;
+      drawField("Fecha de emision", shortDate, photoX + 5, identitySecondRowY, 32);
+      drawField("Lugar", city.toUpperCase(), photoX + 48, identitySecondRowY, 42);
+      drawField("Pais", country.toUpperCase(), photoX + 100, identitySecondRowY, 34);
+      drawField("Peso / Altura", `${localMedicalData.peso || "-"} kg / ${localMedicalData.altura || "-"} cm`, photoX + 143, identitySecondRowY, 40);
 
       drawPanel(qrBoxX, qrBoxY, qrBoxW, qrBoxH);
       doc.setFillColor(255, 255, 255);
-      doc.roundedRect(qrBoxX + 5, qrBoxY + 5, qrBoxW - 10, 48, 2, 2, "F");
+      doc.roundedRect(qrBoxX + 5, qrBoxY + 5, qrBoxW - 10, 45, 2, 2, "F");
       if (qrPng) {
-        doc.addImage(qrPng, "PNG", qrBoxX + 7, qrBoxY + 6, 44, 44);
+        doc.addImage(qrPng, "PNG", qrBoxX + 8, qrBoxY + 6, 40, 40);
       } else {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
@@ -559,13 +563,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.text("QR no disponible", qrBoxX + qrBoxW / 2, qrBoxY + 30, { align: "center" });
       }
       doc.setFillColor(navy[0], navy[1], navy[2]);
-      doc.roundedRect(qrBoxX + 5, qrBoxY + 54, qrBoxW - 10, 13, 3, 3, "F");
+      doc.roundedRect(qrBoxX + 5, qrBoxY + 52, qrBoxW - 10, 11, 2, 2, "F");
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7.3);
       doc.setTextColor(255, 255, 255);
-      doc.text("ESCANEAR DATOS MEDICOS", qrBoxX + qrBoxW / 2, qrBoxY + 62, { align: "center" });
+      doc.text("ESCANEAR DATOS MEDICOS", qrBoxX + qrBoxW / 2, qrBoxY + 59, { align: "center" });
 
-      drawPanel(innerX, medicalTop, cardW - pad * 2, 49);
+      drawPanel(innerX, medicalTop, cardW - pad * 2, 44);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
       doc.setTextColor(navy[0], navy[1], navy[2]);
@@ -578,21 +582,21 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       const col1 = innerX + 6;
       const col2 = innerX + 88;
       const col3 = innerX + 170;
-      const medY = medicalTop + 21;
+      const medY = medicalTop + 20;
       drawMedicalField("Enfermedades", localMedicalData.enfermedades, col1, medY, 72);
       drawMedicalField("Alergias", localMedicalData.alergias, col2, medY, 72);
       drawMedicalField("Tratamientos", localMedicalData.tratamientos, col3, medY, 72);
-      drawMedicalField("Pastillas", localMedicalData.pastillas, col1, medY + 18, 72);
-      drawMedicalField("Vacunas", localMedicalData.vacunas, col2, medY + 18, 72);
-      drawMedicalField("Otras condiciones", user.healthConditions?.join(", ") || "", col3, medY + 18, 72);
+      drawMedicalField("Pastillas", localMedicalData.pastillas, col1, medY + 16, 72);
+      drawMedicalField("Vacunas", localMedicalData.vacunas, col2, medY + 16, 72);
+      drawMedicalField("Otras condiciones", user.healthConditions?.join(", ") || "", col3, medY + 16, 72);
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7.5);
       doc.setTextColor(navy[0], navy[1], navy[2]);
-      doc.text("USO EXCLUSIVO EN SITUACIONES DE EMERGENCIA", innerX, innerBottom - 1);
+      doc.text("USO EXCLUSIVO EN SITUACIONES DE EMERGENCIA", innerX, footerY);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(muted[0], muted[1], muted[2]);
-      doc.text("Este documento no sustituye la cedula de identidad.", innerRight, innerBottom - 1, { align: "right" });
+      doc.text("Este documento no sustituye la cedula de identidad.", innerRight, footerY, { align: "right" });
 
       doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
     }).catch(err => {
