@@ -30,6 +30,8 @@
     "vite": "^5.0.8"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.62.2"
+    "@esbuild/linux-x64": "^0.28.1",
+    "@rollup/rollup-linux-x64-gnu": "^4.62.2",
+    "lightningcss-linux-x64-gnu": "^1.32.0"
   }
 }
